@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "lint": "echo \"No lint configured for @english-app/adapters\"",
+    "lint": "pnpm exec eslint . --max-warnings=0",
     "test": "echo \"No tests for @english-app/adapters\""
   },
   "dependencies": {
