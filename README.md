@@ -1,7 +1,6 @@
 # SPEC-1 — English AI Tutor (Lean Spec)
 
 > Escopo desta versão: Documento enxuto, só com decisões de alto nível — requisitos funcionais e não funcionais, stack e metodologia (DDD + Clean Architecture + APA). Sem modelos de banco, algoritmos, prompts ou detalhes de implementação.
-> 
 
 ---
 
@@ -71,7 +70,6 @@ MVP para tutor de inglês com IA focado em **profissionais de TI brasileiros** q
 - **Deploy:** **Vercel** (app web + BFF). Considerar **worker** separado futuramente para tarefas longas.
 
 > Nota: fornecedores (LLM/ASR/DB/S3) são substituíveis e não fazem parte das decisões rígidas deste documento.
-> 
 
 ---
 
@@ -79,14 +77,14 @@ MVP para tutor de inglês com IA focado em **profissionais de TI brasileiros** q
 
 - **MVP em um único app Next.js** (UI + BFF) — **ADR‑001**. Domínio e Casos de Uso ficam em pacotes internos.
 - **Fronteiras lógicas (DDD):**
-    - **Assessment** (nivelamento), **Study Planning & Lessons (APA)**, **Interview Simulation** (core).
-    - **Teacher Chat**, **Progress & Feedback**, **Content Catalog** (supporting).
-    - **Identity & Access**, **Observability**, **Storage** (generic).
+  - **Assessment** (nivelamento), **Study Planning & Lessons (APA)**, **Interview Simulation** (core).
+  - **Teacher Chat**, **Progress & Feedback**, **Content Catalog** (supporting).
+  - **Identity & Access**, **Observability**, **Storage** (generic).
 - **Clean Architecture:**
-    - **Domínio:** entidades/VOs/regras (sem dependência externa).
-    - **Aplicação:** **casos de uso** orquestram o fluxo.
-    - **Adapters:** controladores/DTOs/repositórios/gateways (LLM/ASR/Storage/DB).
-    - **Infra:** provedores e deploy.
+  - **Domínio:** entidades/VOs/regras (sem dependência externa).
+  - **Aplicação:** **casos de uso** orquestram o fluxo.
+  - **Adapters:** controladores/DTOs/repositórios/gateways (LLM/ASR/Storage/DB).
+  - **Infra:** provedores e deploy.
 
 Diagrama conceitual:
 
@@ -105,17 +103,17 @@ Adapters → Infra (DB, S3, LLM, ASR)
 ## Metodologia de Desenvolvimento
 
 - **Domain‑Driven Design (DDD):**
-    - Modelar **bounded contexts** citados acima; linguagem ubíqua centrada em **entrevistas de TI** e **lições APA**.
-    - Manter **regra de domínio** fora de controladores/adapters.
+  - Modelar **bounded contexts** citados acima; linguagem ubíqua centrada em **entrevistas de TI** e **lições APA**.
+  - Manter **regra de domínio** fora de controladores/adapters.
 - **Clean Architecture:**
-    - Dependências **de fora para dentro** apenas por **interfaces** (ports). Gateways para LLM/ASR/Storage **trocáveis**.
-    - Testes de unidade no domínio/casos de uso; contratos para adapters.
+  - Dependências **de fora para dentro** apenas por **interfaces** (ports). Gateways para LLM/ASR/Storage **trocáveis**.
+  - Testes de unidade no domínio/casos de uso; contratos para adapters.
 - **Método APA (didática):**
-    - Toda lição **10–20 min**, com fases **Presentation → Assimilation → Active Recall → Feedback & Next**.
-    - Cada lição declara **objetivo linguístico** ligado a **entrevista**.
+  - Toda lição **10–20 min**, com fases **Presentation → Assimilation → Active Recall → Feedback & Next**.
+  - Cada lição declara **objetivo linguístico** ligado a **entrevista**.
 - **Forma de trabalho:**
-    - Monorepo (apps + packages), CI com lint/build/test, feature flags para módulos novos (ex.: simulador de entrevista).
-    - Observabilidade desde o início (latência p95 por caso de uso, eventos de retenção).
+  - Monorepo (apps + packages), CI com lint/build/test, feature flags para módulos novos (ex.: simulador de entrevista).
+  - Observabilidade desde o início (latência p95 por caso de uso, eventos de retenção).
 
 ---
 
@@ -148,7 +146,7 @@ Adapters → Infra (DB, S3, LLM, ASR)
 
 1. Instale dependências com `pnpm install`.
 2. Suba o app Next.js com `pnpm dev` (atalho para `pnpm --filter web dev`).
-3. Rode checagens estáticas: `pnpm -w turbo run lint` e `pnpm -w turbo run typecheck`.
+3. Rode checagens estáticas: `pnpm lint` e `pnpm typecheck`.
 4. Gere build de produção: `pnpm -w turbo run build`.
 
 ### Estrutura de pastas
@@ -165,3 +163,9 @@ packages/
 ```
 
 > Pré-requisitos: Node.js 18.17+ e pnpm 8+. Utilize `corepack enable` para alinhar versões com o `packageManager` do projeto.
+
+### Convenções de qualidade
+
+- Commits seguem o padrão **Conventional Commits** (verificados por commitlint no hook `commit-msg`).
+- Husky roda `lint-staged` antes do commit para formatar e executar ESLint nos arquivos alterados.
+- Sempre valide `pnpm lint` e `pnpm typecheck` antes de abrir/atualizar um PR.

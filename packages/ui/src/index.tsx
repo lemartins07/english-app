@@ -1,5 +1,5 @@
-import type { ComponentPropsWithoutRef, CSSProperties } from "react";
 import { forwardRef } from "react";
+import type { ComponentPropsWithoutRef, CSSProperties } from "react";
 
 export type ButtonProps = ComponentPropsWithoutRef<"button"> & {
   variant?: "primary" | "secondary";
