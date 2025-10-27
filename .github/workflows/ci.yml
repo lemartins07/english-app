@@ -71,4 +71,4 @@ jobs:
         with:
           name: coverage-${{ matrix.node-version }}
           path: coverage
-          if-no-files-found: create
+          if-no-files-found: warn
