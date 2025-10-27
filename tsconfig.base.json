@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@english-app/domain": ["packages/domain/src/index.ts"],
+      "@english-app/domain/*": ["packages/domain/src/*"],
+      "@english-app/application": ["packages/application/src/index.ts"],
+      "@english-app/application/*": ["packages/application/src/*"],
+      "@english-app/adapters": ["packages/adapters/src/index.ts"],
+      "@english-app/adapters/*": ["packages/adapters/src/*"],
+      "@english-app/observability": ["packages/observability/src/index.ts"],
+      "@english-app/observability/*": ["packages/observability/src/*"],
+      "@english-app/ui": ["packages/ui/src/index.tsx"],
+      "@english-app/ui/*": ["packages/ui/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build"]
+}
