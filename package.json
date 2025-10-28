@@ -13,7 +13,8 @@
     "prepare": "husky install",
     "lint-staged": "lint-staged",
     "openapi:generate": "pnpm exec tsx apps/web/scripts/export-openapi.ts",
-    "openapi:lint": "pnpm run openapi:generate && pnpm exec spectral lint apps/web/.openapi/openapi.json"
+    "openapi:lint": "pnpm run openapi:generate && pnpm exec spectral lint apps/web/.openapi/openapi.json",
+    "precommit:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm openapi:lint"
   },
   "devDependencies": {
     "@commitlint/cli": "19.5.0",
