@@ -16,9 +16,8 @@ const geistMono = localFont({
 
 import { auth } from "../server/auth";
 import { getFeatureFlags } from "../server/feature-flags";
-import { FeatureFlagsProvider } from "../shared/feature-flags/context";
 
-import { AuthSessionProvider } from "./providers/session-provider";
+import { AppProviders } from "./providers/session-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -36,9 +35,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AuthSessionProvider session={session}>
-          <FeatureFlagsProvider flags={featureFlags}>{children}</FeatureFlagsProvider>
-        </AuthSessionProvider>
+        <AppProviders session={session} featureFlags={featureFlags}>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

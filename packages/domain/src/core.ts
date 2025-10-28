@@ -6,8 +6,11 @@ export interface BaseEntity {
   updatedAt: ISODateString;
 }
 
+export type UserRole = "USER" | "ADMIN";
+
 export interface UserEntity extends BaseEntity {
   email: string;
+  role: UserRole;
   displayName?: string;
   level?: string;
 }
