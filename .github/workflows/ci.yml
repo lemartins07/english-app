@@ -57,6 +57,9 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Lint OpenAPI spec
+        run: pnpm openapi:lint
+
       - name: Ensure coverage artifact
         run: |
           mkdir -p coverage

@@ -169,3 +169,10 @@ packages/
 - Commits seguem o padrão **Conventional Commits** (verificados por commitlint no hook `commit-msg`).
 - Husky roda `lint-staged` antes do commit para formatar e executar ESLint nos arquivos alterados.
 - Sempre valide `pnpm lint` e `pnpm typecheck` antes de abrir/atualizar um PR.
+
+### API Docs
+
+- Em desenvolvimento, acesse `http://localhost:3000/api-docs` para visualizar o Swagger UI.
+- O documento bruto fica em `http://localhost:3000/api/openapi.json` (OpenAPI 3.1).
+- Gere o arquivo localmente com `pnpm openapi:generate` (`apps/web/.openapi/openapi.json`).
+- Valide o spec usando `pnpm openapi:lint` (Spectral). O CI falha se o spec estiver inválido.

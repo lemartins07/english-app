@@ -6,8 +6,9 @@ const nextConfig: NextConfig = {
     "@english-app/application",
     "@english-app/adapters",
     "@english-app/observability",
-    "@english-app/ui"
-  ]
+    "@english-app/ui",
+    "swagger-ui-react",
+  ],
 };
 
 export default nextConfig;

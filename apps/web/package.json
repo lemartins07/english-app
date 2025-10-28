@@ -11,6 +11,7 @@
     "test": "echo \"No tests for web\""
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@english-app/adapters": "workspace:*",
     "@english-app/application": "workspace:*",
     "@english-app/domain": "workspace:*",
@@ -18,7 +19,9 @@
     "@english-app/ui": "workspace:*",
     "next": "15.0.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "swagger-ui-react": "^5.30.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^20",
