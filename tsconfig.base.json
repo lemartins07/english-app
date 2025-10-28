@@ -23,9 +23,7 @@
       "@english-app/observability/*": ["packages/observability/src/*"],
       "@english-app/ui": ["packages/ui/src/index.tsx"],
       "@english-app/ui/*": ["packages/ui/src/*"],
-      "@/*": ["apps/web/src/*"],
-      ".prisma/client/default": ["types/prisma-bridge"],
-      "@prisma/client/index-browser": ["types/prisma-bridge"]
+      "@/*": ["apps/web/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", "build"]

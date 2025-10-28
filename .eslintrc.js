@@ -71,12 +71,12 @@ module.exports = {
       },
     },
     {
-      files: ["types/**/*.ts"],
+      files: ["types/**/*.d.ts"],
       parser: "@typescript-eslint/parser",
-      plugins: ["@typescript-eslint"],
       extends: ["plugin:@typescript-eslint/recommended", "prettier"],
       parserOptions: {
         tsconfigRootDir: __dirname,
+        sourceType: "module",
       },
       rules: {},
     },

@@ -1,4 +1,4 @@
-import type { PrismaClient, Role, User } from "@prisma/client/index";
+import type { PrismaClient, Role, User } from "@prisma/client";
 
 import type { SaveUserInput, UserRepository } from "@english-app/application";
 import type { UserEntity, UserRole } from "@english-app/domain";

@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client/index";
+import type { Prisma } from "@prisma/client";
 import { createRequire } from "node:module";
 
 const requireFromRoot = createRequire(new URL("../../../../package.json", import.meta.url));
@@ -6,7 +6,7 @@ const { PrismaClient: PrismaClientCtor } = requireFromRoot(
   "@prisma/client",
 ) as typeof import("@prisma/client");
 
-type PrismaClient = import("@prisma/client/index").PrismaClient;
+type PrismaClient = import("@prisma/client").PrismaClient;
 
 declare global {
   // eslint-disable-next-line no-var
