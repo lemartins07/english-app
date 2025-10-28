@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getObservabilityContext, observe } from "@english-app/observability";
+
 import { registry } from "../../../server/openapi/registry";
 import { ErrorResponseSchema } from "../../../server/openapi/schemas";
 
@@ -58,16 +60,24 @@ registry.registerPath({
 });
 
 export async function GET() {
-  return NextResponse.json(
-    {
-      status: "ok" as const,
-      timestamp: new Date().toISOString(),
-    },
-    {
-      status: 200,
-      headers: {
-        "Cache-Control": "public, max-age=5",
+  const { metrics, logger } = getObservabilityContext();
+
+  return observe("api.health", async () => {
+    logger.debug("Health check invoked", { route: "api.health" });
+    const snapshot = metrics.snapshot();
+
+    return NextResponse.json(
+      {
+        status: "ok" as const,
+        timestamp: new Date().toISOString(),
+        metrics: snapshot,
       },
-    },
-  );
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "public, max-age=5",
+        },
+      },
+    );
+  });
 }

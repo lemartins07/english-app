@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getObservabilityContext, observe } from "@english-app/observability";
+
+import { emitProductEvent } from "../../../server/events/product-events";
 import { registry } from "../../../server/openapi/registry";
 import { ErrorResponseSchema } from "../../../server/openapi/schemas";
 
@@ -92,36 +95,51 @@ registry.registerPath({
 });
 
 export async function POST(request: Request) {
-  let payload: unknown;
+  const { logger, metrics } = getObservabilityContext();
 
-  try {
-    payload = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: "INVALID_REQUEST", details: { reason: "Request body must be valid JSON." } },
-      { status: 400 },
-    );
-  }
+  return observe("api.echo", async () => {
+    let payload: unknown;
 
-  const parseResult = EchoRequestSchema.safeParse(payload);
+    try {
+      payload = await request.json();
+    } catch {
+      logger.warn("Invalid JSON payload received", { route: "api.echo" });
+      metrics.recordEvent("api.echo.invalid_json");
+      return NextResponse.json(
+        { error: "INVALID_REQUEST", details: { reason: "Request body must be valid JSON." } },
+        { status: 400 },
+      );
+    }
 
-  if (!parseResult.success) {
+    const parseResult = EchoRequestSchema.safeParse(payload);
+
+    if (!parseResult.success) {
+      logger.warn("Payload validation failed", {
+        route: "api.echo",
+        issues: parseResult.error.issues.map((issue) => issue.message),
+      });
+      metrics.recordEvent("api.echo.invalid_payload");
+      return NextResponse.json(
+        {
+          error: "INVALID_REQUEST",
+          details: {
+            reason: parseResult.error.issues[0]?.message ?? "Invalid payload.",
+          },
+        },
+        { status: 400 },
+      );
+    }
+
+    metrics.recordEvent("api.echo.success");
+    logger.info("Echo message processed", { route: "api.echo" });
+    emitProductEvent("lesson.completed", { source: "api.echo" });
+
     return NextResponse.json(
       {
-        error: "INVALID_REQUEST",
-        details: {
-          reason: parseResult.error.issues[0]?.message ?? "Invalid payload.",
-        },
+        message: parseResult.data.message,
+        receivedAt: new Date().toISOString(),
       },
-      { status: 400 },
+      { status: 200 },
     );
-  }
-
-  return NextResponse.json(
-    {
-      message: parseResult.data.message,
-      receivedAt: new Date().toISOString(),
-    },
-    { status: 200 },
-  );
+  });
 }
