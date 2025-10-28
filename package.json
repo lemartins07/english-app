@@ -6,6 +6,7 @@
     "dev": "pnpm --filter web dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
+    "lint:imports": "pnpm exec eslint --ext .ts,.tsx,.js,.jsx --fix apps/web/src packages",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "format": "prettier --write .",

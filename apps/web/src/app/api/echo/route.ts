@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getObservabilityContext, observe } from "@english-app/observability";
 
 import { emitProductEvent } from "../../../server/events/product-events";
+import { withFeatureFlagGuard } from "../../../server/feature-flags";
 import { registry } from "../../../server/openapi/registry";
 import { ErrorResponseSchema } from "../../../server/openapi/schemas";
 
@@ -94,7 +95,7 @@ registry.registerPath({
   },
 });
 
-export async function POST(request: Request) {
+const postHandler = async (request: Request) => {
   const { logger, metrics } = getObservabilityContext();
 
   return observe("api.echo", async () => {
@@ -142,4 +143,6 @@ export async function POST(request: Request) {
       { status: 200 },
     );
   });
-}
+};
+
+export const POST = withFeatureFlagGuard("interviewSimulator", postHandler);

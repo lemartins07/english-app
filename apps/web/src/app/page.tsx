@@ -4,9 +4,13 @@ import Image from "next/image";
 
 import { Button } from "@english-app/ui";
 
+import { useFeatureFlag } from "../shared/feature-flags/context";
+
 import styles from "./page.module.css";
 
 export default function Home() {
+  const isInterviewSimulatorEnabled = useFeatureFlag("interviewSimulator");
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -41,6 +45,40 @@ export default function Home() {
             Ver GitHub
           </Button>
         </div>
+
+        <section className={styles.modules}>
+          <h2 className={styles.modulesTitle}>Módulos</h2>
+          <p className={styles.modulesSubtitle}>
+            Recursos liberados gradualmente com feature flags.
+          </p>
+          <ul className={styles.modulesList}>
+            <li className={styles.moduleItem}>
+              <span className={styles.moduleName}>Teacher Chat</span>
+              <span className={styles.moduleTag}>Planejado</span>
+            </li>
+            {isInterviewSimulatorEnabled ? (
+              <li className={styles.moduleItem}>
+                <span className={styles.moduleName}>Simulador de Entrevista</span>
+                <Button
+                  variant="primary"
+                  style={{ padding: "6px 12px", fontSize: 13 }}
+                  onClick={() => {
+                    alert(
+                      "Simulador de entrevista liberado! Implemente a rota/client para continuar.",
+                    );
+                  }}
+                >
+                  Abrir
+                </Button>
+              </li>
+            ) : (
+              <li className={styles.moduleItem}>
+                <span className={styles.moduleName}>Simulador de Entrevista</span>
+                <span className={styles.moduleTag}>Em validação</span>
+              </li>
+            )}
+          </ul>
+        </section>
       </main>
       <footer className={styles.footer}>
         <a
