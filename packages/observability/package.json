@@ -8,7 +8,8 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
     }
   },
   "scripts": {
@@ -16,6 +17,9 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "pnpm exec eslint . --max-warnings=0",
     "test": "echo \"No tests for @english-app/observability\""
+  },
+  "dependencies": {
+    "cls-hooked": "^4.2.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
