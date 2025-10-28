@@ -11,11 +11,14 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky install",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "openapi:generate": "pnpm exec tsx apps/web/scripts/export-openapi.ts",
+    "openapi:lint": "pnpm run openapi:generate && pnpm exec spectral lint apps/web/.openapi/openapi.json"
   },
   "devDependencies": {
     "@commitlint/cli": "19.5.0",
     "@commitlint/config-conventional": "19.5.0",
+    "@stoplight/spectral-cli": "^6.15.0",
     "@typescript-eslint/eslint-plugin": "8.18.1",
     "@typescript-eslint/parser": "8.18.1",
     "eslint": "8.57.1",
@@ -25,6 +28,7 @@
     "husky": "9.1.7",
     "lint-staged": "15.2.10",
     "prettier": "^3.6.0",
+    "tsx": "^4.20.6",
     "turbo": "^2.1.2",
     "typescript": "5.7.2"
   },
