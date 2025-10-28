@@ -9,7 +9,6 @@
     "lint:imports": "pnpm exec eslint --ext .ts,.tsx,.js,.jsx --fix apps/web/src packages",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "prisma:generate": "pnpm --filter web exec prisma generate",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky install",
@@ -32,15 +31,9 @@
     "husky": "9.1.7",
     "lint-staged": "15.2.10",
     "prettier": "^3.6.0",
-    "prisma": "^6.18.0",
     "tsx": "^4.20.6",
     "turbo": "^2.1.2",
     "typescript": "5.7.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "@auth/core": "0.41.1"
-    }
   },
   "engines": {
     "node": ">=18.17.0",
@@ -55,8 +48,5 @@
     "*.{json,md,css,scss,yml,yaml}": [
       "pnpm exec prettier --write"
     ]
-  },
-  "dependencies": {
-    "@prisma/client": "6.18.0"
   }
 }
