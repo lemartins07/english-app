@@ -1,0 +1,87 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, #f1f5f9 0%, #e2e8f0 45%, #cbd5f5 100%);
+  padding: 24px;
+}
+
+.panel {
+  width: min(420px, 100%);
+  background: white;
+  border-radius: 16px;
+  box-shadow:
+    0 20px 45px rgba(15, 23, 42, 0.15),
+    0 8px 15px rgba(15, 23, 42, 0.12);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: #475569;
+  margin: 0;
+}
+
+.providerButton {
+  width: 100%;
+  justify-content: center;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.separator span {
+  flex: 1;
+  height: 1px;
+  background-color: #e2e8f0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  border-color: #6366f1;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.feedback {
+  font-size: 14px;
+  color: #0f172a;
+  margin: 0;
+}
