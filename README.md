@@ -176,3 +176,9 @@ packages/
 - O documento bruto fica em `http://localhost:3000/api/openapi.json` (OpenAPI 3.1).
 - Gere o arquivo localmente com `pnpm openapi:generate` (`apps/web/.openapi/openapi.json`).
 - Valide o spec usando `pnpm openapi:lint` (Spectral). O CI falha se o spec estiver inválido.
+
+### Feature Flags
+
+- Configuração padrão em `apps/web/feature-flags.json`; sobrescreva com a env `FEATURE_FLAGS` (JSON string) ou defina `FEATURE_FLAGS_FILE` apontando para outro arquivo.
+- Flags disponíveis acessíveis via `withFeatureFlagGuard(flag, handler)` no BFF (`api/echo` usa `interviewSimulator` como exemplo).
+- No frontend, `FeatureFlagsProvider` injeta as flags na árvore (ver `apps/web/src/app/layout.tsx`); use `useFeatureFlag("interviewSimulator")` para controlar menus/componentes.
