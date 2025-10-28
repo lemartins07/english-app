@@ -3,7 +3,6 @@ import { z } from "zod";
 
 import { getObservabilityContext, observe } from "@english-app/observability";
 
-import { withAuthGuard } from "../../../server/auth";
 import { emitProductEvent } from "../../../server/events/product-events";
 import { withFeatureFlagGuard } from "../../../server/feature-flags";
 import { registry } from "../../../server/openapi/registry";
@@ -146,4 +145,4 @@ const postHandler = async (request: Request) => {
   });
 };
 
-export const POST = withFeatureFlagGuard("interviewSimulator", withAuthGuard(postHandler));
+export const POST = withFeatureFlagGuard("interviewSimulator", postHandler);
