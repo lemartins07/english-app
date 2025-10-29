@@ -1,4 +1,5 @@
 import NextAuth, { type DefaultSession, type NextAuthConfig } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -49,24 +50,31 @@ const PUBLIC_PATHS = [
   "/_next",
 ] as const;
 
-function isPublicPath(pathname: string) {
+type Callbacks = NonNullable<NextAuthConfig["callbacks"]>;
+type AuthorizedCallback = Callbacks extends { authorized?: infer T } ? T : never;
+type SessionCallback = Callbacks extends { session?: infer T } ? T : never;
+type JwtCallback = Callbacks extends { jwt?: infer T } ? T : never;
+type AuthorizedParams = Parameters<NonNullable<AuthorizedCallback>>[0];
+type SessionParams = Parameters<NonNullable<SessionCallback>>[0];
+type JwtParams = Parameters<NonNullable<JwtCallback>>[0];
+
+type Events = NonNullable<NextAuthConfig["events"]>;
+type SignInEvent = Events extends { signIn?: infer T } ? T : never;
+type SignOutEvent = Events extends { signOut?: infer T } ? T : never;
+type SignInParams = Parameters<NonNullable<SignInEvent>>[0];
+type SignOutParams = Parameters<NonNullable<SignOutEvent>>[0];
+
+function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-function hasAuthenticatedUser(auth: unknown): boolean {
-  if (!auth || typeof auth !== "object") {
+function hasAuthenticatedUser(auth: AuthorizedParams["auth"]): boolean {
+  if (!auth || typeof auth !== "object" || auth === null) {
     return false;
   }
 
   if ("user" in auth && Boolean((auth as { user?: unknown }).user)) {
     return true;
-  }
-
-  if ("session" in auth) {
-    const session = (auth as { session?: { user?: unknown } }).session;
-    if (session && typeof session === "object" && "user" in session) {
-      return Boolean((session as { user?: unknown }).user);
-    }
   }
 
   return false;
@@ -77,7 +85,7 @@ type SessionUser = DefaultSession["user"] & {
   role: Role;
 };
 
-export const authConfig: NextAuthConfig = {
+export const authConfig = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "database",
@@ -101,7 +109,7 @@ export const authConfig: NextAuthConfig = {
     error: "/login",
   },
   callbacks: {
-    authorized: async ({ auth, request }) => {
+    authorized: async ({ auth, request }: AuthorizedParams) => {
       const { pathname } = request.nextUrl;
 
       if (isPublicPath(pathname)) {
@@ -118,30 +126,39 @@ export const authConfig: NextAuthConfig = {
 
       return true;
     },
-    session: async ({ session, user }) => {
-      if (session.user) {
-        (session.user as SessionUser).id = user.id;
-        (session.user as SessionUser).role = (user.role as Role) ?? "USER";
+    session: async ({ session, user }: SessionParams) => {
+      if (session.user && user) {
+        const adapterUser = user as { id?: string; role?: Role | null };
+        if (adapterUser.id) {
+          (session.user as SessionUser).id = adapterUser.id;
+          (session.user as SessionUser).role = (adapterUser.role as Role) ?? "USER";
+        }
       }
       return session;
     },
-    jwt: async ({ token, user }) => {
+    jwt: async ({ token, user }: JwtParams) => {
+      const enrichedToken = token as JWT & { id?: string; role?: Role };
       if (user) {
-        token.id = user.id;
-        token.role = (user.role as Role) ?? "USER";
+        const adapterUser = user as { id?: string; role?: Role | null };
+        if (adapterUser.id) {
+          enrichedToken.id = adapterUser.id;
+          enrichedToken.role = (adapterUser.role as Role) ?? "USER";
+        }
       }
-      return token;
+      return enrichedToken;
     },
   },
   events: {
-    signIn: async ({ user, isNewUser }) => {
+    signIn: async ({ user, isNewUser }: SignInParams) => {
       const { logger, metrics } = getObservabilityContext();
-      logger.info("User signed in", { route: "auth.signIn", userId: user.id, isNewUser });
+      const userId = "id" in user ? (user as { id?: string | null }).id : undefined;
+      logger.info("User signed in", { route: "auth.signIn", userId, isNewUser });
       metrics.recordEvent("auth.sign_in");
     },
-    signOut: async (message) => {
-      const session = "session" in message ? message.session : null;
-      const token = "token" in message ? message.token : null;
+    signOut: async (message: SignOutParams) => {
+      const session =
+        "session" in message ? (message.session as { userId?: string | null } | null) : null;
+      const token = "token" in message ? (message.token as { id?: string | null } | null) : null;
       const userId =
         (session && typeof session === "object" && "userId" in session
           ? (session as { userId?: string }).userId
@@ -154,6 +171,6 @@ export const authConfig: NextAuthConfig = {
       metrics.recordEvent("auth.sign_out");
     },
   },
-};
+} satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);

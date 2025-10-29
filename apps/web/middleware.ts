@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { NextAuthRequest } from "next-auth";
 
 import { runWithRequestContext } from "@english-app/observability";
 
@@ -10,7 +11,7 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-export default auth(async (request) => {
+export default auth(async (request: NextAuthRequest) => {
   const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
 
   return runWithRequestContext({ requestId, path: request.nextUrl.pathname }, async () => {
