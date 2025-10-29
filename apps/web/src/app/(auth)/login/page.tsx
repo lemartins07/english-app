@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { LogIn, Mail, Sparkles } from "lucide-react";
 
-import { Button } from "@english-app/ui";
-
-import styles from "./styles.module.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const params = useSearchParams();
@@ -35,54 +36,76 @@ export default function LoginPage() {
     if (result?.error) {
       setFeedback("Não foi possível enviar o link de acesso. Tente novamente em instantes.");
     } else {
-      setFeedback("Verifique seu e-mail para continuar.");
+      setFeedback("Verifique sua caixa de entrada para continuar.");
     }
 
     setIsSubmitting(false);
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.panel}>
-        <h1 className={styles.title}>Entre no English App</h1>
-        <p className={styles.subtitle}>Conecte-se com o Google ou receba um link por e-mail.</p>
-
-        <Button
-          variant="primary"
-          onClick={() => signIn("google", { callbackUrl })}
-          className={styles.providerButton}
-        >
-          Entrar com Google
-        </Button>
-
-        <div className={styles.separator}>
-          <span />
-          <p>ou</p>
-          <span />
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-12">
+      <div className="w-full max-w-md rounded-3xl border border-blue-100 bg-white/80 p-8 shadow-2xl backdrop-blur">
+        <div className="mb-8 space-y-2 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <LogIn className="h-6 w-6" />
+          </div>
+          <h1 className="text-2xl font-semibold text-blue-900">Entre no English AI Tutor</h1>
+          <p className="text-sm text-muted-foreground">
+            Conecte-se com sua conta Google ou receba um link mágico por e-mail.
+          </p>
         </div>
 
-        <form className={styles.form} onSubmit={handleEmailLogin}>
-          <label className={styles.label} htmlFor="email">
-            E-mail
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="seu.email@empresa.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className={styles.input}
-            required
-          />
-          <Button type="submit" variant="secondary" disabled={isSubmitting}>
-            {isSubmitting ? "Enviando..." : "Enviar link mágico"}
+        <div className="flex flex-col gap-3">
+          <Button
+            size="lg"
+            className="w-full bg-blue-600 hover:bg-blue-700"
+            onClick={() => signIn("google", { callbackUrl })}
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            Entrar com Google
           </Button>
-        </form>
 
-        {feedback ? <p className={styles.feedback}>{feedback}</p> : null}
+          <div className="relative my-4 flex items-center text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+            <span className="px-3">ou</span>
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+          </div>
+
+          <form className="space-y-4" onSubmit={handleEmailLogin}>
+            <div className="space-y-2 text-left">
+              <Label htmlFor="email">E-mail corporativo</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                placeholder="seu.email@empresa.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </div>
+            <Button
+              type="submit"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              {isSubmitting ? "Enviando..." : "Enviar link mágico"}
+            </Button>
+          </form>
+        </div>
+
+        {feedback ? (
+          <p className="mt-6 rounded-xl bg-blue-50 px-4 py-3 text-sm text-blue-700">{feedback}</p>
+        ) : null}
         {status === "check-email" ? (
-          <p className={styles.feedback}>Link enviado! Confira sua caixa de entrada.</p>
+          <p className="mt-6 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">
+            Link enviado! Confira sua caixa de entrada.
+          </p>
         ) : null}
       </div>
     </div>
