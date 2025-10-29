@@ -98,7 +98,19 @@ Adapters → Infra (DB, S3, LLM, ASR)
 
 **Evolução prevista (quando doer):** **ADR‑002** — mover tarefas longas (ex.: processamento de áudio extenso, agregações semanais) para um **worker** separado mantendo o BFF enxuto.
 
----
+## Stack de UI sugerida (MVP)
+
+- Base: Next.js 15, Tailwind, shadcn/ui, Radix
+
+- Ícones: lucide-react
+
+- Formulários: react-hook-form + zod
+
+- Charts: recharts (mais simples e bonito pro MVP)
+
+- Áudio: Web MediaRecorder + wavesurfer.js (visual opcional)
+
+- Upload: react-dropzone (tarefas de speaking/writing)
 
 ## Metodologia de Desenvolvimento
 
@@ -189,3 +201,12 @@ packages/
 - Configuração padrão em `apps/web/feature-flags.json`; sobrescreva com a env `FEATURE_FLAGS` (JSON string) ou defina `FEATURE_FLAGS_FILE` apontando para outro arquivo.
 - Flags disponíveis acessíveis via `withFeatureFlagGuard(flag, handler)` no BFF (`api/echo` usa `interviewSimulator` como exemplo).
 - No frontend, `FeatureFlagsProvider` injeta as flags na árvore (ver `apps/web/src/app/layout.tsx`); use `useFeatureFlag("interviewSimulator")` para controlar menus/componentes.
+
+### Autenticação (Auth.js)
+
+- Copie `.env.example` para `.env` e preencha credenciais: `AUTH_SECRET`, `DATABASE_URL`, par OAuth do Google (`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`) e remetente de e-mail (`EMAIL_FROM`). `RESEND_API_KEY` é opcional em dev (fallback loga o link no console). Caso use um SMTP local (Mailhog/Maildev), aponte `EMAIL_SERVER` para `smtp://localhost:1025`.
+- Para subir o MailHog localmente, execute `docker compose -f docker-compose.dev.yml up mailhog` e acesse a interface em `http://localhost:8025` (SMTP: `localhost:1025`).
+- Gere o Prisma Client alinhado ao schema em `prisma/schema.prisma`: `PRISMA_GENERATE_SKIP_AUTOINSTALL=1 pnpm --filter web exec prisma generate` (necessário após instalar dependências ou mudar o schema).
+- Rode migrações ou `prisma db push` apontando para o Postgres definido em `DATABASE_URL` antes de iniciar o app.
+- O fluxo `/login` oferece Google OAuth e link mágico por e-mail; APIs protegidas retornam `401` e páginas privadas redirecionam para `/login`.
+- Helpers de sessão vivem em `apps/web/src/server/auth/*` (`withAuthGuard`, `getCurrentUser`, `requireUser`).

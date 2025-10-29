@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
+import { auth, hasAuthEnvironment, type SessionWithUser } from "../server/auth";
+import { getFeatureFlags } from "../server/feature-flags";
+import { FeatureFlagsProvider } from "../shared/feature-flags/context";
+
+import { AuthSessionProvider } from "./providers/session-provider";
+
 import "./globals.css";
 
 const geistSans = localFont({
@@ -13,12 +19,6 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
-
-import { auth, hasAuthEnvironment, type SessionWithUser } from "../server/auth";
-import { getFeatureFlags } from "../server/feature-flags";
-import { FeatureFlagsProvider } from "../shared/feature-flags/context";
-
-import { AuthSessionProvider } from "./providers/session-provider";
 export const metadata: Metadata = {
   title: "English AI Tutor",
   description:
