@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 import { Button } from "@english-app/ui";
 
@@ -9,6 +10,7 @@ import { useFeatureFlag } from "../shared/feature-flags/context";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const { data: session, status } = useSession();
   const isInterviewSimulatorEnabled = useFeatureFlag("interviewSimulator");
 
   return (
@@ -28,23 +30,48 @@ export default function Home() {
         </p>
 
         <div className={styles.ctas}>
-          <Button
-            variant="primary"
-            onClick={() => {
-              alert("Monorepo configurado com pnpm + Turborepo!");
-            }}
-          >
-            Testar UI compartilhada
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              window.open("https://github.com/lemartins07", "_blank", "noopener,noreferrer");
-            }}
-          >
-            Ver GitHub
-          </Button>
+          {session?.user ? (
+            <>
+              <Button variant="primary" onClick={() => window.open("/dashboard", "_self")}>
+                Ir para o dashboard
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  void signOut({ callbackUrl: "/" });
+                }}
+              >
+                Sair
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  void signIn("google", { callbackUrl: "/dashboard" });
+                }}
+              >
+                Entrar com Google
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  window.open("/login", "_self");
+                }}
+              >
+                Receber link por e-mail
+              </Button>
+            </>
+          )}
         </div>
+        {status === "loading" ? (
+          <p className={styles.description}>Carregando sessão...</p>
+        ) : session?.user ? (
+          <p className={styles.description}>
+            Logado como {session.user.email ?? session.user.name}. Seu ID é {session.user.id}.
+          </p>
+        ) : null}
 
         <section className={styles.modules}>
           <h2 className={styles.modulesTitle}>Módulos</h2>
