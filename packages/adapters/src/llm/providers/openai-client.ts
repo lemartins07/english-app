@@ -378,11 +378,42 @@ async function runJsonCompletion<T>(
 }
 
 export function createOpenAiLLMClient(config: OpenAiLLMClientConfig): LLMClient {
+  const missing: string[] = [];
+
+  const apiKey = config.apiKey.trim();
+  if (apiKey.length === 0) {
+    missing.push("OPENAI_API_KEY");
+  }
+
+  const model = config.model.trim();
+  if (model.length === 0) {
+    missing.push("OPENAI_MODEL");
+  }
+
+  const baseURL = config.baseURL?.trim() || undefined;
+  const sanitizedConfig: OpenAiLLMClientConfig = {
+    ...config,
+    apiKey,
+    model,
+    baseURL,
+  };
+  const logger = sanitizedConfig.logger;
+
+  if (missing.length > 0) {
+    const message = `OpenAI client misconfigured. Set the following environment variables before enabling AI features: ${missing.join(
+      ", ",
+    )}.`;
+    logger?.error?.(message, { missing });
+    throw new LLMClientError({
+      message,
+      code: "invalid_configuration",
+    });
+  }
+
   const openai = new OpenAI({
-    apiKey: config.apiKey,
-    baseURL: config.baseURL,
+    apiKey,
+    baseURL,
   });
-  const logger = config.logger;
 
   return {
     async generatePlan(
@@ -390,7 +421,7 @@ export function createOpenAiLLMClient(config: OpenAiLLMClientConfig): LLMClient 
       options?: LLMClientCallOptions,
     ): Promise<GeneratePlanResult> {
       const prompts = createGeneratePlanPrompt(input);
-      const params = buildCompletionParams(prompts, config, options);
+      const params = buildCompletionParams(prompts, sanitizedConfig, options);
       return runJsonCompletion(openai, params, generatePlanSchema, "generatePlan", logger, options);
     },
 
@@ -399,7 +430,7 @@ export function createOpenAiLLMClient(config: OpenAiLLMClientConfig): LLMClient 
       options?: LLMClientCallOptions,
     ): Promise<EvaluateAnswerResult> {
       const prompts = createEvaluateAnswerPrompt(input);
-      const params = buildCompletionParams(prompts, config, options);
+      const params = buildCompletionParams(prompts, sanitizedConfig, options);
       return runJsonCompletion(
         openai,
         params,
@@ -415,7 +446,7 @@ export function createOpenAiLLMClient(config: OpenAiLLMClientConfig): LLMClient 
       options?: LLMClientCallOptions,
     ): Promise<InterviewRubricEvalResult> {
       const prompts = createInterviewRubricPrompt(input);
-      const params = buildCompletionParams(prompts, config, options);
+      const params = buildCompletionParams(prompts, sanitizedConfig, options);
       return runJsonCompletion(
         openai,
         params,
@@ -427,14 +458,14 @@ export function createOpenAiLLMClient(config: OpenAiLLMClientConfig): LLMClient 
     },
 
     async chatReply(input: ChatReplyInput, options?: LLMClientCallOptions): Promise<ChatReply> {
-      const temperature = input.temperature ?? config.temperature ?? DEFAULT_TEMPERATURE;
+      const temperature = input.temperature ?? sanitizedConfig.temperature ?? DEFAULT_TEMPERATURE;
 
       try {
         const response = await openai.chat.completions.create(
           {
-            model: config.model,
+            model: sanitizedConfig.model,
             temperature,
-            max_tokens: input.maxTokens ?? config.maxTokens ?? DEFAULT_MAX_TOKENS,
+            max_tokens: input.maxTokens ?? sanitizedConfig.maxTokens ?? DEFAULT_MAX_TOKENS,
             messages: input.messages.map((message) => toChatCompletionMessage(message)),
           },
           {
