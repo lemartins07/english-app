@@ -95,6 +95,8 @@ registry.registerPath({
   },
 });
 
+export const dynamic = "force-dynamic";
+
 const postHandler = async (request: Request) => {
   const { logger, metrics } = getObservabilityContext();
 
