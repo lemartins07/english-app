@@ -14,7 +14,10 @@ let cachedProvider: LLMProvider | null = null;
 export function hasLLMEnvironment(): boolean {
   return REQUIRED_LLM_ENV.every((key) => {
     const value = process.env[key];
-    return typeof value === "string" && value.length > 0;
+    if (typeof value !== "string") {
+      return false;
+    }
+    return value.trim().length > 0;
   });
 }
 
@@ -27,24 +30,40 @@ export function getLLMProvider(): LLMProvider {
     return cachedProvider;
   }
 
-  const env = getEnv();
-
-  if (!env.OPENAI_API_KEY || !env.OPENAI_MODEL) {
-    throw new Error("OpenAI configuration is missing. Set OPENAI_API_KEY and OPENAI_MODEL.");
-  }
-
   const { logger } = getObservabilityContext();
   const llmLogger = logger.child({ module: "llm.openai" });
+  const env = getEnv();
+
+  const missingEnvVars = REQUIRED_LLM_ENV.filter((key) => {
+    const value = env[key];
+    return typeof value !== "string" || value.trim().length === 0;
+  });
+
+  if (missingEnvVars.length > 0) {
+    const message = `Missing OpenAI configuration. Set the following environment variables before enabling AI features: ${missingEnvVars.join(
+      ", ",
+    )}.`;
+    llmLogger.error(message, { missing: missingEnvVars });
+    throw new Error(message);
+  }
+
+  const apiKey = env.OPENAI_API_KEY!.trim();
+  const model = env.OPENAI_MODEL!.trim();
+  const baseURL = env.OPENAI_BASE_URL?.trim() || undefined;
 
   const client = createOpenAiLLMClient({
-    apiKey: env.OPENAI_API_KEY,
-    baseURL: env.OPENAI_BASE_URL,
-    model: env.OPENAI_MODEL,
+    apiKey,
+    baseURL,
+    model,
     logger: llmLogger,
   });
 
   cachedProvider = createLLMProviderAdapter(client, {
     logger: llmLogger,
+  });
+  llmLogger.info("OpenAI provider initialized", {
+    model,
+    baseURL: baseURL ?? "https://api.openai.com/v1",
   });
 
   return cachedProvider;

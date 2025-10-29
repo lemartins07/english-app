@@ -168,6 +168,11 @@ Adapters → Infra (DB, S3, LLM, ASR)
 - Aplique as migrações com `pnpm db:migrate` (usa `prisma migrate deploy`) e popule dados essenciais com `pnpm db:seed` (idempotente, garante `user@example.com`).
 - Inspecione os dados com `pnpm prisma:studio`; encerre o Postgres com `docker compose -f docker-compose.dev.yml down` quando não precisar mais.
 
+### OpenAI / IA
+
+- `OPENAI_API_KEY` e `OPENAI_MODEL` são obrigatórios para habilitar o provider OpenAI — a aplicação aborta com mensagem clara se faltarem.
+- `OPENAI_BASE_URL` é opcional e permite apontar para gateways compatíveis (ex.: proxies internos). O SDK usa `https://api.openai.com/v1` por padrão.
+
 ### Estrutura de pastas
 
 ```
