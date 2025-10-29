@@ -9,11 +9,15 @@
     "lint:imports": "pnpm exec eslint --ext .ts,.tsx,.js,.jsx --fix apps/web/src packages",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
+    "prisma:generate": "pnpm --filter web exec prisma generate",
+    "db:migrate": "pnpm --filter web exec prisma migrate deploy",
+    "db:seed": "pnpm --filter web exec prisma db seed",
+    "prisma:studio": "pnpm --filter web exec prisma studio",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky install",
     "lint-staged": "lint-staged",
-    "openapi:generate": "pnpm exec tsx apps/web/scripts/export-openapi.ts",
+    "openapi:generate": "pnpm prisma:generate && pnpm exec tsx apps/web/scripts/export-openapi.ts",
     "openapi:lint": "pnpm run openapi:generate && pnpm exec spectral lint apps/web/.openapi/openapi.json",
     "precommit:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm openapi:lint"
   },
@@ -31,6 +35,7 @@
     "husky": "9.1.7",
     "lint-staged": "15.2.10",
     "prettier": "^3.6.0",
+    "prisma": "^6.18.0",
     "tsx": "^4.20.6",
     "turbo": "^2.1.2",
     "typescript": "5.7.2"
@@ -48,5 +53,14 @@
     "*.{json,md,css,scss,yml,yaml}": [
       "pnpm exec prettier --write"
     ]
+  },
+  "dependencies": {
+    "@prisma/client": "6.18.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@auth/core": "0.41.1",
+      "@prisma/client>typescript": "5.7.2"
+    }
   }
 }

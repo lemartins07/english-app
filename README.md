@@ -149,6 +149,13 @@ Adapters → Infra (DB, S3, LLM, ASR)
 3. Rode checagens estáticas: `pnpm lint` e `pnpm typecheck`.
 4. Gere build de produção: `pnpm -w turbo run build`.
 
+### Banco de dados (PostgreSQL)
+
+- Suba o Postgres localmente com `docker compose -f docker-compose.dev.yml up -d db`. O serviço expõe `localhost:5432` e inclui health check automático.
+- Configure `DATABASE_URL` (veja `.env.example`). O formato esperado é `postgresql://<user>:<password>@<host>:<port>/<database>`.
+- Aplique as migrações com `pnpm db:migrate` (usa `prisma migrate deploy`) e popule dados essenciais com `pnpm db:seed` (idempotente, garante `user@example.com`).
+- Inspecione os dados com `pnpm prisma:studio`; encerre o Postgres com `docker compose -f docker-compose.dev.yml down` quando não precisar mais.
+
 ### Estrutura de pastas
 
 ```

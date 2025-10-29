@@ -71,6 +71,16 @@ module.exports = {
       },
     },
     {
+      files: ["types/**/*.d.ts"],
+      parser: "@typescript-eslint/parser",
+      extends: ["plugin:@typescript-eslint/recommended", "prettier"],
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        sourceType: "module",
+      },
+      rules: {},
+    },
+    {
       files: ["*.{js,mjs,cjs}", ".*rc.js"],
       env: {
         node: true,
