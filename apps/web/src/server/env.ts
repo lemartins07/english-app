@@ -11,6 +11,9 @@ const envSchema = z.object({
   EMAIL_SERVER: z.string().optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
   AUTH_TRUST_HOST: z.string().optional(),
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_MODEL: z.string().min(1).optional(),
+  OPENAI_BASE_URL: z.string().url().optional(),
 });
 
 type Env = z.infer<typeof envSchema>;
@@ -33,6 +36,9 @@ export function getEnv(): Env {
     EMAIL_SERVER: process.env.EMAIL_SERVER,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    OPENAI_MODEL: process.env.OPENAI_MODEL,
+    OPENAI_BASE_URL: process.env.OPENAI_BASE_URL,
   };
 
   const normalizedEnv = Object.fromEntries(

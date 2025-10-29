@@ -17,7 +17,7 @@ MILESTONE_IDS["M4"]=4
 MILESTONE_IDS["M5"]=5
 
 # 🧩 Criação das issues em loop
-jq -c '.[]' issues.json | while read -r issue; do
+jq -c '.[]' setup/issues.json | while read -r issue; do
   TITLE=$(echo "$issue" | jq -r .title)
   BODY=$(echo "$issue" | jq -r .body)
   MILESTONE_HINT=$(echo "$issue" | jq -r .milestone_hint)

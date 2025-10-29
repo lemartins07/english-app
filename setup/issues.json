@@ -1,359 +1,80 @@
 [
   {
-    "title": "[Infra] Configurar monorepo Next.js com pnpm workspaces e Turborepo",
-    "labels": [
-      "infrastructure",
-      "monorepo",
-      "documentation"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: —\nObjetivo: Inicializar monorepo com pnpm workspaces e Turborepo.\nEscopo:\n- apps/web (Next.js App Router)\n- packages/{domain,application,adapters,observability,ui}\n- turbo.json com pipelines lint/typecheck/test/build (cache habilitado)\n- tsconfig path aliases e isolamento de camadas (Clean Architecture)\nCritérios de aceitação:\n- `pnpm i` e `pnpm -w turbo run build` executam sem erros\n- README com instruções de bootstrap\nEsforço: média"
-  },
-  {
-    "title": "[Qualidade] ESLint, Prettier, Husky, lint-staged e Conventional Commits",
-    "labels": [
-      "infrastructure",
-      "dx",
-      "quality"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra]\nObjetivo: Padronizar código e commits.\nEscopo:\n- ESLint (Next + TS) e Prettier\n- Husky: pre-commit (lint-staged), commit-msg (commitlint)\n- Templates: ISSUE_TEMPLATE e PULL_REQUEST_TEMPLATE\nCritérios de aceitação:\n- Commits fora do padrão são bloqueados\n- `pnpm lint` e `pnpm typecheck` passam no root\nEsforço: baixa"
-  },
-  {
-    "title": "[CI] GitHub Actions para lint, typecheck, test e build com cache turbo",
-    "labels": [
-      "ci",
-      "quality"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra], [Qualidade]\nObjetivo: Pipeline confiável por PR/branch.\nEscopo:\n- Matriz Node LTS\n- Cache pnpm e turbo\n- Steps: install → lint → typecheck → test → build\n- Artifact de cobertura\nCritérios de aceitação:\n- Status visível no PR\n- Build consecutivo reduzido ≥40%\nEsforço: média"
-  },
-  {
-    "title": "[Observabilidade] Logger estruturado e métricas básicas (p95, p99)",
-    "labels": [
-      "observability",
-      "backend"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra]\nObjetivo: Visibilidade desde D0.\nEscopo:\n- packages/observability com logger (requestId, contexto)\n- Métricas p95/p99 por caso de uso\n- Eventos: D0, D+1, conclusão de lição\nCritérios de aceitação:\n- Health endpoint com métrica simples\nEsforço: média"
-  },
-  {
-    "title": "[Feature Flags] Provider simples para ativar/desativar módulos",
-    "labels": [
-      "infrastructure",
-      "backend",
-      "frontend"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra]\nObjetivo: Habilitar/ocultar módulos (ex.: Simulador de Entrevista).\nEscopo:\n- Provider baseado em env/JSON\n- Hook no frontend e guard no BFF\nCritérios de aceitação:\n- Rotas e menus controlados por flags\nEsforço: baixa"
-  },
-  {
-    "title": "[Auth] Configurar Auth.js (e-mail + Google) no Next.js",
-    "labels": [
-      "backend",
-      "auth",
-      "frontend"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra], [CI]\nObjetivo: Autenticação básica.\nEscopo:\n- NextAuth: Email/Google\n- Helpers de sessão (BFF)\n- Proteção de rotas privadas\nCritérios de aceitação:\n- Login/Logout e redirecionamentos ok\nEsforço: média"
-  },
-  {
-    "title": "[Privacidade] Página de Privacy + consentimento (opt-in de melhoria)",
-    "labels": [
-      "privacy",
-      "legal",
-      "frontend"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Auth]\nObjetivo: Transparência de dados.\nEscopo:\n- Página de política de dados\n- Banner de consentimento e persistência por usuário\nCritérios de aceitação:\n- Consentimento consultável pela aplicação\nEsforço: baixa"
-  },
-  {
-    "title": "[Security] Rate-limit básico nas rotas de IA/BFF",
-    "labels": [
-      "security",
-      "backend"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Auth]\nObjetivo: Evitar abuso/custos.\nEscopo:\n- Middleware por usuário/IP\n- Cotas por janela de tempo\nCritérios de aceitação:\n- 429 sob abuso; logs com contagem\nEsforço: baixa"
-  },
-  {
-    "title": "[DB] Conectar PostgreSQL e criar camada adapters/db",
-    "labels": [
-      "backend",
-      "database"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra]\nObjetivo: Persistência com pool e repositórios.\nEscopo:\n- Conexão via URL segura\n- Repositórios com interfaces na camada application\n- Migrações iniciais\nCritérios de aceitação:\n- Health DB ok; pool configurado\nEsforço: média"
-  },
-  {
-    "title": "[Storage] Configurar S3-compatível (áudios e artefatos)",
-    "labels": [
-      "backend",
-      "storage"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra]\nObjetivo: Upload/Download seguro.\nEscopo:\n- Upload assinado; URL temporária\n- Bucket para áudios e PDFs/MD exportados\nCritérios de aceitação:\n- Upload via front e consumo pelo BFF\nEsforço: média"
-  },
-  {
-    "title": "[AI] Abstração de LLMProvider (ports & adapters)",
-    "labels": [
-      "backend",
-      "ai",
-      "clean-architecture"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Infra], [CI]\nObjetivo: Baixo acoplamento entre app e LLM.\nEscopo:\n- Interface: generatePlan, evaluateAnswer, interviewRubricEval, chatReply\n- Adapter inicial + timeouts e mapeamento de erros\nCritérios de aceitação:\n- Teste de contrato para provider\nEsforço: média"
-  },
-  {
-    "title": "[AI] Abstração de ASRProvider (transcrição de áudio curto)",
-    "labels": [
-      "backend",
-      "ai",
-      "clean-architecture"
-    ],
-    "milestone_hint": "M1",
-    "body": "Dependências: [Storage]\nObjetivo: Transcrever áudios de speaking.\nEscopo:\n- Interface: transcribeShortAudio(fileRef)\n- Adapter inicial; limites de duração/tamanho\nCritérios de aceitação:\n- Transcrição com duração retornada\nEsforço: média"
-  },
-  {
-    "title": "[Onboarding] Fluxo inicial e seleção de objetivo/trilha",
-    "labels": [
-      "frontend",
-      "ux",
-      "onboarding"
-    ],
+    "title": "[AI] Casos de uso LLM na camada application",
+    "labels": ["backend", "ai", "application"],
     "milestone_hint": "M2",
-    "body": "Dependências: [Auth]\nObjetivo: Levar o usuário ao teste com contexto salvo.\nEscopo:\n- UI PT-BR (benefícios, objetivo, trilha)\n- Estado e salvamento incremental\nCritérios de aceitação:\n- Usuário chega ao teste com contexto restaurável\nEsforço: média"
+    "body": "Dependências: [AI] Provider OpenAI, [DB]\nObjetivo: Expôr serviços consistentes (`generatePlan`, `evaluateAnswer`, `interviewRubricEval`) na camada application.\nEscopo:\n- Implementar use cases orquestrando o `LLMProvider`\n- Padronizar DTOs/erros e logs estruturados\n- Garantir contratos para integração com BFF e UI\nCritérios de aceitação:\n- Casos de uso cobertos por testes unitários com mocks do provider\nEsforço: média"
   },
   {
-    "title": "[Assessment] MCQ + Listening (componentes e rotas)",
-    "labels": [
-      "frontend",
-      "assessment"
-    ],
+    "title": "[Infra] Validar configuração OpenAI no runtime",
+    "labels": ["backend", "infrastructure"],
     "milestone_hint": "M2",
-    "body": "Dependências: [Onboarding]\nObjetivo: Questões de múltipla escolha e listening.\nEscopo:\n- Componente MCQ com timer/validação\n- Reuso para listening\n- Persistência incremental\nCritérios de aceitação:\n- Progresso salvo ao navegar\nEsforço: média"
+    "body": "Dependências: [AI] Casos de uso LLM\nObjetivo: Garantir inicialização segura do provider OpenAI.\nEscopo:\n- Tornar `OPENAI_API_KEY` e `OPENAI_MODEL` obrigatórios quando IA estiver habilitada\n- Logs amigáveis na inicialização e quando indisponível\n- Documentar variáveis em README e `.env.example`\nCritérios de aceitação:\n- Aplicação aborta com mensagem clara se faltar configuração crítica\nEsforço: baixa"
   },
   {
-    "title": "[Assessment] Speaking curto: gravação e upload",
-    "labels": [
-      "frontend",
-      "backend",
-      "assessment"
-    ],
+    "title": "[API] Rotas BFF para serviços de IA",
+    "labels": ["backend", "api", "ai"],
     "milestone_hint": "M2",
-    "body": "Dependências: [Storage], [AI] ASRProvider, [Onboarding]\nObjetivo: Gravar áudio curto e transcrever.\nEscopo:\n- MediaRecorder no navegador\n- Upload assinado (S3)\n- Chamada ao ASRProvider e métricas simples\nCritérios de aceitação:\n- Usuário vê a transcrição\nEsforço: alta"
+    "body": "Dependências: [AI] Casos de uso LLM, [Infra] Validar configuração OpenAI\nObjetivo: Expor endpoints server-side para plano, avaliação e chat.\nEscopo:\n- Criar rotas/server actions (`/api/ai/plan`, `/api/ai/assessment`, `/api/ai/chat`)\n- Tratamento de erros (timeouts, rate limit, auth)\n- Emissão de eventos de produto/observabilidade\nCritérios de aceitação:\n- Endpoints retornam JSON válido e lidam com falhas da OpenAI\nEsforço: média"
   },
   {
-    "title": "[Assessment] Consolidação do resultado de nivelamento",
-    "labels": [
-      "backend",
-      "application",
-      "ddd"
-    ],
+    "title": "[Docs] Atualizar OpenAPI com endpoints de IA",
+    "labels": ["documentation", "api", "ai"],
     "milestone_hint": "M2",
-    "body": "Dependências: [AI] LLMProvider, [AI] ASRProvider, [Assessment] MCQ/Listening/Speaking\nObjetivo: Perfil inicial com forças/fraquezas.\nEscopo:\n- Caso de uso na camada application\n- Persistência do resultado consolidado\nCritérios de aceitação:\n- Retorna nível e diagnóstico breve\nEsforço: média"
+    "body": "Dependências: [API] Rotas BFF para serviços de IA\nObjetivo: Manter Swagger alinhado às novas rotas de IA.\nEscopo:\n- Registrar schemas de request/response no `registry`\n- Atualizar página `/api-docs` e automatizar geração\n- Ajustar Spectral rules se necessário\nCritérios de aceitação:\n- `pnpm openapi:lint` passa e rotas aparecem no Swagger\nEsforço: baixa"
   },
   {
-    "title": "[Plano] Gerar plano de 7 dias (APA, 10–20 min por lição)",
-    "labels": [
-      "backend",
-      "application",
-      "ai"
-    ],
+    "title": "[Tests] Cobrir o cliente OpenAI com mocks",
+    "labels": ["quality", "ai", "backend"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [AI] Casos de uso LLM\nObjetivo: Garantir resiliência do adapter OpenAI.\nEscopo:\n- Criar testes Vitest usando MSW ou fetch mockando respostas\n- Cobrir happy path, erros HTTP, timeouts e aborts\n- Validar mapeamento de JSON/schema\nCritérios de aceitação:\n- Cobertura mínima 80% no arquivo do provider OpenAI\nEsforço: média"
+  },
+  {
+    "title": "[DB] Modelo AssessmentSession e respostas",
+    "labels": ["database", "assessment", "backend"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [DB] base, [Assessment] fluxos\nObjetivo: Persistir tentativas e diagnósticos de nivelamento.\nEscopo:\n- Criar tabelas `AssessmentSession`, `AssessmentAnswer`, `AssessmentResult`\n- Migrações Prisma + seed mínimo\n- Índices para consultas por usuário/data\nCritérios de aceitação:\n- Prisma client atualizado e consultas básicas funcionando\nEsforço: média"
+  },
+  {
+    "title": "[Domínio] Entidades de nivelamento e diagnósticos",
+    "labels": ["domain", "assessment", "ddd"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [DB] Modelo AssessmentSession\nObjetivo: Formalizar objetos de domínio do assessment.\nEscopo:\n- Value Objects para questões, critérios e CEFR\n- Validações (pesos, limites, interpretações)\n- Conversões para DTOs consumidos pela aplicação\nCritérios de aceitação:\n- Tipos seguros reutilizados em casos de uso e UI\nEsforço: média"
+  },
+  {
+    "title": "[Application] Orquestrar fluxo completo de assessment",
+    "labels": ["backend", "assessment", "application"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [Domínio] Entidades de nivelamento, [AI] Casos de uso LLM, [AI] ASR\nObjetivo: Implementar casos de uso para iniciar, registrar e finalizar o teste.\nEscopo:\n- Métodos para Start/Submit/Finalize com persistência\n- Integração com LLM/ASR e atualização do usuário\n- Emissão de eventos de retenção\nCritérios de aceitação:\n- Testes de integração cobrindo fluxo feliz e falhas de IA\nEsforço: alta"
+  },
+  {
+    "title": "[Frontend] Nivelamento consumindo backend",
+    "labels": ["frontend", "assessment", "ux"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [API] Rotas BFF para serviços de IA, [Application] Orquestrar fluxo completo de assessment\nObjetivo: Refatorar UI do teste para usar dados reais.\nEscopo:\n- Buscar perguntas e progresso via API\n- Enviar respostas (MCQ, listening, speaking) e lidar com loading/erros\n- Mostrar resultado consolidado retornado pelo backend\nCritérios de aceitação:\n- Fluxo end-to-end funciona em dev com IA habilitada\nEsforço: alta"
+  },
+  {
+    "title": "[Dashboard] Exibir nível e diagnóstico reais",
+    "labels": ["frontend", "assessment", "dashboard"],
     "milestone_hint": "M3",
-    "body": "Dependências: [AI] LLMProvider, [Assessment] Consolidação\nObjetivo: Criar plano semanal personalizado.\nEscopo:\n- generatePlan com metas claras e 7 lições APA\n- Validações de consistência e duração\nCritérios de aceitação:\n- Plano armazenado e acessível na UI\nEsforço: média"
+    "body": "Dependências: [DB] Modelo AssessmentSession, [Frontend] Nivelamento consumindo backend\nObjetivo: Reagir ao resultado do teste na área logada.\nEscopo:\n- Carregar dados do usuário/logado no BFF\n- Exibir forças, fraquezas e nível sugerido\n- Atualizar estudo/plano inicial conforme diagnóstico\nCritérios de aceitação:\n- Usuário recém-testado vê informação persistida no dashboard\nEsforço: média"
   },
   {
-    "title": "[Domínio] Modelo de lição no método APA",
-    "labels": [
-      "domain",
-      "ddd"
-    ],
-    "milestone_hint": "M3",
-    "body": "Dependências: [Infra]\nObjetivo: Entidade/VO com fases APA.\nEscopo:\n- Presentation → Assimilation → Active Recall → Feedback & Next\n- Tipos/validações e ligação com objetivo linguístico\nCritérios de aceitação:\n- Tipos consumíveis por UI e casos de uso\nEsforço: baixa"
+    "title": "[AI] Integração ASR para speaking curto",
+    "labels": ["backend", "ai", "assessment"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [Storage], [Application] Orquestrar fluxo completo de assessment\nObjetivo: Transcrever áudios do teste de speaking.\nEscopo:\n- Escolher provider (OpenAI Whisper ou similar)\n- Implementar adapter e testes de contrato\n- Endpoint upload + transcrição com métricas de duração\nCritérios de aceitação:\n- Retorna transcrição e metadados em até 30s\nEsforço: alta"
   },
   {
-    "title": "[Frontend] UI de lição APA (fases, timers e progresso)",
-    "labels": [
-      "frontend",
-      "ux"
-    ],
-    "milestone_hint": "M3",
-    "body": "Dependências: [Domínio] APA, [Plano]\nObjetivo: Conduzir o usuário pelas 4 fases.\nEscopo:\n- Player de fases, timers leves e checklist\n- Persistência de conclusão por fase\nCritérios de aceitação:\n- Progresso exibido e retomável\nEsforço: média"
+    "title": "[Observabilidade] Métricas e logs das chamadas de IA",
+    "labels": ["observability", "ai", "backend"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [API] Rotas BFF para serviços de IA\nObjetivo: Instrumentar chamadas LLM/ASR.\nEscopo:\n- Registrar latência, contadores de erro e requestId\n- Dashboard de métricas básicas (p95, p99)\n- Alertas simples em caso de falhas recorrentes\nCritérios de aceitação:\n- Health check expõe métricas IA e logs contêm contexto\nEsforço: média"
   },
   {
-    "title": "[DB] Progresso diário e conclusão de lições",
-    "labels": [
-      "backend",
-      "database",
-      "observability"
-    ],
-    "milestone_hint": "M3",
-    "body": "Dependências: [DB] base, [Frontend] UI de lição\nObjetivo: Registrar início/fim, fases concluídas e tempo.\nEscopo:\n- Tabelas de progresso e eventos D+1\nCritérios de aceitação:\n- Dashboard lê dados consolidados\nEsforço: média"
-  },
-  {
-    "title": "[Export] Gerar plano em Markdown/PDF + link compartilhável",
-    "labels": [
-      "frontend",
-      "backend",
-      "storage"
-    ],
-    "milestone_hint": "M3",
-    "body": "Dependências: [Storage], [Plano]\nObjetivo: Exportar plano e compartilhar com token.\nEscopo:\n- Render MD → PDF; salvar em bucket\n- Rota pública com token temporário\nCritérios de aceitação:\n- Link abre PDF com conteúdo correto\nEsforço: média"
-  },
-  {
-    "title": "[Chat] Caso de uso para respostas com correção amiga",
-    "labels": [
-      "backend",
-      "ai",
-      "application"
-    ],
-    "milestone_hint": "M4",
-    "body": "Dependências: [AI] LLMProvider, [Observabilidade]\nObjetivo: Feedback útil com mini-desafio final.\nEscopo:\n- Orquestração de prompts\n- Streaming de tokens (quando possível)\n- Latência p95 ≤ 4s\nCritérios de aceitação:\n- Respostas consistentes e acionáveis\nEsforço: média"
-  },
-  {
-    "title": "[Chat] UI com threads por lição e streaming",
-    "labels": [
-      "frontend",
-      "ux"
-    ],
-    "milestone_hint": "M4",
-    "body": "Dependências: [Chat] Caso de uso\nObjetivo: Conversas organizadas por lição/dia.\nEscopo:\n- Componente de chat com Markdown\n- Threads por lição e histórico persistente\nCritérios de aceitação:\n- Histórico mantido por lição\nEsforço: média"
-  },
-  {
-    "title": "[Entrevista] Biblioteca de cenários (STAR + técnico por trilha)",
-    "labels": [
-      "content",
-      "ai",
-      "interview"
-    ],
-    "milestone_hint": "M4",
-    "body": "Dependências: [AI] LLMProvider\nObjetivo: Role-play personalizado.\nEscopo:\n- Conjunto inicial de roteiros (behavioral e técnico)\n- Integração com LLM para condução\nCritérios de aceitação:\n- Cenários versionados e expansíveis\nEsforço: média"
-  },
-  {
-    "title": "[Entrevista] Rubrica de avaliação (clareza, gramática, vocabulário, fluência, STAR)",
-    "labels": [
-      "backend",
-      "ai",
-      "assessment"
-    ],
-    "milestone_hint": "M4",
-    "body": "Dependências: [Entrevista] Biblioteca de cenários, [AI] LLMProvider\nObjetivo: Feedback por critério em cada sessão.\nEscopo:\n- Implementar interviewRubricEval\n- Persistir scoring e observações\nCritérios de aceitação:\n- Relatório por sessão disponível\nEsforço: média"
-  },
-  {
-    "title": "[Entrevista] UI do simulador com hints e gravação opcional",
-    "labels": [
-      "frontend",
-      "ux",
-      "interview"
-    ],
-    "milestone_hint": "M4",
-    "body": "Dependências: [Entrevista] Cenários, [Entrevista] Rubrica, [AI] ASRProvider\nObjetivo: Condução da entrevista com hints e fala opcional.\nEscopo:\n- Tela com prompts, timers e hints\n- Integração com ASR quando habilitado\nCritérios de aceitação:\n- Feedback visível por critério\nEsforço: alta"
-  },
-  {
-    "title": "[Dashboard] Progresso semanal (≥4/7) e streaks",
-    "labels": [
-      "frontend",
-      "analytics"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [DB] Progresso, [Plano]\nObjetivo: Visualizar evolução e engajamento.\nEscopo:\n- Cards de lições concluídas, streak e meta semanal\nCritérios de aceitação:\n- Indicadores refletem dados persistidos\nEsforço: média"
-  },
-  {
-    "title": "[Feedback] CSAT pós-semana e comentário aberto",
-    "labels": [
-      "frontend",
-      "product-analytics"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [Dashboard]\nObjetivo: Medir satisfação e captar insights.\nEscopo:\n- Modal ao final da semana 1\n- Persistência de nota (1–5) e comentário\nCritérios de aceitação:\n- Taxa de resposta registrada\nEsforço: baixa"
-  },
-  {
-    "title": "[Relatórios internos] D0, D+1 e KRs",
-    "labels": [
-      "observability",
-      "analytics",
-      "internal-tools"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [Observabilidade], [DB] Progresso, [Feedback]\nObjetivo: Página interna simples com KPIs.\nEscopo:\n- Endpoint interno e página admin básica\n- D0, D+1, %≥4/7, CSAT\nCritérios de aceitação:\n- Painel carrega rápido com dados reais ou mock\nEsforço: média"
-  },
-  {
-    "title": "[Conteúdo] Glossário técnico por trilha (estático, MVP)",
-    "labels": [
-      "content",
-      "frontend",
-      "docs"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: —\nObjetivo: Apoio ao vocabulário técnico.\nEscopo:\n- Páginas estáticas por trilha (backend, frontend, data, devops)\n- Exemplos em contexto\nCritérios de aceitação:\n- Disponível no menu ajuda\nEsforço: baixa"
-  },
-  {
-    "title": "[A11y] Alternativas em texto para itens de áudio",
-    "labels": [
-      "accessibility",
-      "frontend",
-      "content"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [Assessment] Speaking, [Entrevista] UI\nObjetivo: Acessibilidade WCAG básica.\nEscopo:\n- Transcrição/legenda ou resumo de apoio\nCritérios de aceitação:\n- Todos os áudios possuem alternativa textual\nEsforço: baixa"
-  },
-  {
-    "title": "[A11y] Navegação por teclado e foco visível",
-    "labels": [
-      "accessibility",
-      "frontend"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [Frontend] UI de lição, [Chat] UI\nObjetivo: Usabilidade sem mouse.\nEscopo:\n- Skip-links, outline visível, ordem de tab\nCritérios de aceitação:\n- Fluxos chave cobertos por teclado\nEsforço: baixa"
-  },
-  {
-    "title": "[Tests] Unitários de domínio e casos de uso",
-    "labels": [
-      "testing",
-      "backend",
-      "domain"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [Assessment] Consolidação, [Plano], [Chat], [Entrevista] Rubrica\nObjetivo: Confiabilidade do core.\nEscopo:\n- Testes para entidades/VOs e casos de uso\nCritérios de aceitação:\n- Cobertura ≥70% em domain/application\nEsforço: média"
-  },
-  {
-    "title": "[Tests] Contratos de adapters (LLM/ASR/Storage/DB)",
-    "labels": [
-      "testing",
-      "backend",
-      "clean-architecture"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [AI] LLMProvider, [AI] ASRProvider, [Storage], [DB]\nObjetivo: Estabilidade nas integrações.\nEscopo:\n- Pact/contract tests: happy path, timeouts, erros\nCritérios de aceitação:\n- Quebra de contrato falha o CI\nEsforço: média"
-  },
-  {
-    "title": "[E2E] Fluxo feliz: login → onboarding → nivelamento → plano → lição → dashboard",
-    "labels": [
-      "testing",
-      "e2e",
-      "frontend"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [Onboarding], [Assessment], [Plano], [Frontend] UI de lição, [Dashboard]\nObjetivo: Garantir jornada mínima.\nEscopo:\n- Playwright/Cypress cobrindo o fluxo completo\nCritérios de aceitação:\n- Teste roda no CI e é determinístico\nEsforço: alta"
-  },
-  {
-    "title": "[Deploy] Vercel com variáveis seguras e headers de segurança",
-    "labels": [
-      "deploy",
-      "infrastructure"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [CI], [Auth], [DB], [Storage], [AI] LLM/ASR\nObjetivo: Publicar app (Preview/Prod).\nEscopo:\n- Secrets: DB_URL, AUTH_SECRET, S3_*, LLM_*, ASR_*\n- Headers de segurança e cache estático\nCritérios de aceitação:\n- Deploy da main para produção ok\nEsforço: média"
-  },
-  {
-    "title": "[ADR] Worker futuro para tarefas longas (documento de decisão)",
-    "labels": [
-      "architecture",
-      "adr",
-      "documentation"
-    ],
-    "milestone_hint": "M5",
-    "body": "Dependências: [Observabilidade]\nObjetivo: Registrar decisão de extrair worker.\nEscopo:\n- Casos: processamento de áudio extenso, agregações semanais\n- Plano de rollout sem impactar BFF\nCritérios de aceitação:\n- ADR versionado e referenciado no README\nEsforço: baixa"
+    "title": "[UX] Fallback quando IA estiver indisponível",
+    "labels": ["frontend", "ux", "ai"],
+    "milestone_hint": "M2",
+    "body": "Dependências: [Frontend] Nivelamento consumindo backend, [API] Rotas BFF para serviços de IA\nObjetivo: Garantir experiência degradada amigável.\nEscopo:\n- Feature flag ou checagem de `hasLLMEnvironment`\n- Mensagens claras e desabilitar ações dependentes de IA\n- Telemetria registrando uso do fallback\nCritérios de aceitação:\n- Usuário recebe feedback imediato se IA estiver desligada\nEsforço: média"
   }
 ]
