@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { getObservabilityContext, observe } from "@english-app/observability";
 
-import { prisma } from "../../../server/db/client";
+import { getPrisma } from "../../../server/db/client";
 import { registry } from "../../../server/openapi/registry";
 import { ErrorResponseSchema } from "../../../server/openapi/schemas";
 
@@ -106,10 +106,13 @@ registry.registerPath({
   },
 });
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const { metrics, logger } = getObservabilityContext();
 
   return observe("api.health", async () => {
+    const prisma = getPrisma();
     logger.debug("Health check invoked", { route: "api.health" });
     const dbCheckStartedAt = performance.now();
 

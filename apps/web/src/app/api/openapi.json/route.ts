@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { generateOpenAPIDocument } from "../../../server/openapi/document";
 
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const document = generateOpenAPIDocument();
