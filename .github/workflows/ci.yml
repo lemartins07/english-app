@@ -18,6 +18,10 @@ jobs:
     env:
       TURBO_TEAM: english-app
       TURBO_TOKEN: dummy
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/english_app
+      LOG_LEVEL: info
+      FEATURE_FLAGS: "{}"
+      NEXT_PUBLIC_FEATURE_FLAGS: "{}"
 
     steps:
       - name: Checkout
@@ -48,6 +52,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        run: pnpm prisma:generate
+
+      - name: Clean coverage directory
+        run: rm -rf coverage
+
       - name: Lint
         run: pnpm lint
 
@@ -59,11 +69,6 @@ jobs:
 
       - name: Lint OpenAPI spec
         run: pnpm openapi:lint
-
-      - name: Ensure coverage artifact
-        run: |
-          mkdir -p coverage
-          echo "Coverage report placeholder - replace when tests generate coverage." > coverage/README.md
 
       - name: Build
         run: pnpm build

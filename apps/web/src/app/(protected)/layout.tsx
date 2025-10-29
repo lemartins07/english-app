@@ -1,13 +1,17 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { auth } from "../../server/auth";
+import { auth, hasAuthEnvironment } from "../../server/auth";
 
 interface ProtectedLayoutProps {
   children: ReactNode;
 }
 
 export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
+  if (!hasAuthEnvironment()) {
+    return <>{children}</>;
+  }
+
   const session = await auth();
 
   if (!session?.user) {

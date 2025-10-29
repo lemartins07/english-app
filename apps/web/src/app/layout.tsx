@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
+import { auth, hasAuthEnvironment, type SessionWithUser } from "../server/auth";
+import { getFeatureFlags } from "../server/feature-flags";
+import { FeatureFlagsProvider } from "../shared/feature-flags/context";
+
+import { AuthSessionProvider } from "./providers/session-provider";
+
 import "./globals.css";
 
 const geistSans = localFont({
@@ -13,12 +19,6 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
-
-import { auth } from "../server/auth";
-import { getFeatureFlags } from "../server/feature-flags";
-import { FeatureFlagsProvider } from "../shared/feature-flags/context";
-
-import { AuthSessionProvider } from "./providers/session-provider";
 export const metadata: Metadata = {
   title: "English AI Tutor",
   description:
@@ -41,7 +41,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const featureFlags = getFeatureFlags();
-  const session = await auth();
+  const session = hasAuthEnvironment() ? ((await auth()) as SessionWithUser | null) : null;
 
   return (
     <html lang="pt-BR" suppressHydrationWarning>

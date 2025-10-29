@@ -2,10 +2,14 @@ import { redirect } from "next/navigation";
 
 import { getObservabilityContext } from "@english-app/observability";
 
-import { auth } from "./config";
+import { auth, hasAuthEnvironment } from "./config";
 import type { SessionWithUser } from "./types";
 
 export async function getSession(): Promise<SessionWithUser | null> {
+  if (!hasAuthEnvironment()) {
+    return null;
+  }
+
   const session = await auth();
   return (session ?? null) as SessionWithUser | null;
 }

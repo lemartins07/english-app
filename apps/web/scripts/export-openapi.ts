@@ -9,6 +9,20 @@ async function main() {
   loadDotenv({ path: resolve(process.cwd(), ".env.local") });
   loadDotenv({ path: resolve(process.cwd(), ".env") });
 
+  const fallbackEnv = {
+    DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/english_app",
+    AUTH_SECRET: "development-secret",
+    GOOGLE_CLIENT_ID: "stub-google-client-id",
+    GOOGLE_CLIENT_SECRET: "stub-google-client-secret",
+    EMAIL_FROM: "english-app@example.com",
+  } as const;
+
+  for (const [key, value] of Object.entries(fallbackEnv)) {
+    if (!process.env[key]) {
+      process.env[key] = value;
+    }
+  }
+
   const { generateOpenAPIDocument } = await import("../src/server/openapi/document");
   const outDir = resolve(process.cwd(), "apps/web/.openapi");
   const outFile = resolve(outDir, "openapi.json");

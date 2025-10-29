@@ -35,3 +35,5 @@ export default async function DashboardPage() {
 
   return <LearningExperience initialProfile={profile} />;
 }
+
+export const dynamic = "force-dynamic";

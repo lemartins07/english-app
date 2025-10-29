@@ -13,7 +13,7 @@ importers:
     dependencies:
       "@prisma/client":
         specifier: 6.18.0
-        version: 6.18.0(prisma@6.18.0(typescript@5.7.2))(typescript@5.7.2)
+        version: 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.7.2))(typescript@5.7.2)
     devDependencies:
       "@commitlint/cli":
         specifier: 19.5.0
@@ -56,7 +56,7 @@ importers:
         version: 3.6.2
       prisma:
         specifier: ^6.18.0
-        version: 6.18.0(typescript@5.7.2)
+        version: 6.18.0(magicast@0.3.5)(typescript@5.7.2)
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -74,7 +74,7 @@ importers:
         version: 8.1.0(zod@4.1.12)
       "@auth/prisma-adapter":
         specifier: ^2.11.1
-        version: 2.11.1(@prisma/client@6.18.0(prisma@6.18.0(typescript@5.7.2))(typescript@5.7.2))(nodemailer@7.0.10)
+        version: 2.11.1(@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.7.2))(typescript@5.7.2))(nodemailer@7.0.10)
       "@english-app/adapters":
         specifier: workspace:*
         version: link:../../packages/adapters
@@ -95,7 +95,7 @@ importers:
         version: 15.0.4
       "@prisma/client":
         specifier: ^6.18.0
-        version: 6.18.0(prisma@6.18.0(typescript@5.7.2))(typescript@5.7.2)
+        version: 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.7.2))(typescript@5.7.2)
       "@radix-ui/react-avatar":
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -189,13 +189,13 @@ importers:
         version: 8.5.6
       prisma:
         specifier: ^6.18.0
-        version: 6.18.0(typescript@5.7.2)
+        version: 6.18.0(magicast@0.3.5)(typescript@5.7.2)
       tailwindcss:
         specifier: ^3.4.15
-        version: 3.4.15
+        version: 3.4.18(tsx@4.20.6)(yaml@2.8.1)
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.15)
+        version: 1.0.7(tailwindcss@3.4.18(tsx@4.20.6)(yaml@2.8.1))
       typescript:
         specifier: 5.7.2
         version: 5.7.2
@@ -213,13 +213,16 @@ importers:
         version: link:../observability
       "@prisma/client":
         specifier: ^6.18.0
-        version: 6.18.0(prisma@6.18.0(typescript@5.9.3))(typescript@5.9.3)
+        version: 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
     devDependencies:
+      "@vitest/coverage-v8":
+        specifier: ^2.1.9
+        version: 2.1.9(vitest@2.1.9(@types/node@22.18.13))
       vitest:
-        specifier: ^2.1.3
+        specifier: ^2.1.9
         version: 2.1.9(@types/node@22.18.13)
 
   packages/application:
@@ -276,6 +279,13 @@ packages:
       }
     engines: { node: ">=10" }
 
+  "@ampproject/remapping@2.3.0":
+    resolution:
+      {
+        integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==,
+      }
+    engines: { node: ">=6.0.0" }
+
   "@asteasolutions/zod-to-openapi@8.1.0":
     resolution:
       {
@@ -322,12 +332,27 @@ packages:
       }
     engines: { node: ">=6.9.0" }
 
+  "@babel/helper-string-parser@7.27.1":
+    resolution:
+      {
+        integrity: sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA==,
+      }
+    engines: { node: ">=6.9.0" }
+
   "@babel/helper-validator-identifier@7.28.5":
     resolution:
       {
         integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==,
       }
     engines: { node: ">=6.9.0" }
+
+  "@babel/parser@7.28.5":
+    resolution:
+      {
+        integrity: sha512-KKBU1VGYR7ORr3At5HAtUQ+TV3SzRCXmA/8OdDZiLDBIZxVyzXuztPjfLd3BV1PRAQGCMWWSHYhL0F8d5uHBDQ==,
+      }
+    engines: { node: ">=6.0.0" }
+    hasBin: true
 
   "@babel/runtime-corejs3@7.28.4":
     resolution:
@@ -342,6 +367,19 @@ packages:
         integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==,
       }
     engines: { node: ">=6.9.0" }
+
+  "@babel/types@7.28.5":
+    resolution:
+      {
+        integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==,
+      }
+    engines: { node: ">=6.9.0" }
+
+  "@bcoe/v8-coverage@0.2.3":
+    resolution:
+      {
+        integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==,
+      }
 
   "@commitlint/cli@19.5.0":
     resolution:
@@ -1169,6 +1207,13 @@ packages:
         integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==,
       }
     engines: { node: ">=12" }
+
+  "@istanbuljs/schema@0.1.3":
+    resolution:
+      {
+        integrity: sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==,
+      }
+    engines: { node: ">=8" }
 
   "@jridgewell/gen-mapping@0.3.13":
     resolution:
@@ -2924,6 +2969,18 @@ packages:
       }
     cpu: [x64]
     os: [win32]
+
+  "@vitest/coverage-v8@2.1.9":
+    resolution:
+      {
+        integrity: sha512-Z2cOr0ksM00MpEfyVE8KXIYPEcBFxdbLSs56L8PO0QQMxt/6bDj45uQfxoc96v05KW3clk7vvgP0qfDit9DmfQ==,
+      }
+    peerDependencies:
+      "@vitest/browser": 2.1.9
+      vitest: 2.1.9
+    peerDependenciesMeta:
+      "@vitest/browser":
+        optional: true
 
   "@vitest/expect@2.1.9":
     resolution:
@@ -4912,6 +4969,12 @@ packages:
       }
     engines: { node: ">=14" }
 
+  html-escaper@2.0.2:
+    resolution:
+      {
+        integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==,
+      }
+
   human-signals@5.0.0:
     resolution:
       {
@@ -5310,6 +5373,34 @@ packages:
         integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==,
       }
 
+  istanbul-lib-coverage@3.2.2:
+    resolution:
+      {
+        integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==,
+      }
+    engines: { node: ">=8" }
+
+  istanbul-lib-report@3.0.1:
+    resolution:
+      {
+        integrity: sha512-GCfE1mtsHGOELCU8e/Z7YWzpmybrx/+dSTfLrvY8qRmaY6zXTKWn6WQIjaAFw069icm6GVMNkgu0NzI4iPZUNw==,
+      }
+    engines: { node: ">=10" }
+
+  istanbul-lib-source-maps@5.0.6:
+    resolution:
+      {
+        integrity: sha512-yg2d+Em4KizZC5niWhQaIomgf5WlL4vOOjZ5xGCmF8SnPE/mDWWXgvRExdcpCgh9lLRRa1/fSYp2ymmbJ1pI+A==,
+      }
+    engines: { node: ">=10" }
+
+  istanbul-reports@3.2.0:
+    resolution:
+      {
+        integrity: sha512-HGYWWS/ehqTV3xN10i23tkPkpH46MLCIMFNCaaKNavAXTF1RkqxawEPtnjnGZ6XKSInBKkiOA5BKS+aZiY3AvA==,
+      }
+    engines: { node: ">=8" }
+
   iterator.prototype@1.1.5:
     resolution:
       {
@@ -5480,13 +5571,6 @@ packages:
       }
     engines: { node: ">= 0.8.0" }
 
-  lilconfig@2.1.0:
-    resolution:
-      {
-        integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==,
-      }
-    engines: { node: ">=10" }
-
   lilconfig@3.1.3:
     resolution:
       {
@@ -5652,6 +5736,19 @@ packages:
       {
         integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==,
       }
+
+  magicast@0.3.5:
+    resolution:
+      {
+        integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==,
+      }
+
+  make-dir@4.0.0:
+    resolution:
+      {
+        integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==,
+      }
+    engines: { node: ">=10" }
 
   markdown-escape@2.0.0:
     resolution:
@@ -6302,19 +6399,25 @@ packages:
     peerDependencies:
       postcss: ^8.4.21
 
-  postcss-load-config@4.0.2:
+  postcss-load-config@6.0.1:
     resolution:
       {
-        integrity: sha512-bSVhyJGL00wMVoPUzAVAnbEoWyqRxkjv64tUl427SKnPrENtq6hJwUojroMz2VB+Q1edmi4IfrAPpami5VVgMQ==,
+        integrity: sha512-oPtTM4oerL+UXmx+93ytZVN82RrlY/wPUV8IeDxFrzIjXOLF1pN+EmKPLbubvKHT2HC20xXsCAH2Z+CKV6Oz/g==,
       }
-    engines: { node: ">= 14" }
+    engines: { node: ">= 18" }
     peerDependencies:
+      jiti: ">=1.21.0"
       postcss: ">=8.0.9"
-      ts-node: ">=9.0.0"
+      tsx: ^4.8.1
+      yaml: ^2.4.2
     peerDependenciesMeta:
+      jiti:
+        optional: true
       postcss:
         optional: true
-      ts-node:
+      tsx:
+        optional: true
+      yaml:
         optional: true
 
   postcss-nested@6.2.0:
@@ -7309,13 +7412,20 @@ packages:
     peerDependencies:
       tailwindcss: ">=3.0.0 || insiders"
 
-  tailwindcss@3.4.15:
+  tailwindcss@3.4.18:
     resolution:
       {
-        integrity: sha512-r4MeXnfBmSOuKUWmXe6h2CcyfzJCEk4F0pptO5jlnYSIViUkVmsawj80N5h2lO3gwcmSb4n3PuN+e+GC1Guylw==,
+        integrity: sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ==,
       }
     engines: { node: ">=14.0.0" }
     hasBin: true
+
+  test-exclude@7.0.1:
+    resolution:
+      {
+        integrity: sha512-pFYqmTw68LXVjeWJMST4+borgQP2AyMNbg1BpZh9LbyhUeNkeaPF9gzfPGUAnSMV3qPYdWUwDIjjCLiSDOl7vg==,
+      }
+    engines: { node: ">=18" }
 
   text-extensions@2.4.0:
     resolution:
@@ -8012,6 +8122,11 @@ packages:
 snapshots:
   "@alloc/quick-lru@5.2.0": {}
 
+  "@ampproject/remapping@2.3.0":
+    dependencies:
+      "@jridgewell/gen-mapping": 0.3.13
+      "@jridgewell/trace-mapping": 0.3.31
+
   "@asteasolutions/zod-to-openapi@8.1.0(zod@4.1.12)":
     dependencies:
       openapi3-ts: 4.5.0
@@ -8031,10 +8146,10 @@ snapshots:
     optionalDependencies:
       nodemailer: 7.0.10
 
-  "@auth/prisma-adapter@2.11.1(@prisma/client@6.18.0(prisma@6.18.0(typescript@5.7.2))(typescript@5.7.2))(nodemailer@7.0.10)":
+  "@auth/prisma-adapter@2.11.1(@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.7.2))(typescript@5.7.2))(nodemailer@7.0.10)":
     dependencies:
       "@auth/core": 0.41.1(nodemailer@7.0.10)
-      "@prisma/client": 6.18.0(prisma@6.18.0(typescript@5.7.2))(typescript@5.7.2)
+      "@prisma/client": 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.7.2))(typescript@5.7.2)
     transitivePeerDependencies:
       - "@simplewebauthn/browser"
       - "@simplewebauthn/server"
@@ -8046,13 +8161,26 @@ snapshots:
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
+  "@babel/helper-string-parser@7.27.1": {}
+
   "@babel/helper-validator-identifier@7.28.5": {}
+
+  "@babel/parser@7.28.5":
+    dependencies:
+      "@babel/types": 7.28.5
 
   "@babel/runtime-corejs3@7.28.4":
     dependencies:
       core-js-pure: 3.46.0
 
   "@babel/runtime@7.28.4": {}
+
+  "@babel/types@7.28.5":
+    dependencies:
+      "@babel/helper-string-parser": 7.27.1
+      "@babel/helper-validator-identifier": 7.28.5
+
+  "@bcoe/v8-coverage@0.2.3": {}
 
   "@commitlint/cli@19.5.0(@types/node@22.18.13)(typescript@5.7.2)":
     dependencies:
@@ -8463,6 +8591,8 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
+  "@istanbuljs/schema@0.1.3": {}
+
   "@jridgewell/gen-mapping@0.3.13":
     dependencies:
       "@jridgewell/sourcemap-codec": 1.5.5
@@ -8545,19 +8675,19 @@ snapshots:
   "@pkgjs/parseargs@0.11.0":
     optional: true
 
-  "@prisma/client@6.18.0(prisma@6.18.0(typescript@5.7.2))(typescript@5.7.2)":
+  "@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.7.2))(typescript@5.7.2)":
     optionalDependencies:
-      prisma: 6.18.0(typescript@5.7.2)
+      prisma: 6.18.0(magicast@0.3.5)(typescript@5.7.2)
       typescript: 5.7.2
 
-  "@prisma/client@6.18.0(prisma@6.18.0(typescript@5.9.3))(typescript@5.9.3)":
+  "@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)":
     optionalDependencies:
-      prisma: 6.18.0(typescript@5.9.3)
+      prisma: 6.18.0(magicast@0.3.5)(typescript@5.9.3)
       typescript: 5.9.3
 
-  "@prisma/config@6.18.0":
+  "@prisma/config@6.18.0(magicast@0.3.5)":
     dependencies:
-      c12: 3.1.0
+      c12: 3.1.0(magicast@0.3.5)
       deepmerge-ts: 7.1.5
       effect: 3.18.4
       empathic: 2.0.0
@@ -9910,6 +10040,24 @@ snapshots:
   "@unrs/resolver-binding-win32-x64-msvc@1.11.1":
     optional: true
 
+  "@vitest/coverage-v8@2.1.9(vitest@2.1.9(@types/node@22.18.13))":
+    dependencies:
+      "@ampproject/remapping": 2.3.0
+      "@bcoe/v8-coverage": 0.2.3
+      debug: 4.4.3
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-lib-source-maps: 5.0.6
+      istanbul-reports: 3.2.0
+      magic-string: 0.30.21
+      magicast: 0.3.5
+      std-env: 3.10.0
+      test-exclude: 7.0.1
+      tinyrainbow: 1.2.0
+      vitest: 2.1.9(@types/node@22.18.13)
+    transitivePeerDependencies:
+      - supports-color
+
   "@vitest/expect@2.1.9":
     dependencies:
       "@vitest/spy": 2.1.9
@@ -10189,7 +10337,7 @@ snapshots:
     dependencies:
       streamsearch: 1.1.0
 
-  c12@3.1.0:
+  c12@3.1.0(magicast@0.3.5):
     dependencies:
       chokidar: 4.0.3
       confbox: 0.2.2
@@ -10203,6 +10351,8 @@ snapshots:
       perfect-debounce: 1.0.0
       pkg-types: 2.3.0
       rc9: 2.1.2
+    optionalDependencies:
+      magicast: 0.3.5
 
   cac@6.7.14: {}
 
@@ -11262,6 +11412,8 @@ snapshots:
 
   hpagent@1.2.0: {}
 
+  html-escaper@2.0.2: {}
+
   human-signals@5.0.0: {}
 
   husky@9.1.7: {}
@@ -11464,6 +11616,27 @@ snapshots:
 
   isexe@2.0.0: {}
 
+  istanbul-lib-coverage@3.2.2: {}
+
+  istanbul-lib-report@3.0.1:
+    dependencies:
+      istanbul-lib-coverage: 3.2.2
+      make-dir: 4.0.0
+      supports-color: 7.2.0
+
+  istanbul-lib-source-maps@5.0.6:
+    dependencies:
+      "@jridgewell/trace-mapping": 0.3.31
+      debug: 4.4.3
+      istanbul-lib-coverage: 3.2.2
+    transitivePeerDependencies:
+      - supports-color
+
+  istanbul-reports@3.2.0:
+    dependencies:
+      html-escaper: 2.0.2
+      istanbul-lib-report: 3.0.1
+
   iterator.prototype@1.1.5:
     dependencies:
       define-data-property: 1.1.4
@@ -11550,8 +11723,6 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
-
-  lilconfig@2.1.0: {}
 
   lilconfig@3.1.3: {}
 
@@ -11645,6 +11816,16 @@ snapshots:
   magic-string@0.30.21:
     dependencies:
       "@jridgewell/sourcemap-codec": 1.5.5
+
+  magicast@0.3.5:
+    dependencies:
+      "@babel/parser": 7.28.5
+      "@babel/types": 7.28.5
+      source-map-js: 1.2.1
+
+  make-dir@4.0.0:
+    dependencies:
+      semver: 7.7.3
 
   markdown-escape@2.0.0: {}
 
@@ -11986,12 +12167,14 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.5.6
 
-  postcss-load-config@4.0.2(postcss@8.5.6):
+  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(yaml@2.8.1):
     dependencies:
       lilconfig: 3.1.3
-      yaml: 2.8.1
     optionalDependencies:
+      jiti: 1.21.7
       postcss: 8.5.6
+      tsx: 4.20.6
+      yaml: 2.8.1
 
   postcss-nested@6.2.0(postcss@8.5.6):
     dependencies:
@@ -12029,18 +12212,18 @@ snapshots:
 
   printable-characters@1.0.42: {}
 
-  prisma@6.18.0(typescript@5.7.2):
+  prisma@6.18.0(magicast@0.3.5)(typescript@5.7.2):
     dependencies:
-      "@prisma/config": 6.18.0
+      "@prisma/config": 6.18.0(magicast@0.3.5)
       "@prisma/engines": 6.18.0
     optionalDependencies:
       typescript: 5.7.2
     transitivePeerDependencies:
       - magicast
 
-  prisma@6.18.0(typescript@5.9.3):
+  prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3):
     dependencies:
-      "@prisma/config": 6.18.0
+      "@prisma/config": 6.18.0(magicast@0.3.5)
       "@prisma/engines": 6.18.0
     optionalDependencies:
       typescript: 5.9.3
@@ -12696,11 +12879,11 @@ snapshots:
 
   tailwind-merge@3.3.1: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@3.4.15):
+  tailwindcss-animate@1.0.7(tailwindcss@3.4.18(tsx@4.20.6)(yaml@2.8.1)):
     dependencies:
-      tailwindcss: 3.4.15
+      tailwindcss: 3.4.18(tsx@4.20.6)(yaml@2.8.1)
 
-  tailwindcss@3.4.15:
+  tailwindcss@3.4.18(tsx@4.20.6)(yaml@2.8.1):
     dependencies:
       "@alloc/quick-lru": 5.2.0
       arg: 5.0.2
@@ -12711,7 +12894,7 @@ snapshots:
       glob-parent: 6.0.2
       is-glob: 4.0.3
       jiti: 1.21.7
-      lilconfig: 2.1.0
+      lilconfig: 3.1.3
       micromatch: 4.0.8
       normalize-path: 3.0.0
       object-hash: 3.0.0
@@ -12719,13 +12902,20 @@ snapshots:
       postcss: 8.5.6
       postcss-import: 15.1.0(postcss@8.5.6)
       postcss-js: 4.1.0(postcss@8.5.6)
-      postcss-load-config: 4.0.2(postcss@8.5.6)
+      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(yaml@2.8.1)
       postcss-nested: 6.2.0(postcss@8.5.6)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.11
       sucrase: 3.35.0
     transitivePeerDependencies:
-      - ts-node
+      - tsx
+      - yaml
+
+  test-exclude@7.0.1:
+    dependencies:
+      "@istanbuljs/schema": 0.1.3
+      glob: 10.4.5
+      minimatch: 9.0.5
 
   text-extensions@2.4.0: {}
 
