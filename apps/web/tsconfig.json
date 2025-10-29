@@ -5,11 +5,15 @@
     "allowJs": false,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".",
     "plugins": [
       {
         "name": "next"
       }
     ],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "esModuleInterop": true
   },
   "include": [
