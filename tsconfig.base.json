@@ -22,7 +22,8 @@
       "@english-app/observability": ["packages/observability/src/index.ts"],
       "@english-app/observability/*": ["packages/observability/src/*"],
       "@english-app/ui": ["packages/ui/src/index.tsx"],
-      "@english-app/ui/*": ["packages/ui/src/*"]
+      "@english-app/ui/*": ["packages/ui/src/*"],
+      "@/*": ["apps/web/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", "build"]

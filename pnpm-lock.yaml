@@ -6,6 +6,7 @@ settings:
 
 overrides:
   "@auth/core": 0.41.1
+  "@prisma/client>typescript": 5.7.2
 
 importers:
   .:
@@ -210,6 +211,9 @@ importers:
       "@english-app/observability":
         specifier: workspace:*
         version: link:../observability
+      "@prisma/client":
+        specifier: ^6.18.0
+        version: 6.18.0(prisma@6.18.0(typescript@5.9.3))(typescript@5.9.3)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -1357,7 +1361,7 @@ packages:
     engines: { node: ">=18.18" }
     peerDependencies:
       prisma: "*"
-      typescript: ">=5.1.0"
+      typescript: 5.7.2
     peerDependenciesMeta:
       prisma:
         optional: true
@@ -8546,6 +8550,11 @@ snapshots:
       prisma: 6.18.0(typescript@5.7.2)
       typescript: 5.7.2
 
+  "@prisma/client@6.18.0(prisma@6.18.0(typescript@5.9.3))(typescript@5.9.3)":
+    optionalDependencies:
+      prisma: 6.18.0(typescript@5.9.3)
+      typescript: 5.9.3
+
   "@prisma/config@6.18.0":
     dependencies:
       c12: 3.1.0
@@ -12028,6 +12037,16 @@ snapshots:
       typescript: 5.7.2
     transitivePeerDependencies:
       - magicast
+
+  prisma@6.18.0(typescript@5.9.3):
+    dependencies:
+      "@prisma/config": 6.18.0
+      "@prisma/engines": 6.18.0
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - magicast
+    optional: true
 
   prismjs@1.27.0: {}
 

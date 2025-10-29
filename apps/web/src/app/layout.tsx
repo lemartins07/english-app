@@ -19,7 +19,6 @@ import { getFeatureFlags } from "../server/feature-flags";
 import { FeatureFlagsProvider } from "../shared/feature-flags/context";
 
 import { AuthSessionProvider } from "./providers/session-provider";
-
 export const metadata: Metadata = {
   title: "English AI Tutor",
   description:

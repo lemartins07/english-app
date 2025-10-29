@@ -19,6 +19,7 @@ model User {
   emailVerified DateTime?
   image         String?
   role          Role      @default(USER)
+  level         String?
   sessions      Session[]
   accounts      Account[]
   createdAt     DateTime  @default(now())

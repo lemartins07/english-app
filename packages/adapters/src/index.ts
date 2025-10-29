@@ -25,4 +25,5 @@ export function withLogging<Input, Output>(
 }
 
 export * from "./asr";
+export * from "./db";
 export * from "./llm";
