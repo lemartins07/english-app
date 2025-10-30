@@ -1,11 +1,11 @@
 import { createRemoteCallExecutor } from "@english-app/application/services/remote-call";
 import type { Logger } from "@english-app/observability";
 
-import type { ASRClient, ASRClientCallOptions, ASRClientError } from "./client";
-import { isASRClientError } from "./client";
-import { ASRProviderError, type ASRProviderErrorCode } from "./errors";
-import type { ASRProvider, ASRProviderCallOptions } from "./provider";
-import type { ShortAudioFileRef, TranscribeShortAudioResult } from "./types";
+import { ASRProviderError, type ASRProviderErrorCode } from "../errors";
+import type { ASRClient, ASRClientCallOptions, ASRClientError } from "../ports/client";
+import { isASRClientError } from "../ports/client";
+import type { ASRProvider, ASRProviderCallOptions } from "../ports/provider";
+import type { ShortAudioFileRef, TranscribeShortAudioResult } from "../types";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 

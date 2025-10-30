@@ -7,7 +7,7 @@ import type {
   GeneratePlanResult,
   InterviewRubricEvalInput,
   InterviewRubricEvalResult,
-} from "./types";
+} from "../types";
 
 export interface LLMClientCallOptions {
   signal?: AbortSignal;
