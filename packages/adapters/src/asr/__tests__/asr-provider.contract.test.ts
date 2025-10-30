@@ -1,11 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { Logger } from "@english-app/observability";
+
 import {
   type ASRClient,
   ASRClientError,
   createASRProviderAdapter,
   type TranscribeShortAudioInput,
 } from "..";
+
+function createLoggerMock(): Logger {
+  const child = vi.fn<(context: Record<string, unknown>) => Logger>();
+  const logger: Logger = {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    child,
+  };
+  child.mockReturnValue(logger);
+  return logger;
+}
 
 function createStubClient(): ASRClient {
   return {
@@ -99,6 +114,42 @@ describe("ASR provider adapter contract", () => {
     ).rejects.toMatchObject({
       code: "TOO_MANY_REQUESTS",
     });
+  });
+
+  it("logs client failures with the provided logger", async () => {
+    const logger = createLoggerMock();
+    const failingClient: ASRClient = {
+      transcribeShortAudio: async () => {
+        throw new ASRClientError({
+          message: "Rate limited",
+          status: 429,
+          code: "rate_limit_exceeded",
+        });
+      },
+    };
+
+    const adapter = createASRProviderAdapter(failingClient, { logger });
+
+    await expect(
+      adapter.transcribeShortAudio({
+        fileRef: {
+          uri: "s3://bucket/audio.wav",
+          sizeBytes: 64_000,
+        },
+      }),
+    ).rejects.toMatchObject({
+      code: "TOO_MANY_REQUESTS",
+    });
+
+    expect(logger.error).toHaveBeenCalledWith(
+      "ASR provider call failed",
+      expect.objectContaining({
+        method: "transcribeShortAudio",
+        code: "TOO_MANY_REQUESTS",
+        status: 429,
+        clientCode: "rate_limit_exceeded",
+      }),
+    );
   });
 
   it("respects caller supplied abort signal", async () => {
