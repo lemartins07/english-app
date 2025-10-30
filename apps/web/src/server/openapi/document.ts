@@ -2,6 +2,7 @@ import { OpenApiGeneratorV3 } from "@asteasolutions/zod-to-openapi";
 
 import "../../app/api/echo/route";
 import "../../app/api/health/route";
+import "./ai";
 
 import { registry } from "./registry";
 
@@ -29,6 +30,7 @@ export function generateOpenAPIDocument() {
     tags: [
       { name: "Health", description: "System health and readiness endpoints." },
       { name: "Utility", description: "Auxiliary endpoints for testing and examples." },
+      { name: "AI", description: "AI-powered endpoints for plans, assessments and chat." },
     ],
   });
 }
