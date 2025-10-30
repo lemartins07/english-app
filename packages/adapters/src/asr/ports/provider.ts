@@ -1,4 +1,4 @@
-import type { TranscribeShortAudioInput, TranscribeShortAudioResult } from "./types";
+import type { TranscribeShortAudioInput, TranscribeShortAudioResult } from "../types";
 
 export interface ASRProviderCallOptions {
   timeoutMs?: number;

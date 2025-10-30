@@ -1,10 +1,10 @@
 import { createRemoteCallExecutor } from "@english-app/application/services/remote-call";
 import type { Logger } from "@english-app/observability";
 
-import type { LLMClient, LLMClientCallOptions, LLMClientError } from "./client";
-import { isLLMClientError } from "./client";
-import { LLMProviderError, type LLMProviderErrorCode } from "./errors";
-import type { LLMProvider, LLMProviderCallOptions } from "./provider";
+import { LLMProviderError, type LLMProviderErrorCode } from "../errors";
+import type { LLMClient, LLMClientCallOptions, LLMClientError } from "../ports/client";
+import { isLLMClientError } from "../ports/client";
+import type { LLMProvider, LLMProviderCallOptions } from "../ports/provider";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
