@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-
 const nextConfig: NextConfig = {
   experimental: {
     turbo: {
@@ -7,7 +6,6 @@ const nextConfig: NextConfig = {
     },
   },
   webpack: (config) => {
-    // Fallback to webpack bundler for packages that don't yet work with Turbopack (Swagger UI chain).
     return config;
   },
   transpilePackages: [

@@ -159,6 +159,9 @@ importers:
       swagger-ui:
         specifier: ^5.30.0
         version: 5.30.0(@types/react@19.2.2)
+      swagger-ui-react:
+        specifier: 5.30.0
+        version: 5.30.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -7448,6 +7451,15 @@ packages:
         integrity: sha512-9fkjxGHXuKy20jj8zwE6RwgFSOGKAyOD5U7aKgW/+/futtHZHOdZeqiEkb97sptk2rdBv7FEiUQDNlWZR186RA==,
       }
 
+  swagger-ui-react@5.30.0:
+    resolution:
+      {
+        integrity: sha512-IrYMC4/WLY3yJu34qtU3rLIgitDHTL4C9JazUTLLSDqipPJgsRTvHiSZb3MA2/3V6r+ZZtS57OB30aLaoRo51w==,
+      }
+    peerDependencies:
+      react: ">=16.8.0 <20"
+      react-dom: ">=16.8.0 <20"
+
   swagger-ui@5.30.0:
     resolution:
       {
@@ -12946,6 +12958,48 @@ snapshots:
       ramda: 0.30.1
       ramda-adjunct: 5.1.0(ramda@0.30.1)
     transitivePeerDependencies:
+      - debug
+
+  swagger-ui-react@5.30.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+    dependencies:
+      "@babel/runtime-corejs3": 7.28.4
+      "@scarf/scarf": 1.4.0
+      base64-js: 1.5.1
+      buffer: 6.0.3
+      classnames: 2.5.1
+      css.escape: 1.5.1
+      deep-extend: 0.6.0
+      dompurify: 3.2.6
+      ieee754: 1.2.1
+      immutable: 3.8.2
+      js-file-download: 0.4.12
+      js-yaml: 4.1.0
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      randexp: 0.5.3
+      randombytes: 2.1.0
+      react: 19.2.0
+      react-copy-to-clipboard: 5.1.0(react@19.2.0)
+      react-debounce-input: 3.3.0(react@19.2.0)
+      react-dom: 19.2.0(react@19.2.0)
+      react-immutable-proptypes: 2.2.0(immutable@3.8.2)
+      react-immutable-pure-component: 2.2.2(immutable@3.8.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-inspector: 6.0.2(react@19.2.0)
+      react-redux: 9.2.0(@types/react@19.2.2)(react@19.2.0)(redux@5.0.1)
+      react-syntax-highlighter: 15.6.6(react@19.2.0)
+      redux: 5.0.1
+      redux-immutable: 4.0.0(immutable@3.8.2)
+      remarkable: 2.0.1
+      reselect: 5.1.1
+      serialize-error: 8.1.0
+      sha.js: 2.4.12
+      swagger-client: 3.36.0
+      url-parse: 1.5.10
+      xml: 1.0.1
+      xml-but-prettier: 1.0.1
+      zenscroll: 4.0.2
+    transitivePeerDependencies:
+      - "@types/react"
       - debug
 
   swagger-ui@5.30.0(@types/react@19.2.2):
