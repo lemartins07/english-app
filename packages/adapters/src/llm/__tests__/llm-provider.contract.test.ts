@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { Logger } from "@english-app/observability";
+
 import {
   type ChatReply,
   type ChatReplyInput,
@@ -13,6 +15,19 @@ import {
   type LLMClient,
   LLMClientError,
 } from "..";
+
+function createLoggerMock(): Logger {
+  const child = vi.fn<(context: Record<string, unknown>) => Logger>();
+  const logger: Logger = {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    child,
+  };
+  child.mockReturnValue(logger);
+  return logger;
+}
 
 function createStubClient(): LLMClient {
   return {
@@ -195,6 +210,42 @@ describe("LLM provider adapter contract", () => {
     ).rejects.toMatchObject({
       code: "TOO_MANY_REQUESTS",
     });
+  });
+
+  it("logs client failures with the provided logger", async () => {
+    const logger = createLoggerMock();
+    const failingClient: LLMClient = {
+      ...createStubClient(),
+      evaluateAnswer: () => {
+        throw new LLMClientError({
+          message: "Rate limited",
+          status: 429,
+          code: "rate_limit_exceeded",
+        });
+      },
+    };
+
+    const adapter = createLLMProviderAdapter(failingClient, { logger });
+
+    await expect(
+      adapter.evaluateAnswer({
+        question: "Explain polymorphism",
+        answer: "It is the ability of objects to take many forms.",
+        evaluationCriteria: [{ id: "correctness", description: "Correctness" }],
+      }),
+    ).rejects.toMatchObject({
+      code: "TOO_MANY_REQUESTS",
+    });
+
+    expect(logger.error).toHaveBeenCalledWith(
+      "LLM provider call failed",
+      expect.objectContaining({
+        method: "evaluateAnswer",
+        code: "TOO_MANY_REQUESTS",
+        status: 429,
+        clientCode: "rate_limit_exceeded",
+      }),
+    );
   });
 
   it("respects caller supplied abort signal", async () => {
