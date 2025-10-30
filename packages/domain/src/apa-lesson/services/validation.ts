@@ -1,233 +1,28 @@
-import type { BaseEntity, ISODateString } from "./core";
-
-export const APA_PHASE_ORDER = [
-  "presentation",
-  "assimilation",
-  "activeRecall",
-  "feedbackNext",
-] as const;
-
-export type APAPhaseType = (typeof APA_PHASE_ORDER)[number];
-
-export const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
-export type CEFRLevel = (typeof CEFR_LEVELS)[number];
-
-export const LINGUISTIC_SKILLS = [
-  "listening",
-  "speaking",
-  "reading",
-  "writing",
-  "grammar",
-  "vocabulary",
-  "pronunciation",
-] as const;
-export type LinguisticSkill = (typeof LINGUISTIC_SKILLS)[number];
-
-export const OBJECTIVE_FOCUS_OPTIONS = ["form", "meaning", "use", "skill", "strategy"] as const;
-export type ObjectiveFocus = (typeof OBJECTIVE_FOCUS_OPTIONS)[number];
-
-export const RESOURCE_TYPES = [
-  "text",
-  "audio",
-  "video",
-  "image",
-  "slide",
-  "activity",
-  "link",
-] as const;
-export type ResourceType = (typeof RESOURCE_TYPES)[number];
-
-export interface ResourceReference {
-  id: string;
-  type: ResourceType;
-  label: string;
-  uri?: string;
-  notes?: string;
-}
-
-export interface ObjectiveFocusArea {
-  focus: ObjectiveFocus;
-  descriptors: string[];
-  canDoExample?: string;
-}
-
-export interface LinguisticObjective {
-  id: string;
-  skill: LinguisticSkill;
-  cefrLevel: CEFRLevel;
-  title: string;
-  description: string;
-  targetLanguage: string;
-  successCriteria: string[];
-  focusAreas: ObjectiveFocusArea[];
-  prerequisiteKnowledge?: string[];
-}
-
-export interface PhaseObjectiveLink {
-  objectiveId: string;
-  focus: ObjectiveFocus;
-  description?: string;
-}
-
-export interface APAPhaseBase {
-  type: APAPhaseType;
-  title: string;
-  summary: string;
-  targetDurationMinutes: number;
-  objectiveLinks: PhaseObjectiveLink[];
-  resources?: ResourceReference[];
-}
-
-export const PRESENTATION_MATERIAL_TYPES = [
-  "dialogue",
-  "narrative",
-  "explanation",
-  "visual",
-  "audio",
-  "video",
-] as const;
-export type PresentationMaterialType = (typeof PRESENTATION_MATERIAL_TYPES)[number];
-
-export interface PresentationMaterial {
-  id: string;
-  type: PresentationMaterialType;
-  title: string;
-  description: string;
-  uri?: string;
-  languageNotes?: string[];
-}
-
-export interface LanguagePoint {
-  form: string;
-  meaning?: string;
-  useCases?: string[];
-  pronunciationTips?: string[];
-}
-
-export interface PresentationPhase extends APAPhaseBase {
-  type: "presentation";
-  materials: PresentationMaterial[];
-  languageHighlights: LanguagePoint[];
-  engagementChecks: string[];
-}
-
-export const PRACTICE_MODES = ["solo", "pair", "group", "wholeClass"] as const;
-export type PracticeMode = (typeof PRACTICE_MODES)[number];
-
-export interface PracticePrompt {
-  model?: string;
-  prompt: string;
-  expectedResponse?: string;
-}
-
-export interface PracticeActivity {
-  id: string;
-  mode: PracticeMode;
-  instructions: string;
-  prompts: PracticePrompt[];
-  successCriteria: string[];
-  differentiationStrategies?: string[];
-}
-
-export interface AssimilationPhase extends APAPhaseBase {
-  type: "assimilation";
-  practiceActivities: PracticeActivity[];
-  scaffoldingStrategies?: string[];
-}
-
-export const RETRIEVAL_PROMPT_FORMATS = [
-  "oral",
-  "written",
-  "quiz",
-  "flashcard",
-  "rolePlay",
-  "simulation",
-] as const;
-export type RetrievalPromptFormat = (typeof RETRIEVAL_PROMPT_FORMATS)[number];
-
-export const SUPPORT_LEVELS = ["minimal", "guided", "full"] as const;
-export type SupportLevel = (typeof SUPPORT_LEVELS)[number];
-
-export interface RetrievalPrompt {
-  id: string;
-  format: RetrievalPromptFormat;
-  prompt: string;
-  supportLevel: SupportLevel;
-  expectedKeyLanguage?: string[];
-}
-
-export interface ActiveRecallPhase extends APAPhaseBase {
-  type: "activeRecall";
-  retrievalPrompts: RetrievalPrompt[];
-  successChecks: string[];
-  reflectionQuestions?: string[];
-}
-
-export const FEEDBACK_ACTORS = ["teacher", "peer", "self", "aiCoach"] as const;
-export type FeedbackActor = (typeof FEEDBACK_ACTORS)[number];
-
-export const FEEDBACK_CHANNELS = ["oral", "written", "rubric", "annotation"] as const;
-export type FeedbackChannel = (typeof FEEDBACK_CHANNELS)[number];
-
-export interface FeedbackMode {
-  actor: FeedbackActor;
-  channel: FeedbackChannel;
-  focus: ObjectiveFocus[];
-  tools?: string[];
-  notes?: string;
-}
-
-export const NEXT_STEP_FOCUS_OPTIONS = [
-  "reteach",
-  "extend",
-  "assessment",
-  "spacedReview",
-  "assignment",
-] as const;
-export type NextStepFocus = (typeof NEXT_STEP_FOCUS_OPTIONS)[number];
-
-export interface NextStepAction {
-  id: string;
-  focus: NextStepFocus;
-  instructions: string;
-  dueDate?: ISODateString;
-  resources?: ResourceReference[];
-}
-
-export interface FeedbackNextPhase extends APAPhaseBase {
-  type: "feedbackNext";
-  feedbackModes: FeedbackMode[];
-  nextSteps: NextStepAction[];
-  closureSummary?: string;
-}
-
-export type APAPhases = {
-  presentation: PresentationPhase;
-  assimilation: AssimilationPhase;
-  activeRecall: ActiveRecallPhase;
-  feedbackNext: FeedbackNextPhase;
-};
-
-export type APAPhase =
-  | PresentationPhase
-  | AssimilationPhase
-  | ActiveRecallPhase
-  | FeedbackNextPhase;
-
-export interface APALesson extends BaseEntity {
-  slug: string;
-  title: string;
-  objective: LinguisticObjective;
-  phases: APAPhases;
-  estimatedDurationMinutes?: number;
-  tags?: string[];
-  languageFocus?: {
-    grammar?: string[];
-    vocabulary?: string[];
-    pronunciation?: string[];
-  };
-  notes?: string;
-}
+import type {
+  ActiveRecallPhase,
+  APALesson,
+  APAPhaseBase,
+  AssimilationPhase,
+  FeedbackNextPhase,
+  PresentationPhase,
+} from "../entities";
+import {
+  APA_PHASE_ORDER,
+  type APAPhaseType,
+  CEFR_LEVELS,
+  FEEDBACK_ACTORS,
+  FEEDBACK_CHANNELS,
+  LINGUISTIC_SKILLS,
+  type LinguisticObjective,
+  NEXT_STEP_FOCUS_OPTIONS,
+  OBJECTIVE_FOCUS_OPTIONS,
+  type ObjectiveFocus,
+  PRACTICE_MODES,
+  PRESENTATION_MATERIAL_TYPES,
+  RESOURCE_TYPES,
+  RETRIEVAL_PROMPT_FORMATS,
+  SUPPORT_LEVELS,
+} from "../value-objects";
 
 export type ValidationSeverity = "error" | "warning";
 
@@ -242,8 +37,11 @@ export interface ValidationResult {
   issues: ValidationIssue[];
 }
 
-export function getOrderedPhases(phases: APAPhases): APAPhase[] {
-  return APA_PHASE_ORDER.map((phaseType) => phases[phaseType]);
+export function getValidationStatus(issues: ValidationIssue[]): ValidationResult {
+  return {
+    valid: !issues.some((issue) => issue.severity === "error"),
+    issues,
+  };
 }
 
 export function validateAPALesson(lesson: APALesson): ValidationResult {
@@ -337,10 +135,7 @@ export function validateAPALesson(lesson: APALesson): ValidationResult {
     });
   }
 
-  return {
-    valid: !issues.some((issue) => issue.severity === "error"),
-    issues,
-  };
+  return getValidationStatus(issues);
 }
 
 export function validateLinguisticObjective(objective: LinguisticObjective): ValidationIssue[] {
@@ -516,7 +311,7 @@ function validatePhaseBase(
   if (
     lesson.objective.successCriteria.length > 0 &&
     !phase.objectiveLinks.some((link) =>
-      lesson.objective.focusAreas.some((area) => area.focus === link.focus),
+      hasMatchingFocusArea(lesson.objective.focusAreas, link.focus),
     )
   ) {
     issues.push({
@@ -527,6 +322,13 @@ function validatePhaseBase(
   }
 
   return issues;
+}
+
+function hasMatchingFocusArea(
+  focusAreas: LinguisticObjective["focusAreas"],
+  focus: ObjectiveFocus,
+): boolean {
+  return focusAreas.some((area) => area.focus === focus);
 }
 
 function validatePresentationPhase(
