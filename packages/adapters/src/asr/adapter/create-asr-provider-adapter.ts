@@ -2,7 +2,7 @@ import { createRemoteCallExecutor } from "@english-app/application/services/remo
 import type { Logger } from "@english-app/observability";
 
 import { ASRProviderError, type ASRProviderErrorCode } from "../errors";
-import type { ASRClient, ASRClientCallOptions, ASRClientError } from "../ports/client";
+import type { ASRArgs, ASRClient, ASRClientError, ASRMethod, ASRResult } from "../ports/client";
 import { isASRClientError } from "../ports/client";
 import type { ASRProvider, ASRProviderCallOptions } from "../ports/provider";
 import type { ShortAudioFileRef, TranscribeShortAudioResult } from "../types";
@@ -19,8 +19,6 @@ export interface ASRProviderAdapterConfig {
   logger?: Logger;
   limits?: ASRProviderAdapterLimits;
 }
-
-type ASRClientMethod = keyof ASRClient;
 
 const remoteCall = createRemoteCallExecutor<
   ASRProviderError,
@@ -42,23 +40,18 @@ export function createASRProviderAdapter(
   const logger = config.logger;
   const limits = config.limits;
 
-  const invoke = async <Method extends ASRClientMethod>(
+  const invoke = async <Method extends ASRMethod>(
     methodName: Method,
-    input: Parameters<ASRClient[Method]>[0],
+    input: ASRArgs<Method>,
     options?: ASRProviderCallOptions,
-  ): Promise<Awaited<ReturnType<ASRClient[Method]>>> => {
-    const clientMethod = client[methodName].bind(client) as (
-      input: Parameters<ASRClient[Method]>[0],
-      options?: ASRClientCallOptions,
-    ) => ReturnType<ASRClient[Method]>;
-
+  ): Promise<ASRResult<Method>> => {
     return remoteCall.execute({
       methodName: String(methodName),
       defaultTimeoutMs,
       options,
       logger,
       perform: ({ signal }) =>
-        clientMethod(input, {
+        client[methodName](input, {
           signal,
           metadata: options?.metadata,
         }),

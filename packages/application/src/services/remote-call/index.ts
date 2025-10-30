@@ -6,7 +6,7 @@ export interface RemoteCallOptions {
   metadata?: Record<string, string>;
 }
 
-export interface RemoteCallClientErrorLike {
+export interface RemoteCallClientErrorLike extends Error {
   status?: number;
   code?: string;
   retryable?: boolean;
