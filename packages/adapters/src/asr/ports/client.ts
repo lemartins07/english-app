@@ -5,12 +5,22 @@ export interface ASRClientCallOptions {
   metadata?: Record<string, string>;
 }
 
-export interface ASRClient {
-  transcribeShortAudio(
-    input: TranscribeShortAudioInput,
-    options?: ASRClientCallOptions,
-  ): Promise<TranscribeShortAudioResult>;
-}
+export type ASRMethodMap = {
+  transcribeShortAudio: {
+    input: TranscribeShortAudioInput;
+    result: TranscribeShortAudioResult;
+  };
+};
+
+export type ASRMethod = keyof ASRMethodMap;
+
+export type ASRArgs<M extends ASRMethod> = ASRMethodMap[M]["input"];
+
+export type ASRResult<M extends ASRMethod> = ASRMethodMap[M]["result"];
+
+export type ASRClient = {
+  [M in ASRMethod]: (input: ASRArgs<M>, options?: ASRClientCallOptions) => Promise<ASRResult<M>>;
+};
 
 export interface ASRClientErrorParams {
   message: string;

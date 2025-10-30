@@ -2,7 +2,7 @@ import { createRemoteCallExecutor } from "@english-app/application/services/remo
 import type { Logger } from "@english-app/observability";
 
 import { LLMProviderError, type LLMProviderErrorCode } from "../errors";
-import type { LLMClient, LLMClientCallOptions, LLMClientError } from "../ports/client";
+import type { LLMArgs, LLMClient, LLMClientError, LLMMethod, LLMResult } from "../ports/client";
 import { isLLMClientError } from "../ports/client";
 import type { LLMProvider, LLMProviderCallOptions } from "../ports/provider";
 
@@ -12,8 +12,6 @@ export interface LLMProviderAdapterConfig {
   defaultTimeoutMs?: number;
   logger?: Logger;
 }
-
-type LLMClientMethod = keyof LLMClient;
 
 const remoteCall = createRemoteCallExecutor<
   LLMProviderError,
@@ -34,23 +32,18 @@ export function createLLMProviderAdapter(
   const defaultTimeoutMs = config.defaultTimeoutMs ?? DEFAULT_TIMEOUT_MS;
   const logger = config.logger;
 
-  const invoke = async <Method extends LLMClientMethod>(
+  const invoke = async <Method extends LLMMethod>(
     methodName: Method,
-    input: Parameters<LLMClient[Method]>[0],
+    input: LLMArgs<Method>,
     options?: LLMProviderCallOptions,
-  ): Promise<Awaited<ReturnType<LLMClient[Method]>>> => {
-    const clientMethod = client[methodName].bind(client) as (
-      input: Parameters<LLMClient[Method]>[0],
-      options?: LLMClientCallOptions,
-    ) => ReturnType<LLMClient[Method]>;
-
+  ): Promise<LLMResult<Method>> => {
     return remoteCall.execute({
       methodName: String(methodName),
       defaultTimeoutMs,
       options,
       logger,
       perform: ({ signal }) =>
-        clientMethod(input, {
+        client[methodName](input, {
           signal,
           metadata: options?.metadata,
         }),

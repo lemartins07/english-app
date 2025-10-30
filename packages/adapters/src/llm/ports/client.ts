@@ -14,24 +14,34 @@ export interface LLMClientCallOptions {
   metadata?: Record<string, string>;
 }
 
-export interface LLMClient {
-  generatePlan(
-    input: GeneratePlanInput,
-    options?: LLMClientCallOptions,
-  ): Promise<GeneratePlanResult>;
+export type LLMMethodMap = {
+  generatePlan: {
+    input: GeneratePlanInput;
+    result: GeneratePlanResult;
+  };
+  evaluateAnswer: {
+    input: EvaluateAnswerInput;
+    result: EvaluateAnswerResult;
+  };
+  interviewRubricEval: {
+    input: InterviewRubricEvalInput;
+    result: InterviewRubricEvalResult;
+  };
+  chatReply: {
+    input: ChatReplyInput;
+    result: ChatReply;
+  };
+};
 
-  evaluateAnswer(
-    input: EvaluateAnswerInput,
-    options?: LLMClientCallOptions,
-  ): Promise<EvaluateAnswerResult>;
+export type LLMMethod = keyof LLMMethodMap;
 
-  interviewRubricEval(
-    input: InterviewRubricEvalInput,
-    options?: LLMClientCallOptions,
-  ): Promise<InterviewRubricEvalResult>;
+export type LLMArgs<M extends LLMMethod> = LLMMethodMap[M]["input"];
 
-  chatReply(input: ChatReplyInput, options?: LLMClientCallOptions): Promise<ChatReply>;
-}
+export type LLMResult<M extends LLMMethod> = LLMMethodMap[M]["result"];
+
+export type LLMClient = {
+  [M in LLMMethod]: (input: LLMArgs<M>, options?: LLMClientCallOptions) => Promise<LLMResult<M>>;
+};
 
 export interface LLMClientErrorParams {
   message: string;
