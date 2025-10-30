@@ -1,9 +1,4 @@
 import type { NextConfig } from "next";
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-const swaggerUICssPath = require.resolve("swagger-ui-react/swagger-ui.css");
-
 const nextConfig: NextConfig = {
   experimental: {
     turbo: {
@@ -11,11 +6,6 @@ const nextConfig: NextConfig = {
     },
   },
   webpack: (config) => {
-    // Fallback to webpack bundler for packages that don't yet work with Turbopack (Swagger UI chain).
-    config.resolve ??= {};
-    config.resolve.alias ??= {};
-    config.resolve.alias["swagger-ui-react/swagger-ui.css"] = swaggerUICssPath;
-
     return config;
   },
   transpilePackages: [
