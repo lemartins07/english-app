@@ -71,6 +71,17 @@ module.exports = {
       },
     },
     {
+      files: ["prisma/**/*.ts"],
+      parser: "@typescript-eslint/parser",
+      plugins: ["@typescript-eslint"],
+      extends: ["plugin:@typescript-eslint/recommended", "prettier"],
+      parserOptions: {
+        project: "prisma/tsconfig.json",
+        tsconfigRootDir: __dirname,
+      },
+      rules: {},
+    },
+    {
       files: ["types/**/*.d.ts"],
       parser: "@typescript-eslint/parser",
       extends: ["plugin:@typescript-eslint/recommended", "prettier"],

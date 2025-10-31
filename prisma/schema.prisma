@@ -12,22 +12,50 @@ enum Role {
   ADMIN
 }
 
+enum AssessmentType {
+  LEVELING
+}
+
+enum AssessmentSessionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum AssessmentQuestionType {
+  MCQ
+  LISTENING
+  SPEAKING
+  WRITING
+}
+
+enum CEFRLevel {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(USER)
-  level         String?
-  sessions      Session[]
-  accounts      Account[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                 String              @id @default(cuid())
+  name               String?
+  email              String?             @unique
+  emailVerified      DateTime?
+  image              String?
+  role               Role                @default(USER)
+  level              String?
+  sessions           Session[]
+  accounts           Account[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  assessmentSessions AssessmentSession[]
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String   @id @default(cuid())
   userId            String
   type              String
   provider          String
@@ -56,6 +84,64 @@ model Session {
   updatedAt    DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AssessmentSession {
+  id          String                  @id @default(cuid())
+  userId      String
+  type        AssessmentType
+  status      AssessmentSessionStatus @default(IN_PROGRESS)
+  startedAt   DateTime                @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime?
+  metadata    Json?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers AssessmentAnswer[]
+  result  AssessmentResult?
+
+  @@index([userId, createdAt])
+  @@index([status, type])
+}
+
+model AssessmentAnswer {
+  id           String                 @id @default(cuid())
+  sessionId    String
+  questionId   String
+  questionType AssessmentQuestionType
+  content      Json
+  evaluation   Json?
+  score        Decimal?               @db.Decimal(5, 2)
+  maxScore     Decimal?               @db.Decimal(5, 2)
+  durationSec  Int?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  session AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionId])
+  @@index([sessionId, createdAt])
+}
+
+model AssessmentResult {
+  id              String    @id @default(cuid())
+  sessionId       String
+  level           CEFRLevel
+  overallScore    Decimal?  @db.Decimal(5, 2)
+  skillScores     Json?
+  strengths       Json?
+  areasToImprove  Json?
+  recommendations Json?
+  summary         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  session AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId])
+  @@index([level])
 }
 
 model VerificationToken {
