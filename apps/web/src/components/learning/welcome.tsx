@@ -4,10 +4,26 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, Sparkles } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+} from "@english-app/ui";
+
+import { cn } from "@/lib/utils";
+
+import {
+  learningMutedText,
+  learningPrimaryButton,
+  learningSectionHeading,
+  learningSubtleCard,
+  learningSurfaceCard,
+} from "./theme";
 
 interface OnboardingWelcomeProps {
   defaultName?: string;
@@ -45,15 +61,15 @@ export function OnboardingWelcome({
       >
         <div className="flex flex-col justify-center space-y-6 text-center md:text-left">
           <div className="flex justify-center md:justify-start">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg shadow-blue-500/30">
               <GraduationCap className="h-10 w-10 text-white" />
             </div>
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl font-semibold text-blue-900 md:text-4xl">
+            <h1 className={cn("text-3xl font-semibold md:text-4xl", learningSectionHeading)}>
               Bem-vindo ao English AI Tutor
             </h1>
-            <p className="text-base text-muted-foreground">
+            <p className={cn("text-base leading-relaxed", learningMutedText)}>
               Melhore seu inglês para entrevistas técnicas com aulas personalizadas de 10-20
               minutos. Avance do seu nível atual até C1 com metodologia comprovada e suporte de IA.
             </p>
@@ -66,22 +82,26 @@ export function OnboardingWelcome({
             ].map((item) => (
               <Card
                 key={item.title}
-                className="border-dashed border-blue-100 bg-blue-50/40 shadow-none"
+                className={cn("border-dashed border-blue-500/30 shadow-none", learningSubtleCard)}
               >
                 <CardContent className="px-4 py-6 text-center">
                   <div className="mb-2 text-2xl">{item.icon}</div>
-                  <h3 className="text-sm font-semibold text-blue-900">{item.title}</h3>
-                  <p className="text-xs text-blue-700">{item.subtitle}</p>
+                  <h3 className={cn("text-sm font-semibold", learningSectionHeading)}>
+                    {item.title}
+                  </h3>
+                  <p className={cn("text-xs", learningMutedText)}>{item.subtitle}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
 
-        <Card className="self-center">
+        <Card className={cn("self-center", learningSurfaceCard)}>
           <CardHeader>
-            <CardTitle>Vamos personalizar sua jornada</CardTitle>
-            <CardDescription>
+            <CardTitle className={cn(learningSectionHeading)}>
+              Vamos personalizar sua jornada
+            </CardTitle>
+            <CardDescription className={cn(learningMutedText)}>
               Conte-nos seu nome para que possamos ajustar seu plano
             </CardDescription>
           </CardHeader>
@@ -89,7 +109,7 @@ export function OnboardingWelcome({
             {!showForm ? (
               <Button
                 size="lg"
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className={cn("w-full", learningPrimaryButton)}
                 onClick={() => setShowForm(true)}
               >
                 <Sparkles className="mr-2 h-4 w-4" />
@@ -114,7 +134,7 @@ export function OnboardingWelcome({
                 </div>
                 <Button
                   size="lg"
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className={cn("w-full", learningPrimaryButton)}
                   onClick={handleContinue}
                   disabled={!name.trim()}
                 >

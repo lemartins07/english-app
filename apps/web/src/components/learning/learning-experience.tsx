@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { signOut } from "next-auth/react";
+
+import { cn } from "@/lib/utils";
+
+import { useTheme } from "../../app/providers/theme-provider";
 
 import { BottomNav } from "./bottom-nav";
 import { GoalSelection } from "./goal-selection";
@@ -11,6 +15,7 @@ import { LevelTest } from "./level-test";
 import { ProgressDashboard } from "./progress-dashboard";
 import { StudyPlan } from "./study-plan";
 import { TeacherChat } from "./teacher-chat";
+import { learningGradientBackground } from "./theme";
 import { TopBar } from "./top-bar";
 import { type LearningProfile, type LearningScreen } from "./types";
 import { OnboardingWelcome } from "./welcome";
@@ -37,16 +42,8 @@ export function LearningExperience({ initialProfile }: LearningExperienceProps) 
     if (!initialProfile.track) return "goalSelection";
     return "studyPlan";
   });
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [activeLessonDay, setActiveLessonDay] = useState<number>(profile.currentDay ?? 1);
-
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [theme]);
+  const { theme, setTheme } = useTheme();
 
   const showTopBar = useMemo(
     () => !["welcome", "levelTest", "goalSelection"].includes(screen),
@@ -56,11 +53,11 @@ export function LearningExperience({ initialProfile }: LearningExperienceProps) 
   const showBottomNav = showTopBar;
 
   const updateProfile = (updates: Partial<LearningProfile>) => {
-    setProfile((prev) => ({ ...prev, ...updates }));
+    setProfile((prev: LearningProfile) => ({ ...prev, ...updates }));
   };
 
   const handleLessonComplete = () => {
-    setProfile((prev) => {
+    setProfile((prev: LearningProfile) => {
       const completed = prev.completedDays.includes(activeLessonDay)
         ? prev.completedDays
         : [...prev.completedDays, activeLessonDay];
@@ -76,12 +73,12 @@ export function LearningExperience({ initialProfile }: LearningExperienceProps) 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-black">
+    <div className={cn("min-h-screen transition-colors duration-300", learningGradientBackground)}>
       {showTopBar && (
         <TopBar
           profile={profile}
-          theme={theme}
-          onToggleTheme={() => setTheme((prev) => (prev === "light" ? "dark" : "light"))}
+          theme={theme as "light" | "dark"}
+          onToggleTheme={() => setTheme(theme === "light" ? "dark" : "light")}
           onLogout={() => signOut({ callbackUrl: "/" })}
         />
       )}

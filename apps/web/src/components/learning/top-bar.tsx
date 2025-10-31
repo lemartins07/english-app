@@ -1,21 +1,33 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bell, Crown, FileText, LogOut, Moon, Settings, Sun, User } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@english-app/ui";
 
+import { cn } from "@/lib/utils";
+
+import {
+  learningGlassPanel,
+  learningMutedText,
+  learningSectionHeading,
+  learningSurfaceCard,
+} from "./theme";
 import { type LearningProfile } from "./types";
 
 interface TopBarProps {
@@ -62,61 +74,93 @@ export function TopBar({ profile, theme, onToggleTheme, onLogout }: TopBarProps)
     [profile.name],
   );
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isLightTheme = mounted ? theme === "light" : true;
+
   return (
-    <div className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
+    <div
+      className={cn("sticky top-0 z-50 border-b-0 transition-all duration-300", learningGlassPanel)}
+    >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <div className="flex items-center gap-3 text-sm font-semibold">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow shadow-blue-500/30">
             AI
           </div>
-          <span className="hidden sm:inline-block">English AI Tutor</span>
+          <span className={cn("hidden sm:inline-block", learningSectionHeading)}>
+            English AI Tutor
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+              >
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 p-0 text-[10px] text-white">
+                  <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 p-0 text-[10px] text-white shadow shadow-rose-500/40">
                     {unreadCount}
                   </Badge>
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-0" align="end">
-              <div className="border-b px-4 py-3">
-                <h3 className="text-sm font-semibold">Notificações</h3>
-                <p className="text-xs text-muted-foreground">{unreadCount} não lidas</p>
+            <PopoverContent className={cn("w-80 p-0", learningSurfaceCard)} align="end">
+              <div className="border-b border-white/40 px-4 py-3 dark:border-neutral-800/60">
+                <h3 className={cn("text-sm font-semibold", learningSectionHeading)}>
+                  Notificações
+                </h3>
+                <p className={cn("text-xs", learningMutedText)}>{unreadCount} não lidas</p>
               </div>
               <div className="max-h-72 overflow-y-auto">
                 {NOTIFICATIONS.map((notif) => (
                   <div
                     key={notif.id}
-                    className={[
-                      "flex gap-3 px-4 py-3 text-sm transition hover:bg-muted/70",
-                      notif.unread ? "bg-blue-50/50" : "",
-                    ].join(" ")}
+                    className={cn(
+                      "flex gap-3 px-4 py-3 text-sm transition-colors",
+                      notif.unread
+                        ? "bg-gradient-to-r from-blue-100/60 to-purple-100/60 dark:from-blue-500/10 dark:to-purple-500/10"
+                        : "hover:bg-white/40 dark:hover:bg-neutral-800/60",
+                    )}
                   >
-                    {notif.unread && <span className="mt-1 h-2 w-2 rounded-full bg-blue-500" />}
+                    {notif.unread && (
+                      <span className="mt-1 h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
+                    )}
                     <div className="space-y-1">
-                      <p className="font-medium text-foreground">{notif.title}</p>
-                      <p className="text-xs text-muted-foreground">{notif.description}</p>
-                      <p className="text-xs text-muted-foreground/70">{notif.time}</p>
+                      <p className={cn("font-medium", learningSectionHeading)}>{notif.title}</p>
+                      <p className={cn("text-xs", learningMutedText)}>{notif.description}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">{notif.time}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="border-t p-2">
-                <Button variant="ghost" size="sm" className="w-full">
+              <div className="border-t border-white/40 p-2 dark:border-neutral-800/60">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                >
                   Ver todas as notificações
                 </Button>
               </div>
             </PopoverContent>
           </Popover>
 
-          <Button variant="ghost" size="icon" onClick={onToggleTheme} aria-label="Alternar tema">
-            {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleTheme}
+            aria-label="Alternar tema"
+            className="text-slate-600 hover:bg-white/40 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-neutral-800/60 dark:hover:text-white"
+          >
+            {isLightTheme ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
 
           <DropdownMenu>
@@ -129,19 +173,19 @@ export function TopBar({ profile, theme, onToggleTheme, onLogout }: TopBarProps)
                     )}`}
                     alt={profile.name}
                   />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-60" align="end">
+            <DropdownMenuContent className={cn("w-60", learningSurfaceCard)} align="end">
               <DropdownMenuLabel>
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className={cn("text-sm font-semibold", learningSectionHeading)}>
                     {profile.name || "English App"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className={cn("text-xs", learningMutedText)}>
                     Nível {profile.level || "—"} • {profile.track || "Trilha indefinida"}
                   </p>
                 </div>
@@ -160,15 +204,12 @@ export function TopBar({ profile, theme, onToggleTheme, onLogout }: TopBarProps)
                 Exportar dados
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-orange-600 focus:text-orange-600">
+              <DropdownMenuItem className="text-orange-500 focus:text-orange-500">
                 <Crown className="mr-2 h-4 w-4" />
                 Upgrade para Pro
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={onLogout}
-              >
+              <DropdownMenuItem className="text-rose-500 focus:text-rose-500" onClick={onLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Sair
               </DropdownMenuItem>
