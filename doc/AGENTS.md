@@ -1,4 +1,4 @@
-# Codex Notes
+# Agents Notes
 
 ## Guidelines de Desenvolvimento
 
