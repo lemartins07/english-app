@@ -3,18 +3,22 @@
 import { useMemo } from "react";
 import { Bell, Crown, FileText, LogOut, Moon, Settings, Sun, User } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@english-app/ui";
 
 import { type LearningProfile } from "./types";
 

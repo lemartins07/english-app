@@ -4,15 +4,19 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Code2, Database, Layout, Loader2, Server, Target } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@english-app/ui";
 
 const TRACKS = [
   {

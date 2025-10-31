@@ -5,9 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { LogIn, Mail, Sparkles } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button, Input, Label } from "@english-app/ui";
 
 function LoginContent() {
   const params = useSearchParams();

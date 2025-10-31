@@ -4,11 +4,18 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, Mic, Volume2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Label,
+  Progress,
+  RadioGroup,
+  RadioGroupItem,
+} from "@english-app/ui";
 
 type Question =
   | {
@@ -174,7 +181,7 @@ export function LevelTest({ onComplete }: LevelTestProps) {
                   "options" in question && (
                     <RadioGroup
                       value={selectedAnswer?.toString()}
-                      onValueChange={(value) => setSelectedAnswer(Number(value))}
+                      onValueChange={(value: string) => setSelectedAnswer(Number(value))}
                     >
                       <div className="space-y-3">
                         {question.options.map((option, index) => (

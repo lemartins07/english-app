@@ -4,12 +4,19 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle2, MessageCircle, Sparkles } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Label,
+  Progress,
+  RadioGroup,
+  RadioGroupItem,
+  Textarea,
+} from "@english-app/ui";
 
 interface LessonProps {
   day: number;
@@ -206,7 +213,7 @@ export function Lesson({ day, onComplete, onOpenChat }: LessonProps) {
 
                     <RadioGroup
                       value={selectedAnswer?.toString()}
-                      onValueChange={(value) => {
+                      onValueChange={(value: string) => {
                         setSelectedAnswer(Number(value));
                         setShowFeedback(false);
                       }}

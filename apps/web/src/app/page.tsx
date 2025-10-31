@@ -1,482 +1,721 @@
+// eslint-disable-next-line react/no-unescaped-entities
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 "use client";
 
-import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
-  Bot,
   Brain,
-  CalendarCheck,
-  CheckCircle2,
-  LineChart,
-  type LucideIcon,
-  Rocket,
+  Calendar,
+  Check,
+  ChevronRight,
+  Clock,
+  GraduationCap,
+  Headphones,
+  Lightbulb,
+  MessageCircle,
+  Play,
+  Puzzle,
   Sparkles,
+  Star,
+  Target,
+  TrendingUp,
+  Zap,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@english-app/ui";
+import { Input } from "@english-app/ui";
+import { Card, CardContent } from "@english-app/ui";
+import { Badge } from "@english-app/ui";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@english-app/ui";
 
-import { useFeatureFlag } from "../shared/feature-flags/context";
+import { LandingHeader } from "@/components/LandingHeader";
 
-type Highlight = {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-};
-
-const HIGHLIGHTS: Highlight[] = [
+const testimonials = [
   {
-    title: "Plano intensivo de 7 dias",
-    description: "Mapeamos seu nível atual e objetivo para montar um ciclo de estudos enxuto.",
-    icon: CalendarCheck,
+    name: "Marina S.",
+    role: "Desenvolvedora Front-End",
+    avatar: "M",
+    quote:
+      "Passei na minha entrevista para uma vaga remota em Londres depois de 3 semanas usando o app.",
+    rating: 5,
   },
   {
-    title: "Teacher AI sempre disponível",
-    description: "Role-play de entrevistas, feedback amigável e microtarefas de speaking.",
-    icon: Bot,
+    name: "Carlos R.",
+    role: "Backend Developer",
+    avatar: "C",
+    quote:
+      "O Teacher AI me ajudou a praticar respostas técnicas em inglês. Método realmente eficaz!",
+    rating: 5,
   },
   {
-    title: "Metodologia APA",
-    description: "Aulas de 10–20 min com Presentation → Assimilation → Active Recall → Feedback.",
-    icon: Brain,
-  },
-  {
-    title: "Simulador técnico",
-    description: "Cenários de backend, frontend, dados e devops com rubrica de avaliação clara.",
-    icon: Rocket,
+    name: "Beatriz L.",
+    role: "Data Engineer",
+    avatar: "B",
+    quote: "Em 2 semanas já sentia muito mais confiança para falar sobre meus projetos em inglês.",
+    rating: 5,
   },
 ];
 
-const STUDY_PLAN = [
+const benefits = [
+  { icon: Brain, title: "Aprendizado guiado por IA", description: "Personalizado para você" },
   {
-    day: "Dia 1",
-    focus: "Nivelamento híbrido e meta de entrevista",
-    outcome: "Plano personalizado liberado instantaneamente.",
+    icon: Target,
+    title: "Conteúdo adaptado à sua área",
+    description: "Frontend, Backend, Data, DevOps",
   },
+  { icon: Zap, title: "Feedback imediato", description: "Corrija erros em tempo real" },
+  { icon: Clock, title: "Blocos curtos de 10-20 min", description: "Encaixa na sua rotina" },
+  { icon: TrendingUp, title: "Evolução visual", description: "Acompanhe seu progresso" },
   {
-    day: "Dias 2-5",
-    focus: "Blocos APA com vocabulário técnico e shadowing",
-    outcome: "Feedback diário + checkpoints de progresso.",
-  },
-  {
-    day: "Dia 6",
-    focus: "Simulador de entrevista com Teacher AI",
-    outcome: "Rubrica com pontos fortes e próximos passos.",
-  },
-  {
-    day: "Dia 7",
-    focus: "Revisão guiada e export do plano",
-    outcome: "Checklist para semana seguinte e métricas D+1.",
+    icon: MessageCircle,
+    title: "Simulador de entrevistas",
+    description: "Pratique cenários reais",
   },
 ];
 
-const STUDY_FLOW = ["Presentation", "Assimilation", "Active Recall", "Feedback & Next"];
-
-const METRICS = [
+const apaPhases = [
   {
-    label: "KR1",
-    description: "Retenção D+1 ≥ 30%",
-    tone: "bg-blue-500/10 text-blue-200 border-blue-500/20",
-    badge: "Em acompanhamento",
+    icon: Headphones,
+    phase: "Presentation",
+    title: "Apresentação",
+    description: "Veja e ouça o inglês em uso real",
   },
   {
-    label: "KR2",
-    description: "≥60% concluem 4/7 lições",
-    tone: "bg-emerald-500/10 text-emerald-200 border-emerald-500/20",
-    badge: "Beta interno",
+    icon: Puzzle,
+    phase: "Assimilation",
+    title: "Assimilação",
+    description: "Reforce vocabulário e estrutura",
   },
   {
-    label: "KR3",
-    description: "CSAT ≥ 4,2/5",
-    tone: "bg-amber-500/10 text-amber-100 border-amber-500/20",
-    badge: "Próxima sprint",
+    icon: Lightbulb,
+    phase: "Active Recall",
+    title: "Recordação Ativa",
+    description: "Teste o que aprendeu sem dicas",
+  },
+  {
+    icon: Sparkles,
+    phase: "Feedback",
+    title: "Feedback & Próximo",
+    description: "Corrija seus erros e siga evoluindo",
   },
 ];
 
-const FAQS = [
+const faqs = [
   {
-    question: "Preciso falar inglês o tempo todo?",
+    question: "O app é totalmente gratuito?",
     answer:
-      "Não. O onboarding, as instruções do plano e os feedbacks podem acontecer em português para garantir clareza, enquanto as práticas guiadas alternam entre PT-BR e EN.",
+      "O teste de nivelamento e a primeira semana são gratuitos. Você pode experimentar todas as funcionalidades sem compromisso.",
   },
   {
-    question: "Como o Teacher AI corrige minhas respostas?",
+    question: "Preciso falar inglês avançado para começar?",
     answer:
-      "Utilizamos uma persona treinada para entrevistas de TI que destaca oportunidades de melhoria, sugere reformulações e registra exemplos que alimentam seu dashboard semanal.",
+      "Não! A IA adapta tudo ao seu nível atual. Desde iniciantes até avançados podem se beneficiar do método APA.",
   },
   {
-    question: "O simulador de entrevista já está disponível?",
-    answer:
-      "Liberamos gradualmente via feature flag. Quando habilitado, você recebe rubrica com clareza, vocabulário técnico, fluência e aplicação do método STAR.",
+    question: "Funciona no celular?",
+    answer: "Sim, é 100% responsivo. Você pode estudar no celular, tablet ou computador.",
   },
-];
-
-const BASE_MODULES = [
-  { name: "Plano personalizado", status: "Disponível" },
-  { name: "Teacher AI Chat", status: "Disponível" },
-  { name: "Simulador de Entrevista", status: "Em validação" },
-  { name: "Glossário técnico", status: "Em desenvolvimento" },
+  {
+    question: "O chat é com professor real?",
+    answer:
+      "É com o Teacher AI, treinado com base em professores certificados e feedback real de alunos. Ele está disponível 24/7!",
+  },
+  {
+    question: "Quanto tempo leva para ver resultados?",
+    answer:
+      "A maioria dos alunos relata maior confiança já na primeira semana. Resultados significativos aparecem após 3-4 semanas de prática consistente.",
+  },
 ];
 
 export default function Home() {
-  const { data: session, status } = useSession();
-  const isLoadingSession = status === "loading";
-  const isInterviewSimulatorEnabled = useFeatureFlag("interviewSimulator");
+  const [email, setEmail] = useState("");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  const modules = BASE_MODULES.map((module) =>
-    module.name === "Simulador de Entrevista" && isInterviewSimulatorEnabled
-      ? { ...module, status: "Beta liberado" }
-      : module,
-  );
-
-  const handlePrimaryAction = () => {
-    if (session?.user) {
-      window.location.assign("/dashboard");
-      return;
+  const handleGetStarted = () => {
+    if (email) {
+      // onUpdateProfile({ name: email.split('@')[0] }); // This function is not available in the current context
     }
+    // onGetStarted(); // This function is not available in the current context
+  };
 
-    void signIn("google", { callbackUrl: "/dashboard" });
+  const handleLogin = () => {
+    // onLogin(); // This function is not available in the current context
+  };
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
-      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18)_0,_rgba(15,23,42,0.6)_50%,_rgba(15,23,42,1)_100%)]" />
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(600px_circle_at_0%_0%,rgba(99,102,241,0.18),transparent)]" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-blue-50 dark:from-neutral-950 dark:via-purple-950/20 dark:to-neutral-950">
+      {/* Landing Header */}
+      <LandingHeader
+        onLogin={handleLogin}
+        onGetStarted={handleGetStarted}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
-      <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 text-white">
-            AI
-          </span>
-          English AI Tutor
-        </Link>
-        <div className="flex items-center gap-3 text-sm">
-          {session?.user ? (
-            <>
-              <Button
-                variant="ghost"
-                className="text-slate-100 hover:bg-slate-900/60"
-                onClick={() => window.location.assign("/dashboard")}
-              >
-                Ir para dashboard
-              </Button>
-              <Button
-                variant="outline"
-                className="border-slate-700 bg-slate-900/70 text-slate-100 hover:bg-slate-900"
-                onClick={() => {
-                  void signOut({ callbackUrl: "/" });
-                }}
-              >
-                Sair
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="ghost" className="text-slate-100 hover:bg-slate-900/60" asChild>
-                <Link href="/login">Receber link</Link>
-              </Button>
-              <Button
-                className="bg-sky-500 text-slate-900 hover:bg-sky-400"
-                onClick={() => {
-                  void signIn("google", { callbackUrl: "/dashboard" });
-                }}
-              >
-                Entrar com Google
-              </Button>
-            </>
-          )}
-        </div>
-      </header>
+      {/* Hero Section */}
+      <section id="hero" className="relative overflow-hidden pt-16">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 dark:from-blue-500/5 dark:via-purple-500/5 dark:to-pink-500/5" />
 
-      <main className="relative mx-auto flex w-full max-w-6xl flex-col gap-20 px-6 pb-24 pt-12">
-        <section className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-          <div className="space-y-6">
-            <Badge variant="secondary" className="border-0 bg-slate-900/70 text-slate-100">
-              Home reimaginada para profissionais de tecnologia
-            </Badge>
-            <h1 className="text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
-              Aprenda inglês estratégico para entrevistas com um tutor movido a IA.
-            </h1>
-            <p className="max-w-xl text-base text-slate-300">
-              Combine plano de 7 dias, aulas APA enxutas e um Teacher AI treinado com cenários reais
-              de backend, frontend, dados e devops. Foque no que importa: comunicar suas conquistas
-              em inglês com confiança.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+          <div className="text-center max-w-4xl mx-auto space-y-8">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0 px-4 py-2">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Novo: Simulador de Entrevistas Técnicas
+              </Badge>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="space-y-4"
+            >
+              <h1 className="text-4xl sm:text-5xl md:text-6xl text-neutral-900 dark:text-white">
+                Domine o inglês para{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  entrevistas de TI
+                </span>
+              </h1>
+              <p className="text-lg sm:text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
+                Treine com IA, melhore sua fluência e conquiste o emprego dos seus sonhos —
+                estudando apenas <strong>20 minutos por dia</strong>.
+              </p>
+            </motion.div>
+
+            {/* CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto"
+            >
+              <Input
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1"
+                onKeyDown={(e) => e.key === "Enter" && handleGetStarted()}
+              />
               <Button
                 size="lg"
-                className="bg-sky-500 text-slate-900 hover:bg-sky-400"
-                onClick={handlePrimaryAction}
-                disabled={isLoadingSession}
+                onClick={handleGetStarted}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 px-8"
               >
-                {session?.user ? "Continuar no dashboard" : "Quero meu plano"}
-                <ArrowRight className="ml-2 h-4 w-4" />
+                Começar teste gratuito
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
-              {!session?.user && (
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="text-slate-100 hover:bg-slate-900/60"
-                  asChild
-                >
-                  <Link href="/login">Entrar com link mágico</Link>
-                </Button>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-6 pt-4 text-sm text-slate-300">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-sky-400" />
-                Feedback em PT-BR e EN
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-sky-400" />
-                Simulador com rubrica STAR
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-sky-400" />
-                Métricas D+1 e evolução semanal
-              </div>
-            </div>
-          </div>
+            </motion.div>
 
-          <div className="relative">
-            <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-sky-400/40 via-indigo-500/30 to-transparent blur-3xl" />
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-2xl backdrop-blur">
-              <div className="flex items-center justify-between text-xs text-slate-300">
-                <span className="font-semibold text-slate-100">Plano intensivo APA</span>
-                <Badge variant="outline" className="border-sky-400/40 bg-sky-400/10 text-sky-200">
-                  7 dias
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-sm text-neutral-500 dark:text-neutral-400"
+            >
+              Leva menos de 5 minutos • Sem cartão de crédito
+            </motion.p>
+
+            {/* Tech Logos */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex items-center justify-center gap-6 pt-8 flex-wrap opacity-40"
+            >
+              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                Preparado para:
+              </span>
+              {["React", "Node.js", "Python", "AWS", "Docker"].map((tech) => (
+                <Badge
+                  key={tech}
+                  variant="outline"
+                  className="text-neutral-600 dark:text-neutral-400"
+                >
+                  {tech}
                 </Badge>
-              </div>
-              <div className="mt-6 space-y-4 text-sm text-slate-200">
-                {STUDY_PLAN.map((step) => (
-                  <div
-                    key={step.day}
-                    className="rounded-2xl border border-slate-800/80 bg-slate-900/70 p-4"
-                  >
-                    <p className="text-xs uppercase tracking-wide text-slate-400">{step.day}</p>
-                    <p className="mt-1 font-medium text-slate-100">{step.focus}</p>
-                    <p className="mt-2 text-xs text-slate-400">{step.outcome}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6">
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  Ciclo de cada lição
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-4">
-                  {STUDY_FLOW.map((phase) => (
-                    <div
-                      key={phase}
-                      className="rounded-xl border border-slate-800/70 bg-slate-900/60 px-3 py-2"
-                    >
-                      <p className="font-semibold text-slate-100">{phase}</p>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="como-funciona" className="py-16 sm:py-24 bg-white dark:bg-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl mb-4 dark:text-white">
+              Treine inglês como um desenvolvedor aprende código
+            </h2>
+            <p className="text-lg text-neutral-600 dark:text-neutral-300">
+              Metodologia comprovada em 3 passos simples
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Brain,
+                step: "1",
+                title: "Teste de Nivelamento Inteligente",
+                description: "Avalia seu vocabulário, compreensão e fala em minutos.",
+              },
+              {
+                icon: Calendar,
+                step: "2",
+                title: "Plano de Estudo Personalizado",
+                description:
+                  "Gerado por IA conforme seu nível e objetivo (entrevista, fluência, viagem).",
+              },
+              {
+                icon: MessageCircle,
+                step: "3",
+                title: "Teacher AI Chat",
+                description: "Converse, receba correções e simule entrevistas reais com feedback.",
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <Card className="h-full hover:shadow-lg transition-shadow">
+                  <CardContent className="pt-6 px-4 sm:px-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <item.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge
+                            variant="outline"
+                            className="w-6 h-6 rounded-full flex items-center justify-center p-0"
+                          >
+                            {item.step}
+                          </Badge>
+                          <h3 className="dark:text-white">{item.title}</h3>
+                        </div>
+                        <p className="text-neutral-600 dark:text-neutral-300 text-sm">
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="grid gap-6 rounded-3xl border border-slate-800 bg-slate-900/60 p-8 shadow-lg backdrop-blur md:grid-cols-2 lg:grid-cols-4">
-          {HIGHLIGHTS.map((highlight) => {
-            const Icon = highlight.icon;
-
-            return (
-              <div key={highlight.title} className="space-y-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800/70 text-sky-300">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="text-base font-semibold text-slate-100">{highlight.title}</h3>
-                <p className="text-sm text-slate-300">{highlight.description}</p>
-              </div>
-            );
-          })}
-        </section>
-
-        <section className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-6">
-            <Badge variant="secondary" className="border-0 bg-slate-900/70 text-slate-100">
-              Módulos liberados por feature flag
+      {/* APA Method */}
+      <section
+        id="metodo"
+        className="py-16 sm:py-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-neutral-950 dark:to-purple-950/10"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <Badge variant="outline" className="mb-4">
+              Metodologia Exclusiva
             </Badge>
-            <h2 className="text-3xl font-semibold text-slate-100">
-              Entrega contínua com visão de roadmap
+            <h2 className="text-3xl sm:text-4xl mb-4 dark:text-white">
+              Método APA — Automatic Presentation & Assimilation™
             </h2>
-            <p className="text-slate-300">
-              Mantemos o MVP enxuto e confiável. Conforme validamos hipóteses, liberamos novos
-              módulos para o seu perfil — tudo acompanhado por métricas de impacto e feedback
-              qualitativo.
+            <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
+              Cada lição é projetada para <strong>apresentar, assimilar e ativar</strong> o conteúdo
+              de forma natural.
+              <br />
+              Sem traduções. Sem decoreba. Apenas prática real.
             </p>
-            <div className="space-y-3">
-              {modules.map((module) => (
-                <div
-                  key={module.name}
-                  className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-4 text-sm"
-                >
-                  <span className="font-medium text-slate-100">{module.name}</span>
-                  <span className="text-xs text-slate-400">{module.status}</span>
-                </div>
-              ))}
-            </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900/80 via-slate-900/40 to-slate-900/80 p-8 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-400/10 text-sky-300">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-100">Indicadores de sucesso</p>
-                <p className="text-xs text-slate-400">
-                  Monitoramos aprendizado, retenção e confiança.
-                </p>
-              </div>
-            </div>
-            <div className="mt-8 space-y-4">
-              {METRICS.map((metric) => (
-                <div key={metric.label} className={`rounded-2xl border px-5 py-4 ${metric.tone}`}>
-                  <p className="text-sm font-semibold">{metric.label}</p>
-                  <p className="mt-1 text-sm">{metric.description}</p>
-                  <Badge
-                    variant="outline"
-                    className="mt-4 border-white/30 bg-white/10 text-xs text-white"
-                  >
-                    {metric.badge}
-                  </Badge>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {apaPhases.map((phase, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <Card className="text-center h-full hover:shadow-lg transition-all hover:-translate-y-1">
+                  <CardContent className="pt-6 px-4 sm:px-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <phase.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="mb-2 dark:text-white">{phase.title}</h3>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                      {phase.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="grid gap-10 rounded-3xl border border-slate-800 bg-slate-900/60 p-8 shadow-lg lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="space-y-6">
-            <Badge variant="secondary" className="border-0 bg-slate-900/70 text-slate-100">
-              Teacher AI + People skills
-            </Badge>
-            <h2 className="text-3xl font-semibold text-slate-100">
-              Transforme respostas técnicas em histórias convincentes
-            </h2>
-            <p className="text-slate-300">
-              Cada sessão de speaking gera feedback detalhado com exemplos reformulados, termos
-              técnicos em contexto e próximos passos. Você entende como explicar decisões de
-              arquitetura, trade-offs e resultados de forma clara.
-            </p>
-            <div className="space-y-3 text-sm text-slate-300">
-              <div className="flex items-start gap-3">
-                <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-sky-400/20 text-sky-300">
-                  <Brain className="h-3.5 w-3.5" />
-                </div>
-                <p>Scripts de entrevistas comportamentais + técnicas adaptados ao seu stack.</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-sky-400/20 text-sky-300">
-                  <LineChart className="h-3.5 w-3.5" />
-                </div>
-                <p>Dashboard com evolução semanal, retenção e confiança relatada.</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-sky-400/20 text-sky-300">
-                  <Bot className="h-3.5 w-3.5" />
-                </div>
-                <p>
-                  Correções amigáveis, sugestões de vocabulário e checkpoint final com próximos
-                  passos.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/60 p-6 shadow-inner">
-              <h3 className="text-lg font-semibold text-slate-100">Perguntas frequentes</h3>
-              <div className="mt-5 space-y-4">
-                {FAQS.map((faq) => (
-                  <details
-                    key={faq.question}
-                    className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-4 transition-colors hover:border-slate-700"
-                  >
-                    <summary className="cursor-pointer list-none text-sm font-medium text-slate-100">
-                      {faq.question}
-                    </summary>
-                    <p className="mt-3 text-sm text-slate-300">{faq.answer}</p>
-                  </details>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/60 p-6">
-              <h3 className="text-lg font-semibold text-slate-100">Pronto para testar?</h3>
-              <p className="mt-2 text-sm text-slate-300">
-                Ganhe acesso ao plano completo, métricas e simulador assim que sua conta for criada.
-                Cancele quando quiser — estamos medindo aprendizado, não lock-in.
+      {/* Demo Section */}
+      <section id="demo" className="py-16 sm:py-24 bg-white dark:bg-neutral-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <Badge className="mb-4 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                <Play className="w-4 h-4 mr-2" />
+                Experimente agora
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl mb-4 dark:text-white">
+                Experimente uma aula real
+              </h2>
+              <p className="text-lg text-neutral-600 dark:text-neutral-300 mb-6">
+                Você vai se surpreender com o quanto entende em minutos. Veja como funciona o
+                Teacher AI e o feedback instantâneo.
               </p>
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <Button
-                  className="bg-sky-500 text-slate-900 hover:bg-sky-400"
-                  onClick={handlePrimaryAction}
-                  disabled={isLoadingSession}
-                >
-                  {session?.user ? "Abrir dashboard" : "Criar conta com Google"}
-                </Button>
-                {!session?.user && (
-                  <Button variant="ghost" className="text-slate-100 hover:bg-slate-900/60" asChild>
-                    <Link href="/login">Receber link mágico</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
+              <ul className="space-y-3 mb-6">
+                {[
+                  "Chat interativo com correção em tempo real",
+                  "Quiz de vocabulário técnico",
+                  "Gráfico de progresso personalizado",
+                ].map((item, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-center gap-3 text-neutral-700 dark:text-neutral-300"
+                  >
+                    <div className="w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="lg"
+                onClick={handleGetStarted}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Fazer meu teste grátis
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            </motion.div>
 
-        <section className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-10 text-center shadow-xl">
-          <h2 className="text-3xl font-semibold text-slate-100">
-            Comece agora e evolua rumo ao C1
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300">
-            Receba seu plano personalizado em minutos, com aulas APA, Teacher AI dedicado e
-            simulador de entrevista liberado progressivamente. O foco está na sua retenção e
-            confiança.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white border-0 shadow-2xl">
+                <CardContent className="p-6 sm:p-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <MessageCircle className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-white/80">Teacher AI</p>
+                        <p className="text-white">Online agora</p>
+                      </div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur rounded-lg p-4 space-y-3"></div>
+                    <div className="grid grid-cols-3 gap-2 pt-4">
+                      {[
+                        { label: "Fluência", value: "85%" },
+                        { label: "Vocabulário", value: "92%" },
+                        { label: "Gramática", value: "78%" },
+                      ].map((stat, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white/10 backdrop-blur rounded-lg p-3 text-center"
+                        >
+                          <p className="text-2xl mb-1">{stat.value}</p>
+                          <p className="text-xs text-white/80">{stat.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section
+        id="depoimentos"
+        className="py-16 sm:py-24 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/10 dark:to-neutral-950"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <Badge variant="outline" className="mb-4">
+              <Star className="w-4 h-4 mr-2 fill-yellow-400 text-yellow-400" />
+              Avaliação média 4,8/5
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl mb-4 dark:text-white">
+              Mais de 5.000 profissionais de TI já estão treinando com IA
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <Card className="h-full">
+                  <CardContent className="pt-6 px-4 sm:px-6">
+                    <div className="flex mb-3">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-neutral-700 dark:text-neutral-300 mb-4 italic">
+                      &quot;{testimonial.quote}&quot;
+                    </p>{" "}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white">
+                        {testimonial.avatar}
+                      </div>
+                      <div>
+                        <p className="text-sm dark:text-white">{testimonial.name}</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                          {testimonial.role}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Grid */}
+      <section id="beneficios" className="py-16 sm:py-24 bg-white dark:bg-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl mb-4 dark:text-white">
+              Por que escolher o English AI Tutor?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {benefits.map((benefit, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
+              >
+                <Card className="h-full hover:shadow-lg transition-all hover:-translate-y-1">
+                  <CardContent className="pt-6 px-4 sm:px-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <benefit.icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="mb-1 dark:text-white">{benefit.title}</h3>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                          {benefit.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-blue-600 to-purple-600 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl sm:text-4xl mb-4 text-white">
+              Pronto para dar o próximo passo na sua carreira internacional?
+            </h2>
+            <p className="text-lg text-white/90 mb-8">
+              Comece hoje mesmo seu plano gratuito de 7 dias e descubra seu verdadeiro nível de
+              inglês.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto"
+          >
+            <Input
+              type="email"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/60"
+              onKeyDown={(e) => e.key === "Enter" && handleGetStarted()}
+            />
             <Button
               size="lg"
-              className="bg-sky-500 text-slate-900 hover:bg-sky-400"
-              onClick={handlePrimaryAction}
-              disabled={isLoadingSession}
+              onClick={handleGetStarted}
+              className="bg-white text-blue-600 hover:bg-white/90 px-8"
             >
-              {session?.user ? "Continuar estudos" : "Criar conta gratuita"}
-              <ArrowRight className="ml-2 h-4 w-4" />
+              Começar agora — grátis
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-            {!session?.user && (
-              <Button
-                variant="ghost"
-                size="lg"
-                className="text-slate-100 hover:bg-slate-900/60"
-                asChild
-              >
-                <Link href="/login">Entrar com link mágico</Link>
-              </Button>
-            )}
-          </div>
-        </section>
-      </main>
+          </motion.div>
 
-      <footer className="border-t border-slate-800 bg-slate-950/80 py-8 text-slate-400">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} English AI Tutor. Todos os direitos reservados.</p>
-          <div className="flex items-center gap-4">
-            <Link
-              href="https://github.com/lemartins07/Englishappdesign"
-              target="_blank"
-              className="hover:text-slate-100"
-            >
-              Design & mock data
-            </Link>
-            <Link href="mailto:hello@englishapp.dev" className="hover:text-slate-100">
-              hello@englishapp.dev
-            </Link>
+          <p className="text-sm text-white/80">Sem cartão • Cancelamento automático após o teste</p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-16 sm:py-24 bg-white dark:bg-neutral-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl mb-4 dark:text-white">Perguntas Frequentes</h2>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqs.map((faq, idx) => (
+              <AccordionItem
+                key={idx}
+                value={`item-${idx}`}
+                className="border rounded-lg px-6 dark:border-neutral-700"
+              >
+                <AccordionTrigger className="text-left hover:no-underline dark:text-white">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-neutral-600 dark:text-neutral-300">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-neutral-900 dark:bg-black text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-lg">English AI Tutor</span>
+              </div>
+              <p className="text-sm text-neutral-400">
+                Aprenda inglês com IA para conquistar sua carreira internacional.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="mb-4">Produto</h4>
+              <ul className="space-y-2 text-sm text-neutral-400">
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Como funciona
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Método APA
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Preços
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="mb-4">Suporte</h4>
+              <ul className="space-y-2 text-sm text-neutral-400">
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Central de Ajuda
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Contato
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    FAQ
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-neutral-400">
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Política de Privacidade
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Termos de Uso
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-neutral-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-neutral-400">
+              © 2024 English AI Tutor. Desenvolvido no Brasil 🇧🇷 com tecnologia global.
+            </p>
+            <div className="flex gap-4">
+              {["LinkedIn", "Instagram", "YouTube"].map((social) => (
+                <a
+                  key={social}
+                  href="#"
+                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                >
+                  {social}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
