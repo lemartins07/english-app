@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { signOut } from "next-auth/react";
 
+import { cn } from "@/lib/utils";
+
 import { useTheme } from "../../app/providers/theme-provider";
 
 import { BottomNav } from "./bottom-nav";
@@ -13,6 +15,7 @@ import { LevelTest } from "./level-test";
 import { ProgressDashboard } from "./progress-dashboard";
 import { StudyPlan } from "./study-plan";
 import { TeacherChat } from "./teacher-chat";
+import { learningGradientBackground } from "./theme";
 import { TopBar } from "./top-bar";
 import { type LearningProfile, type LearningScreen } from "./types";
 import { OnboardingWelcome } from "./welcome";
@@ -70,7 +73,7 @@ export function LearningExperience({ initialProfile }: LearningExperienceProps) 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-black">
+    <div className={cn("min-h-screen transition-colors duration-300", learningGradientBackground)}>
       {showTopBar && (
         <TopBar
           profile={profile}

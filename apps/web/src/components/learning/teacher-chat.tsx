@@ -19,8 +19,16 @@ import {
 import { useHealthStatus } from "@/hooks/use-health-status";
 import { sendEchoMessage } from "@/lib/api/echo";
 import { ApiRequestError } from "@/lib/api/errors";
+import { cn } from "@/lib/utils";
 import { useFeatureFlag } from "@/shared/feature-flags/context";
 
+import {
+  learningMutedText,
+  learningPrimaryButton,
+  learningSectionHeading,
+  learningSubtleCard,
+  learningSurfaceCard,
+} from "./theme";
 import { type LearningProfile } from "./types";
 
 interface TeacherChatProps {
@@ -217,7 +225,11 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
         <header className="flex items-center justify-between">
-          <Button variant="ghost" onClick={onBack}>
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="rounded-full bg-white/70 px-4 text-slate-700 shadow-sm hover:bg-white/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar
           </Button>
@@ -244,7 +256,7 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
           </div>
         </header>
 
-        <Card className="flex min-h-[600px] flex-col">
+        <Card className={cn("flex min-h-[600px] flex-col", learningSurfaceCard)}>
           <CardHeader className="border-b">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600">
@@ -266,13 +278,18 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                    className={cn(
+                      "flex",
+                      message.role === "user" ? "justify-end" : "justify-start",
+                    )}
                   >
                     <div
-                      className={[
+                      className={cn(
                         "flex max-w-[80%] items-start gap-2",
-                        message.role === "user" ? "flex-row-reverse text-white" : "text-foreground",
-                      ].join(" ")}
+                        message.role === "user"
+                          ? "flex-row-reverse"
+                          : "text-slate-700 dark:text-slate-200",
+                      )}
                     >
                       {message.role === "ai" && (
                         <Avatar className="h-8 w-8 bg-gradient-to-br from-blue-500 to-blue-600">
@@ -283,17 +300,17 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
                       )}
                       <div>
                         <div
-                          className={[
+                          className={cn(
                             "whitespace-pre-line rounded-2xl px-4 py-3 text-sm shadow-sm",
                             message.role === "user"
-                              ? "bg-blue-600 text-blue-50"
-                              : "bg-muted text-foreground",
-                          ].join(" ")}
+                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-blue-500/30"
+                              : "bg-white/80 text-slate-700 dark:bg-neutral-900/70 dark:text-slate-200",
+                          )}
                         >
                           {message.content}
                         </div>
                         {message.role === "ai" && (
-                          <div className="mt-2 flex gap-2 pl-2 text-muted-foreground">
+                          <div className={cn("mt-2 flex gap-2 pl-2 text-xs", learningMutedText)}>
                             <button className="transition hover:text-blue-600" title="Útil">
                               <ThumbsUp className="h-4 w-4" />
                             </button>
@@ -338,6 +355,7 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
                     variant="outline"
                     size="sm"
                     onClick={() => setInput(action.label)}
+                    className="border-transparent bg-white/70 text-slate-700 shadow-sm hover:bg-white/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
                   >
                     <action.icon className="mr-1 h-3 w-3" />
                     {action.label}
@@ -357,35 +375,52 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
                   }
                 }}
                 placeholder="Escreva sua mensagem... (Enter para enviar)"
-                className="min-h-[60px] resize-none"
+                className="min-h-[60px] resize-none rounded-2xl border border-blue-500/30 bg-white/80 shadow-inner focus-visible:border-blue-500 focus-visible:ring-blue-500 dark:bg-neutral-900/60"
               />
               <Button
                 onClick={handleSend}
                 disabled={!input.trim() || isTyping}
-                className="self-end bg-blue-600 hover:bg-blue-700"
+                className={cn(
+                  "self-end rounded-full px-4",
+                  learningPrimaryButton,
+                  (!input.trim() || isTyping) &&
+                    "bg-slate-300 text-slate-500 hover:bg-slate-300 dark:bg-neutral-800 dark:text-neutral-500",
+                )}
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
 
-            <p className="pt-2 text-center text-xs text-muted-foreground">
+            <p className={cn("pt-2 text-center text-xs", learningMutedText)}>
               Teacher AI pode cometer erros. Revise informações importantes.
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-orange-100">
+        <Card
+          className={cn(
+            "border-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-rose-500/10",
+            learningSubtleCard,
+          )}
+        >
           <CardContent className="flex flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-orange-900">Pronto para o desafio?</h3>
-              <p className="text-xs text-orange-700">
+              <h3 className={cn("text-sm font-semibold", learningSectionHeading)}>
+                Pronto para o desafio?
+              </h3>
+              <p className={cn("text-xs", learningMutedText)}>
                 Complete 5 lições para desbloquear o Simulador de Entrevista
               </p>
             </div>
             <Button
               onClick={onStartInterview}
               disabled={profile.completedDays.length < 5}
-              className="bg-orange-600 hover:bg-orange-700"
+              className={cn(
+                "rounded-full px-4",
+                profile.completedDays.length < 5
+                  ? "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500"
+                  : learningPrimaryButton,
+              )}
             >
               <Target className="mr-2 h-4 w-4" />
               {profile.completedDays.length < 5 ? "🔒 Bloqueado" : "Iniciar simulação"}

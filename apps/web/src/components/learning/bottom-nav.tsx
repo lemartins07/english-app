@@ -2,6 +2,9 @@
 
 import { BookOpen, Home, MessageCircle, Target } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
+import { learningGlassPanel } from "./theme";
 import { type LearningProfile, type LearningScreen } from "./types";
 
 interface BottomNavProps {
@@ -29,7 +32,12 @@ const NAV_ITEMS: Array<{
 
 export function BottomNav({ currentScreen, onNavigate, profile }: BottomNavProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t bg-background/90 backdrop-blur md:hidden">
+    <nav
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t md:hidden",
+        learningGlassPanel,
+      )}
+    >
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const isActive = currentScreen === item.id;
@@ -45,17 +53,17 @@ export function BottomNav({ currentScreen, onNavigate, profile }: BottomNavProps
               isActive
                 ? "text-blue-600"
                 : isLocked
-                  ? "text-muted-foreground/60"
-                  : "text-muted-foreground hover:text-blue-600",
+                  ? "text-slate-400 dark:text-slate-500"
+                  : "text-slate-600 hover:text-blue-600 dark:text-slate-300",
             ].join(" ")}
           >
             {isActive && (
-              <span className="absolute inset-x-auto top-0 h-1 w-12 rounded-b-full bg-blue-600" />
+              <span className="absolute inset-x-auto top-0 h-1 w-12 rounded-b-full bg-gradient-to-r from-blue-500 to-purple-500" />
             )}
             <div className="relative">
               <Icon className="h-5 w-5" />
               {isLocked && (
-                <span className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-muted text-[10px] leading-4">
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-[10px] leading-4 dark:bg-neutral-700">
                   🔒
                 </span>
               )}

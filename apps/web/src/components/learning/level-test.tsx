@@ -17,6 +17,16 @@ import {
   RadioGroupItem,
 } from "@english-app/ui";
 
+import { cn } from "@/lib/utils";
+
+import {
+  learningMutedText,
+  learningPrimaryButton,
+  learningSectionHeading,
+  learningSubtleCard,
+  learningSurfaceCard,
+} from "./theme";
+
 type Question =
   | {
       type: "mcq" | "listening";
@@ -139,13 +149,13 @@ export function LevelTest({ onComplete }: LevelTestProps) {
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className={cn("flex items-center justify-between text-sm", learningMutedText)}>
             <span>Teste de Nivelamento</span>
             <span>
               {currentQuestion + 1} de {QUESTIONS.length}
             </span>
           </div>
-          <Progress value={progress} />
+          <Progress value={progress} className="h-2 bg-white/60" />
         </div>
 
         <AnimatePresence mode="wait">
@@ -156,91 +166,126 @@ export function LevelTest({ onComplete }: LevelTestProps) {
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.25 }}
           >
-            <Card>
+            <Card className={cn(learningSurfaceCard)}>
               <CardHeader>
-                <CardTitle>
+                <CardTitle className={cn(learningSectionHeading)}>
                   {question.type === "mcq" && "📝 Multiple Choice"}
                   {question.type === "listening" && "🎧 Listening"}
                   {question.type === "speaking" && "🎤 Speaking"}
                 </CardTitle>
-                <CardDescription>{question.question}</CardDescription>
+                <CardDescription className={cn(learningMutedText)}>
+                  {question.question}
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-5">
                 {question.type === "listening" && "audio" in question && (
-                  <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4 text-sm">
-                    <Button size="sm" variant="outline">
+                  <div className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 p-4 text-sm">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-full border-blue-500/40 text-blue-600 hover:bg-blue-500/10 dark:text-blue-300"
+                    >
                       <Volume2 className="mr-2 h-4 w-4" />
                       Ouvir
                     </Button>
-                    <span className="text-muted-foreground">{question.audio}</span>
+                    <span className={cn("text-xs", learningMutedText)}>{question.audio}</span>
                   </div>
                 )}
 
                 {(question.type === "mcq" || question.type === "listening") &&
                   "options" in question && (
                     <RadioGroup
-                      value={selectedAnswer?.toString()}
+                      value={selectedAnswer !== null ? selectedAnswer.toString() : undefined}
                       onValueChange={(value: string) => setSelectedAnswer(Number(value))}
+                      className="space-y-3"
                     >
-                      <div className="space-y-3">
-                        {question.options.map((option, index) => (
-                          <div
-                            key={option}
-                            className="flex items-center gap-3 rounded-lg border border-transparent p-3 hover:border-blue-200 hover:bg-blue-50"
+                      {question.options.map((option, index) => (
+                        <div
+                          key={option}
+                          className={cn(
+                            "flex items-center gap-3 rounded-xl border px-4 py-3 transition",
+                            learningSubtleCard,
+                            selectedAnswer === index
+                              ? "border-blue-500/60 shadow-lg shadow-blue-500/15"
+                              : "hover:shadow-md hover:shadow-blue-500/10",
+                          )}
+                        >
+                          <RadioGroupItem value={index.toString()} id={`question-${index}`} />
+                          <Label
+                            htmlFor={`question-${index}`}
+                            className={cn("flex-1 cursor-pointer text-sm", learningSectionHeading)}
                           >
-                            <RadioGroupItem value={index.toString()} id={`question-${index}`} />
-                            <Label
-                              htmlFor={`question-${index}`}
-                              className="flex-1 cursor-pointer text-sm"
-                            >
-                              {option}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
+                            {option}
+                          </Label>
+                        </div>
+                      ))}
                     </RadioGroup>
                   )}
 
                 {question.type === "speaking" && (
-                  <div className="space-y-5 py-6 text-center">
-                    <div className="flex justify-center">
-                      <Button
-                        onClick={handleRecord}
-                        disabled={isRecording || hasRecorded}
-                        className="flex h-24 w-24 items-center justify-center rounded-full bg-orange-500 text-white hover:bg-orange-600"
-                      >
-                        {hasRecorded ? (
-                          <CheckCircle2 className="h-12 w-12" />
-                        ) : (
-                          <Mic className={`h-12 w-12 ${isRecording ? "animate-pulse" : ""}`} />
-                        )}
-                      </Button>
+                  <div className="space-y-4">
+                    <div className="rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 p-4 text-sm shadow-inner">
+                      <p className={cn("font-semibold", learningSectionHeading)}>
+                        🎤 {question.question}
+                      </p>
+                      {question.hint ? (
+                        <p className={cn("text-xs", learningMutedText)}>{question.hint}</p>
+                      ) : null}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {isRecording && "Gravando... Fale naturalmente"}
-                      {hasRecorded && "Gravação concluída! ✅"}
-                      {!isRecording && !hasRecorded && "Clique para gravar sua resposta"}
-                    </p>
-                    {"hint" in question && question.hint ? (
-                      <p className="text-xs text-muted-foreground">{question.hint}</p>
-                    ) : null}
+
+                    <Button
+                      size="lg"
+                      onClick={handleRecord}
+                      disabled={isRecording}
+                      className={cn(
+                        "w-full rounded-full",
+                        isRecording
+                          ? "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500"
+                          : learningPrimaryButton,
+                      )}
+                    >
+                      <Mic className="mr-2 h-4 w-4" />
+                      {isRecording ? "Gravando..." : "Gravar resposta"}
+                    </Button>
+
+                    {hasRecorded && (
+                      <div className="rounded-xl border border-green-500/40 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-200">
+                        Resposta gravada! Podemos avançar.
+                      </div>
+                    )}
                   </div>
                 )}
-
-                <div className="flex justify-end pt-4">
-                  <Button
-                    onClick={handleNext}
-                    disabled={!canProceed}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    {currentQuestion < QUESTIONS.length - 1 ? "Próxima" : "Finalizar"}
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           </motion.div>
         </AnimatePresence>
+
+        <div className="flex items-center justify-between">
+          <span className={cn("text-xs", learningMutedText)}>
+            Questões adaptadas ao seu objetivo
+          </span>
+          <Button
+            disabled={!canProceed}
+            onClick={handleNext}
+            className={cn(
+              "rounded-full px-6",
+              canProceed
+                ? learningPrimaryButton
+                : "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500",
+            )}
+          >
+            {currentQuestion === QUESTIONS.length - 1 ? (
+              <>
+                Finalizar <CheckCircle2 className="ml-2 h-4 w-4" />
+              </>
+            ) : (
+              <>
+                Próximo <CheckCircle2 className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

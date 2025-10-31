@@ -18,6 +18,16 @@ import {
   Textarea,
 } from "@english-app/ui";
 
+import { cn } from "@/lib/utils";
+
+import {
+  learningMutedText,
+  learningPrimaryButton,
+  learningSectionHeading,
+  learningSubtleCard,
+  learningSurfaceCard,
+} from "./theme";
+
 interface LessonProps {
   day: number;
   onComplete: () => void;
@@ -62,11 +72,11 @@ const LESSON_CONTENT: LessonPhase[] = [
   {
     phase: "presentation",
     title: "📚 Presentation",
-    description: "Learn new concepts and vocabulary",
+    description: "Aprenda novos conceitos e vocabulário",
     content: {
       topic: "Interview Introductions",
       explanation:
-        "In technical interviews, your introduction sets the tone. A strong opening includes: your name, current role, years of experience, and key technical skills.",
+        "Em entrevistas técnicas, sua introdução define o tom. Uma abertura forte inclui: seu nome, cargo atual, anos de experiência e principais competências técnicas.",
       example: `"Hi, I'm Maria. I'm a Backend Developer with 3 years of experience. I specialize in Node.js, PostgreSQL, and building RESTful APIs. Most recently, I worked on a microservices architecture that handled 10,000 requests per second."`,
       keyPhrases: [
         "I specialize in...",
@@ -79,7 +89,7 @@ const LESSON_CONTENT: LessonPhase[] = [
   {
     phase: "assimilation",
     title: "🎯 Assimilation",
-    description: "Practice and reinforce what you learned",
+    description: "Pratique e reforce o que aprendeu",
     quiz: {
       question: "Which phrase best describes technical expertise in an interview?",
       options: [
@@ -94,14 +104,14 @@ const LESSON_CONTENT: LessonPhase[] = [
   {
     phase: "recall",
     title: "💡 Active Recall",
-    description: "Apply your knowledge in a real scenario",
+    description: "Aplique o conhecimento em um cenário real",
     prompt:
       "Write your own introduction for a Backend Developer position. Include your experience, main technologies, and a recent achievement. (Write in English)",
   },
   {
     phase: "feedback",
     title: "✨ Feedback & Next",
-    description: "Review your progress and plan ahead",
+    description: "Revise seu progresso e planeje os próximos passos",
   },
 ];
 
@@ -139,19 +149,23 @@ export function Lesson({ day, onComplete, onOpenChat }: LessonProps) {
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
         <header className="flex items-center justify-between">
-          <Button variant="ghost" onClick={onComplete}>
+          <Button
+            variant="ghost"
+            onClick={onComplete}
+            className="rounded-full bg-white/70 px-4 text-slate-700 shadow-sm hover:bg-white/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar ao plano
           </Button>
 
-          <Button variant="outline" onClick={onOpenChat}>
+          <Button onClick={onOpenChat} className={cn("rounded-full px-4", learningPrimaryButton)}>
             <MessageCircle className="mr-2 h-4 w-4" />
-            Teacher AI
+            Conversar com Teacher AI
           </Button>
         </header>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className={cn("flex items-center justify-between text-sm", learningMutedText)}>
             <span>
               Dia {day} • {phase.title}
             </span>
@@ -159,7 +173,7 @@ export function Lesson({ day, onComplete, onOpenChat }: LessonProps) {
               {currentPhase + 1} de {LESSON_CONTENT.length}
             </span>
           </div>
-          <Progress value={progress} />
+          <Progress value={progress} className="h-2 bg-white/60" />
         </div>
 
         <AnimatePresence mode="wait">
@@ -170,34 +184,50 @@ export function Lesson({ day, onComplete, onOpenChat }: LessonProps) {
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.25 }}
           >
-            <Card>
+            <Card className={cn(learningSurfaceCard)}>
               <CardHeader>
-                <CardTitle>{phase.title}</CardTitle>
-                <CardDescription>{phase.description}</CardDescription>
+                <CardTitle className={cn(learningSectionHeading)}>{phase.title}</CardTitle>
+                <CardDescription className={cn(learningMutedText)}>
+                  {phase.description}
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-6">
                 {phase.phase === "presentation" && (
                   <div className="space-y-4">
-                    <div className="rounded-lg bg-blue-50 p-4 text-sm">
-                      <h3 className="mb-2 font-semibold text-blue-900">📖 {phase.content.topic}</h3>
-                      <p className="text-muted-foreground">{phase.content.explanation}</p>
+                    <div className="rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-4 text-sm shadow-inner">
+                      <h3 className="mb-2 font-semibold text-blue-700 dark:text-blue-300">
+                        📖 {phase.content.topic}
+                      </h3>
+                      <p className={cn("leading-relaxed", learningMutedText)}>
+                        {phase.content.explanation}
+                      </p>
                     </div>
 
-                    <div className="rounded-lg border-l-4 border-green-500 bg-green-50 p-4 text-sm">
-                      <p className="mb-2 font-semibold text-green-900">💬 Exemplo</p>
-                      <p className="text-green-800 italic">{phase.content.example}</p>
+                    <div className="rounded-2xl border border-green-500/40 bg-green-500/10 p-4 text-sm">
+                      <p className="mb-2 font-semibold text-green-700 dark:text-green-300">
+                        💬 Exemplo
+                      </p>
+                      <p className="text-green-700 dark:text-green-200 italic">
+                        {phase.content.example}
+                      </p>
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-sm font-semibold text-blue-900">🔑 Frases-chave</p>
+                      <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                        🔑 Frases-chave
+                      </p>
                       <div className="grid gap-2 sm:grid-cols-2">
                         {phase.content.keyPhrases.map((phrase) => (
                           <div
                             key={phrase}
-                            className="rounded-lg border bg-white p-3 text-sm text-blue-700"
+                            className={cn(
+                              "rounded-xl border px-3 py-2 text-sm",
+                              learningSubtleCard,
+                              "font-mono text-blue-600 dark:text-blue-300",
+                            )}
                           >
-                            <code>{phrase}</code>
+                            {phrase}
                           </div>
                         ))}
                       </div>
@@ -206,168 +236,138 @@ export function Lesson({ day, onComplete, onOpenChat }: LessonProps) {
                 )}
 
                 {phase.phase === "assimilation" && (
-                  <div className="space-y-4">
-                    <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-900">
-                      {phase.quiz.question}
+                  <div className="space-y-6">
+                    <div className="rounded-xl bg-white/70 p-4 text-sm shadow-inner dark:bg-neutral-900/70">
+                      <p className={cn("font-semibold", learningSectionHeading)}>
+                        {phase.quiz.question}
+                      </p>
+                      <p className={cn("text-xs", learningMutedText)}>Escolha a melhor resposta.</p>
                     </div>
 
                     <RadioGroup
-                      value={selectedAnswer?.toString()}
-                      onValueChange={(value: string) => {
-                        setSelectedAnswer(Number(value));
-                        setShowFeedback(false);
-                      }}
+                      value={selectedAnswer !== null ? String(selectedAnswer) : undefined}
+                      onValueChange={(value: string) => setSelectedAnswer(Number(value))}
                       className="space-y-3"
                     >
                       {phase.quiz.options.map((option, index) => (
-                        <div key={option} className="flex items-center gap-3">
-                          <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                          <Label
-                            htmlFor={`option-${index}`}
-                            className={[
-                              "flex-1 cursor-pointer rounded-lg border p-3 transition",
-                              showFeedback && index === phase.quiz.correct
-                                ? "border-green-500 bg-green-50"
-                                : showFeedback && index === selectedAnswer
-                                  ? "border-orange-500 bg-orange-50"
-                                  : "border-border hover:border-blue-200 hover:bg-blue-50",
-                            ].join(" ")}
-                          >
-                            {option}
-                          </Label>
-                        </div>
+                        <Label
+                          key={option}
+                          className={cn(
+                            "flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm transition",
+                            learningSubtleCard,
+                            selectedAnswer === index
+                              ? "border-blue-500/60 shadow-lg shadow-blue-500/15"
+                              : "hover:shadow-md hover:shadow-blue-500/10",
+                          )}
+                        >
+                          <RadioGroupItem value={String(index)} />
+                          {option}
+                        </Label>
                       ))}
                     </RadioGroup>
 
                     {showFeedback && selectedAnswer !== null && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={[
-                          "rounded-lg p-4 text-sm",
+                      <div
+                        className={cn(
+                          "rounded-xl border px-4 py-3 text-sm",
                           selectedAnswer === phase.quiz.correct
-                            ? "border border-green-200 bg-green-50 text-green-700"
-                            : "border border-orange-200 bg-orange-50 text-orange-700",
-                        ].join(" ")}
+                            ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-200"
+                            : "border-rose-500/50 bg-rose-500/10 text-rose-700 dark:text-rose-200",
+                        )}
                       >
                         {selectedAnswer === phase.quiz.correct ? (
-                          <div className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                            <div>
-                              <p className="font-semibold">✅ Correto!</p>
-                              <p>Essa resposta demonstra especificidade e profissionalismo.</p>
-                            </div>
-                          </div>
+                          <span>
+                            Excelente! Essa é a melhor forma de demonstrar sua experiência.
+                          </span>
                         ) : (
-                          <div>
-                            <p className="font-semibold">💭 Não exatamente.</p>
-                            <p>
-                              A melhor resposta é:{" "}
-                              <span className="font-medium text-orange-900">
-                                &ldquo;{phase.quiz.options[phase.quiz.correct]}&rdquo;
-                              </span>
-                              . Em entrevistas, seja específico sobre suas habilidades.
-                            </p>
-                          </div>
+                          <span>
+                            Quase lá! Foque em evidenciar impacto e habilidades específicas.
+                          </span>
                         )}
-                      </motion.div>
-                    )}
-
-                    {!showFeedback && selectedAnswer !== null ? (
-                      <Button onClick={() => setShowFeedback(true)} className="w-full">
-                        Verificar resposta
-                      </Button>
-                    ) : null}
-                  </div>
-                )}
-
-                {phase.phase === "recall" && (
-                  <div className="space-y-4">
-                    <div className="rounded-lg border-l-4 border-orange-500 bg-orange-50 p-4 text-sm text-orange-900">
-                      {phase.prompt}
-                    </div>
-                    <Textarea
-                      value={userAnswer}
-                      onChange={(event) => setUserAnswer(event.target.value)}
-                      placeholder="Type your answer here..."
-                      className="min-h-[200px]"
-                    />
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{userAnswer.length} caracteres</span>
-                      <span>Mínimo de 20 caracteres</span>
-                    </div>
-
-                    {userAnswer.length > 20 && (
-                      <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-700">
-                        <div className="flex items-start gap-2">
-                          <Sparkles className="mt-0.5 h-4 w-4 text-blue-600" />
-                          <div>
-                            <p className="font-semibold text-blue-900">💡 Teacher AI Tip</p>
-                            <p>
-                              Ótimo! Sua resposta mostra estrutura. Considere adicionar um número
-                              específico para maior impacto.
-                            </p>
-                          </div>
-                        </div>
                       </div>
                     )}
                   </div>
                 )}
 
-                {phase.phase === "feedback" && (
-                  <div className="space-y-4 text-center py-8">
-                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-500">
-                      <CheckCircle2 className="h-10 w-10 text-white" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-semibold">🎉 Lição concluída!</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Você completou o Dia {day} com sucesso. Continue praticando para manter o
-                        progresso!
+                {phase.phase === "recall" && (
+                  <div className="space-y-4">
+                    <div className="rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 p-4 text-sm">
+                      <p className={cn("font-semibold", learningSectionHeading)}>{phase.prompt}</p>
+                      <p className={cn("text-xs", learningMutedText)}>
+                        Escreva pelo menos 3 frases completas.
                       </p>
                     </div>
-                    <div className="grid grid-cols-3 gap-3 text-sm">
-                      {[
-                        { label: "Pontos", value: "100" },
-                        { label: "Minutos", value: "15" },
-                        { label: "Streak", value: "🔥" },
-                      ].map((stat) => (
-                        <div key={stat.label} className="rounded-lg bg-muted p-3">
-                          <div className="text-2xl font-semibold">{stat.value}</div>
-                          <div className="text-xs text-muted-foreground">{stat.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <Button variant="outline" onClick={onOpenChat}>
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Praticar com Teacher AI
-                    </Button>
+                    <Textarea
+                      value={userAnswer}
+                      onChange={(event) => setUserAnswer(event.target.value)}
+                      rows={6}
+                      placeholder="Ex: Hi, I'm..."
+                      className="resize-none rounded-2xl border border-blue-500/30 bg-white/80 shadow-inner focus-visible:border-blue-500 focus-visible:ring-blue-500 dark:bg-neutral-900/70"
+                    />
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentPhase((prev) => Math.max(0, prev - 1))}
-                    disabled={currentPhase === 0}
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Anterior
-                  </Button>
-
-                  <Button
-                    onClick={handleNext}
-                    disabled={!canProceed()}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    {currentPhase === LESSON_CONTENT.length - 1 ? "Concluir lição" : "Próximo"}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
+                {phase.phase === "feedback" && (
+                  <div className="space-y-4">
+                    <div className="rounded-xl bg-gradient-to-r from-blue-500/10 to-emerald-500/10 p-4 text-sm shadow-inner">
+                      <p className={cn("font-semibold", learningSectionHeading)}>🏁 Parabéns!</p>
+                      <p className={cn("text-sm", learningMutedText)}>
+                        Você concluiu esta lição. Revise seu progresso com Teacher AI para obter
+                        feedback personalizado.
+                      </p>
+                    </div>
+                    <Button className={cn("w-full", learningPrimaryButton)} onClick={onOpenChat}>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Pedir feedback ao Teacher AI
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
         </AnimatePresence>
+
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <Button
+            variant="outline"
+            onClick={onComplete}
+            className="rounded-full border-transparent bg-white/70 px-4 text-slate-700 shadow-sm hover:bg-white/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar
+          </Button>
+          <div className="flex items-center gap-3">
+            {phase.phase === "assimilation" && selectedAnswer !== null && (
+              <Button
+                variant="ghost"
+                onClick={() => setShowFeedback(true)}
+                className="rounded-full bg-white/60 px-4 text-blue-600 hover:bg-white/80 dark:bg-neutral-800/60 dark:text-blue-300"
+              >
+                Ver feedback
+              </Button>
+            )}
+            <Button
+              disabled={!canProceed()}
+              onClick={handleNext}
+              className={cn(
+                "rounded-full px-6",
+                canProceed()
+                  ? learningPrimaryButton
+                  : "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500",
+              )}
+            >
+              {currentPhase === LESSON_CONTENT.length - 1 ? (
+                <>
+                  Concluir <CheckCircle2 className="ml-2 h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Continuar <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

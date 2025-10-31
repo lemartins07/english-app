@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowLeft, CheckCircle2, Mic, Star, Volume2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Mic, Star, Volume2 } from "lucide-react";
 
 import {
   Badge,
@@ -16,6 +16,15 @@ import {
   Textarea,
 } from "@english-app/ui";
 
+import { cn } from "@/lib/utils";
+
+import {
+  learningMutedText,
+  learningPrimaryButton,
+  learningSectionHeading,
+  learningSubtleCard,
+  learningSurfaceCard,
+} from "./theme";
 import { type LearningProfile } from "./types";
 
 const QUESTIONS = [
@@ -59,13 +68,6 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
     [currentQuestion],
   );
 
-  const averageScore =
-    (RUBRIC_SCORES.fluency +
-      RUBRIC_SCORES.vocabulary +
-      RUBRIC_SCORES.grammar +
-      RUBRIC_SCORES.star) /
-    4;
-
   const handleRecord = () => {
     setIsRecording(true);
     setTimeout(() => {
@@ -91,13 +93,17 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
         <header className="flex items-center justify-between">
-          <Button variant="ghost" onClick={onBack}>
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="rounded-full bg-white/70 px-4 text-slate-700 shadow-sm hover:bg-white/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar
           </Button>
           {phase === "interview" && (
-            <Badge variant="outline" className="flex items-center gap-2 bg-red-50 text-red-700">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+            <Badge className="flex items-center gap-2 bg-gradient-to-r from-red-500/80 to-rose-500/80 text-white shadow shadow-rose-500/30">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
               Em andamento
             </Badge>
           )}
@@ -109,7 +115,7 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            <Card className="border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <Card className="border-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl shadow-blue-500/20">
               <CardContent className="space-y-4 px-4 py-8 text-center">
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-4xl">
                   🎯
@@ -124,13 +130,15 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={cn(learningSurfaceCard)}>
               <CardHeader>
-                <CardTitle>Como funciona</CardTitle>
-                <CardDescription>O que esperar da simulação</CardDescription>
+                <CardTitle className={cn(learningSectionHeading)}>Como funciona</CardTitle>
+                <CardDescription className={cn(learningMutedText)}>
+                  O que esperar da simulação
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3 text-center">
+                <div className="grid gap-4 text-center md:grid-cols-3">
                   {[
                     {
                       step: "1️⃣",
@@ -149,16 +157,18 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
                     },
                   ].map((item) => (
                     <div key={item.step} className="space-y-2 px-4">
-                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-semibold text-blue-600">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-lg font-semibold text-blue-600">
                         {item.step}
                       </div>
-                      <h3 className="text-sm font-semibold">{item.title}</h3>
-                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                      <h3 className={cn("text-sm font-semibold", learningSectionHeading)}>
+                        {item.title}
+                      </h3>
+                      <p className={cn("text-xs", learningMutedText)}>{item.description}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4 text-sm text-blue-800">
+                <div className="rounded-xl border border-blue-500/40 bg-blue-500/10 p-4 text-sm text-blue-800 dark:text-blue-200">
                   <strong>💡 Dica:</strong> Fale naturalmente e use exemplos específicos. Lembre-se
                   do formato STAR: Situation, Task, Action, Result.
                 </div>
@@ -166,7 +176,7 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
                 <div className="flex justify-center pt-2">
                   <Button
                     size="lg"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className={cn("px-8", learningPrimaryButton)}
                     onClick={() => setPhase("interview")}
                   >
                     Começar simulação
@@ -180,13 +190,13 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
         {phase === "interview" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className={cn("flex items-center justify-between text-sm", learningMutedText)}>
                 <span>
                   Pergunta {currentQuestion + 1} de {QUESTIONS.length}
                 </span>
                 <span>{Math.round(progress)}% concluído</span>
               </div>
-              <Progress value={progress} />
+              <Progress value={progress} className="h-2 bg-white/70" />
             </div>
 
             <AnimatePresence mode="wait">
@@ -196,215 +206,137 @@ export function InterviewSimulator({ profile, onBack, onComplete }: InterviewSim
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }}
               >
-                <Card>
+                <Card className={cn(learningSurfaceCard)}>
                   <CardHeader>
-                    <Button size="sm" variant="outline" className="w-fit">
-                      <Volume2 className="mr-2 h-4 w-4" />
-                      Ouvir pergunta
-                    </Button>
-                    <CardTitle className="mt-3 text-xl">
-                      &quot;{QUESTIONS[currentQuestion].question}&quot;
+                    <CardTitle className={cn(learningSectionHeading)}>
+                      {QUESTIONS[currentQuestion].question}
                     </CardTitle>
-                    <CardDescription className="text-sm">
-                      💡 {QUESTIONS[currentQuestion].hint}
+                    <CardDescription className={cn(learningMutedText)}>
+                      {QUESTIONS[currentQuestion].hint}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex justify-center">
+                    <div className="flex flex-wrap items-center gap-3">
                       <Button
-                        size="lg"
-                        className="h-20 w-20 rounded-full bg-orange-500 hover:bg-orange-600"
-                        onClick={handleRecord}
-                        disabled={isRecording || currentAnswer.length > 0}
+                        size="sm"
+                        variant="outline"
+                        className="rounded-full border-blue-500/40 text-blue-600 hover:bg-blue-500/10 dark:text-blue-300"
+                        onClick={() => setCurrentAnswer("")}
                       >
-                        <Mic
-                          className={`h-10 w-10 text-white ${isRecording ? "animate-pulse" : ""}`}
-                        />
+                        <Volume2 className="mr-2 h-4 w-4" />
+                        Ver exemplo
                       </Button>
-                    </div>
-                    {isRecording && (
-                      <p className="text-center text-sm text-muted-foreground">
-                        🎤 Gravando... Fale naturalmente
-                      </p>
-                    )}
-
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">ou escreva</span>
-                      </div>
+                      <Button
+                        size="sm"
+                        onClick={handleRecord}
+                        disabled={isRecording}
+                        className={cn(
+                          "rounded-full",
+                          isRecording
+                            ? "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500"
+                            : learningPrimaryButton,
+                        )}
+                      >
+                        <Mic className="mr-2 h-4 w-4" />
+                        {isRecording ? "Gravando..." : "Gravar resposta"}
+                      </Button>
                     </div>
 
                     <Textarea
                       value={currentAnswer}
                       onChange={(event) => setCurrentAnswer(event.target.value)}
-                      placeholder="Type your answer here..."
-                      className="min-h-[200px]"
-                      disabled={isRecording}
+                      rows={6}
+                      placeholder="Transcreva sua resposta ou anote os pontos principais..."
+                      className="resize-none rounded-2xl border border-blue-500/30 bg-white/80 shadow-inner focus-visible:border-blue-500 focus-visible:ring-blue-500 dark:bg-neutral-900/70"
                     />
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {currentAnswer.length} caracteres
-                      </span>
-                      <Button
-                        onClick={handleNext}
-                        disabled={!currentAnswer.trim()}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        {currentQuestion < QUESTIONS.length - 1
-                          ? "Próxima pergunta"
-                          : "Finalizar entrevista"}
-                      </Button>
+                    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs text-amber-700 dark:text-amber-200">
+                      <AlertCircle className="mr-2 inline h-4 w-4" />
+                      Use exemplos concretos e métricas sempre que possível.
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
             </AnimatePresence>
+
+            <div className="flex justify-end">
+              <Button
+                size="lg"
+                onClick={handleNext}
+                disabled={!currentAnswer.trim()}
+                className={cn(
+                  "rounded-full px-6",
+                  currentAnswer.trim()
+                    ? learningPrimaryButton
+                    : "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500",
+                )}
+              >
+                {currentQuestion === QUESTIONS.length - 1 ? "Finalizar" : "Próxima pergunta"}
+              </Button>
+            </div>
           </motion.div>
         )}
 
         {phase === "results" && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <Card className="border-0 bg-gradient-to-br from-green-500 to-green-600 text-white">
-              <CardContent className="space-y-4 px-4 py-8 text-center">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
-                  <CheckCircle2 className="h-10 w-10" />
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className={cn(learningSurfaceCard)}>
+              <CardHeader>
+                <CardTitle className={cn(learningSectionHeading)}>Resultado da simulação</CardTitle>
+                <CardDescription className={cn(learningMutedText)}>
+                  Feedback detalhado com base nas suas respostas
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {[
+                    { label: "Fluência", score: RUBRIC_SCORES.fluency },
+                    { label: "Vocabulário", score: RUBRIC_SCORES.vocabulary },
+                    { label: "Gramática", score: RUBRIC_SCORES.grammar },
+                    { label: "Estratégia STAR", score: RUBRIC_SCORES.star },
+                  ].map((item) => (
+                    <Card key={item.label} className={cn(learningSubtleCard, "border")}>
+                      <CardContent className="flex items-center justify-between px-4 py-5">
+                        <div>
+                          <p className={cn("text-xs uppercase tracking-wide", learningMutedText)}>
+                            {item.label}
+                          </p>
+                          <p className={cn("text-xl font-semibold", learningSectionHeading)}>
+                            {item.score}/5
+                          </p>
+                        </div>
+                        <Star className="h-6 w-6 text-amber-400" />
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-semibold text-white">Entrevista concluída! 🎉</h2>
-                  <p className="text-sm text-green-100">
-                    Você completou a simulação. Confira seu feedback detalhado abaixo.
+
+                <div className="rounded-xl bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 p-6 text-sm leading-relaxed">
+                  <p className={cn("font-semibold", learningSectionHeading)}>
+                    🎉 Excelente desempenho!
+                  </p>
+                  <p className={cn("mt-2", learningMutedText)}>
+                    Sua prática contínua está rendendo resultados. Recomendo focar em respostas mais
+                    concisas e em métricas específicas para destacar impacto.
                   </p>
                 </div>
-                <div className="flex items-center justify-center gap-3">
-                  <span className="text-4xl font-bold">{averageScore.toFixed(1)}</span>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((index) => (
-                      <Star
-                        key={index}
-                        className={`h-6 w-6 ${index <= Math.round(averageScore) ? "fill-yellow-300 text-yellow-300" : "text-white/40"}`}
-                      />
-                    ))}
-                  </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={onBack}
+                    className="rounded-full border-transparent bg-white/70 px-6 text-slate-700 shadow-sm hover:bg-white/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
+                  >
+                    Voltar ao progresso
+                  </Button>
+                  <Button
+                    onClick={onComplete}
+                    className={cn("rounded-full px-6", learningPrimaryButton)}
+                  >
+                    Continuar plano
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Rubrica de avaliação</CardTitle>
-                <CardDescription>Análise detalhada do seu desempenho</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[
-                  {
-                    label: "Fluência",
-                    score: RUBRIC_SCORES.fluency,
-                    description: "Naturalidade e ritmo da fala",
-                  },
-                  {
-                    label: "Vocabulário Técnico",
-                    score: RUBRIC_SCORES.vocabulary,
-                    description: "Uso apropriado de termos",
-                  },
-                  {
-                    label: "Gramática",
-                    score: RUBRIC_SCORES.grammar,
-                    description: "Correção gramatical",
-                  },
-                  {
-                    label: "Método STAR",
-                    score: RUBRIC_SCORES.star,
-                    description: "Estrutura das respostas",
-                  },
-                ].map((criterion) => (
-                  <div key={criterion.label} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold">{criterion.label}</p>
-                        <p className="text-xs text-muted-foreground">{criterion.description}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex">
-                          {[1, 2, 3, 4, 5].map((index) => (
-                            <Star
-                              key={index}
-                              className={`h-4 w-4 ${index <= criterion.score ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/40"}`}
-                            />
-                          ))}
-                        </div>
-                        <span className="w-8 text-sm">{criterion.score}/5</span>
-                      </div>
-                    </div>
-                    <Progress value={(criterion.score / 5) * 100} />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Feedback personalizado</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-lg border-l-4 border-green-500 bg-green-50 p-4 text-sm text-green-700">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                    <div>
-                      <p className="font-semibold text-green-900">Pontos fortes</p>
-                      <ul className="list-disc space-y-1 pl-4">
-                        <li>Excelente uso do formato STAR nas respostas</li>
-                        <li>Vocabulário técnico apropriado para {profile.track}</li>
-                        <li>Respostas bem estruturadas e claras</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border-l-4 border-orange-500 bg-orange-50 p-4 text-sm text-orange-700">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="mt-0.5 h-5 w-5 text-orange-600" />
-                    <div>
-                      <p className="font-semibold text-orange-900">Oportunidades de melhoria</p>
-                      <ul className="list-disc space-y-1 pl-4">
-                        <li>Trabalhe em reduzir pausas longas durante a resposta</li>
-                        <li>Adicione números e métricas aos seus exemplos</li>
-                        <li>Pratique respostas com entonação mais natural</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                size="lg"
-                onClick={() => {
-                  setPhase("intro");
-                  setCurrentQuestion(0);
-                  setCurrentAnswer("");
-                }}
-              >
-                Tentar novamente
-              </Button>
-              <Button
-                size="lg"
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
-                onClick={onComplete}
-              >
-                Voltar ao dashboard
-              </Button>
-            </div>
           </motion.div>
         )}
       </div>

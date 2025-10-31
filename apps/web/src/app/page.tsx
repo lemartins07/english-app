@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -131,20 +133,44 @@ const faqs = [
 export default function Home() {
   const [email, setEmail] = useState("");
   const { theme, setTheme } = useTheme();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const isAuthenticated = status === "authenticated";
+  const userName =
+    session?.user?.name ??
+    session?.user?.email?.split("@")[0]?.replace(/\d+$/, "") ??
+    session?.user?.email ??
+    null;
 
   const handleGetStarted = () => {
-    if (email) {
-      // onUpdateProfile({ name: email.split('@')[0] }); // This function is not available in the current context
+    if (isAuthenticated) {
+      router.push("/dashboard");
+      return;
     }
-    // onGetStarted(); // This function is not available in the current context
+
+    void signIn("google", { callbackUrl: "/dashboard" });
   };
 
   const handleLogin = () => {
-    // onLogin(); // This function is not available in the current context
+    if (isAuthenticated) {
+      router.push("/dashboard");
+      return;
+    }
+
+    router.push("/login?callbackUrl=/dashboard");
   };
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  const handleDashboard = () => {
+    router.push("/dashboard");
+  };
+
+  const handleLogout = () => {
+    void signOut({ callbackUrl: "/" });
   };
 
   return (
@@ -153,6 +179,10 @@ export default function Home() {
       <LandingHeader
         onLogin={handleLogin}
         onGetStarted={handleGetStarted}
+        onDashboard={handleDashboard}
+        onLogout={handleLogout}
+        isAuthenticated={isAuthenticated}
+        userName={userName}
         theme={theme}
         onToggleTheme={toggleTheme}
       />

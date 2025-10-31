@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Award, Calendar, Clock, Download, Target, TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -15,6 +16,15 @@ import {
   Progress,
 } from "@english-app/ui";
 
+import { cn } from "@/lib/utils";
+
+import {
+  learningMutedText,
+  learningPrimaryButton,
+  learningSectionHeading,
+  learningSubtleCard,
+  learningSurfaceCard,
+} from "./theme";
 import { type LearningProfile } from "./types";
 
 interface ProgressDashboardProps {
@@ -24,6 +34,12 @@ interface ProgressDashboardProps {
 }
 
 export function ProgressDashboard({ profile, onBack, onStartInterview }: ProgressDashboardProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const chartData = [
     { day: "Seg", minutes: profile.completedDays.includes(1) ? 15 : 0 },
     { day: "Ter", minutes: profile.completedDays.includes(2) ? 18 : 0 },
@@ -73,19 +89,26 @@ export function ProgressDashboard({ profile, onBack, onStartInterview }: Progres
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <Button variant="ghost" onClick={onBack}>
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="w-fit rounded-full bg-white/60 px-4 text-slate-700 shadow-sm hover:bg-white/80 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar ao plano
           </Button>
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            className="rounded-full border-transparent bg-white/70 px-4 text-slate-700 shadow-sm hover:bg-white/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-700"
+          >
             <Download className="mr-2 h-4 w-4" />
             Exportar progresso
           </Button>
         </header>
 
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-semibold text-blue-900">Seu progresso</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className={cn("text-3xl font-semibold", learningSectionHeading)}>Seu progresso</h1>
+          <p className={cn("text-sm", learningMutedText)}>
             Acompanhe sua evolução semanal e conquistas
           </p>
         </div>
@@ -96,25 +119,25 @@ export function ProgressDashboard({ profile, onBack, onStartInterview }: Progres
               title: "Dias concluídos",
               value: `${profile.completedDays.length}/7`,
               icon: <Calendar className="h-6 w-6 text-blue-600" />,
-              bg: "bg-blue-100",
+              accent: "from-blue-500/20 to-purple-500/20",
             },
             {
               title: "Tempo estudado",
               value: `${totalMinutes} min`,
-              icon: <Clock className="h-6 w-6 text-green-600" />,
-              bg: "bg-green-100",
+              icon: <Clock className="h-6 w-6 text-green-500" />,
+              accent: "from-green-500/20 to-emerald-500/20",
             },
             {
               title: "Pontuação",
               value: profile.score,
-              icon: <Award className="h-6 w-6 text-orange-600" />,
-              bg: "bg-orange-100",
+              icon: <Award className="h-6 w-6 text-orange-500" />,
+              accent: "from-orange-500/20 to-amber-500/20",
             },
             {
               title: "Streak",
               value: `${streak} 🔥`,
-              icon: <TrendingUp className="h-6 w-6 text-red-600" />,
-              bg: "bg-red-100",
+              icon: <TrendingUp className="h-6 w-6 text-rose-500" />,
+              accent: "from-rose-500/20 to-pink-500/20",
             },
           ].map((card, index) => (
             <motion.div
@@ -123,16 +146,21 @@ export function ProgressDashboard({ profile, onBack, onStartInterview }: Progres
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card>
+              <Card className={cn(learningSubtleCard, "h-full")}>
                 <CardContent className="flex items-center justify-between px-4 py-6">
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <p className={cn("text-xs uppercase tracking-wide", learningMutedText)}>
                       {card.title}
                     </p>
-                    <p className="text-2xl font-semibold">{card.value}</p>
+                    <p className={cn("text-2xl font-semibold", learningSectionHeading)}>
+                      {card.value}
+                    </p>
                   </div>
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-full ${card.bg}`}
+                    className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br",
+                      card.accent,
+                    )}
                   >
                     {card.icon}
                   </div>
@@ -142,48 +170,65 @@ export function ProgressDashboard({ profile, onBack, onStartInterview }: Progres
           ))}
         </section>
 
-        <Card>
+        <Card className={cn(learningSurfaceCard)}>
           <CardHeader>
-            <CardTitle>Atividade semanal</CardTitle>
-            <CardDescription>Minutos estudados por dia</CardDescription>
+            <CardTitle className={cn(learningSectionHeading)}>Atividade semanal</CardTitle>
+            <CardDescription className={cn(learningMutedText)}>
+              Minutos estudados por dia
+            </CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="day" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip
-                  cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid #e2e8f0",
-                    boxShadow: "0px 12px 24px rgba(15, 23, 42, 0.08)",
-                  }}
-                />
-                <Bar dataKey="minutes" radius={[8, 8, 0, 0]} fill="#3b82f6" />
-              </BarChart>
-            </ResponsiveContainer>
+            {mounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <defs>
+                    <linearGradient id="minutesGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.9} />
+                      <stop offset="95%" stopColor="#9333ea" stopOpacity={0.7} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <XAxis dataKey="day" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip
+                    cursor={{ fill: "rgba(79, 70, 229, 0.08)" }}
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(148, 163, 184, 0.3)",
+                      boxShadow: "0px 12px 24px rgba(15, 23, 42, 0.12)",
+                      background: "rgba(255, 255, 255, 0.95)",
+                    }}
+                  />
+                  <Bar dataKey="minutes" radius={[8, 8, 0, 0]} fill="url(#minutesGradient)" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                Carregando gráfico...
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <section className="grid gap-6 md:grid-cols-2">
-          <Card>
+          <Card className={cn(learningSurfaceCard)}>
             <CardHeader>
-              <CardTitle>Progresso do plano</CardTitle>
-              <CardDescription>Semana 1 - Fundamentos de Entrevista</CardDescription>
+              <CardTitle className={cn(learningSectionHeading)}>Progresso do plano</CardTitle>
+              <CardDescription className={cn(learningMutedText)}>
+                Semana 1 - Fundamentos de Entrevista
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <div className="mb-2 flex items-center justify-between text-sm">
-                  <span>Conclusão total</span>
+                  <span className={cn(learningMutedText)}>Conclusão total</span>
                   <span className="font-semibold text-blue-600">{completionRate}%</span>
                 </div>
-                <Progress value={completionRate} className="h-3" />
+                <Progress value={completionRate} className="h-3 bg-white/60" />
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-lg bg-green-50 p-3">
+                <div className="flex items-center justify-between rounded-lg bg-green-500/10 p-3">
                   <div className="flex items-center gap-2 text-sm">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white">
                       ✓
@@ -192,65 +237,79 @@ export function ProgressDashboard({ profile, onBack, onStartInterview }: Progres
                   </div>
                   <Badge className="bg-green-500 text-white">{profile.completedDays.length}</Badge>
                 </div>
-                <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3">
+                <div className="flex items-center justify-between rounded-lg bg-blue-500/10 p-3">
                   <div className="flex items-center gap-2 text-sm">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
                       ▶
                     </span>
                     Próxima lição
                   </div>
-                  <Badge variant="outline">Dia {profile.currentDay}</Badge>
+                  <Badge variant="outline" className="border-blue-500/40 text-blue-600">
+                    Dia {profile.currentDay}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-purple-500/10 p-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500 text-white">
+                      ⏱
+                    </span>
+                    Tempo dedicado
+                  </div>
+                  <Badge variant="outline" className="border-purple-500/40 text-purple-600">
+                    {totalMinutes} min
+                  </Badge>
                 </div>
               </div>
+
+              <Button onClick={onStartInterview} className={cn("w-full", learningPrimaryButton)}>
+                <Target className="mr-2 h-4 w-4" />
+                Iniciar simulador de entrevista
+              </Button>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className={cn(learningSurfaceCard)}>
             <CardHeader>
-              <CardTitle>Conquistas</CardTitle>
-              <CardDescription>Desbloqueie badges conforme progride</CardDescription>
+              <CardTitle className={cn(learningSectionHeading)}>Conquistas</CardTitle>
+              <CardDescription className={cn(learningMutedText)}>
+                Colecione badges conforme avança
+              </CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-3">
+            <CardContent className="grid gap-3">
               {achievements.map((achievement) => (
                 <div
                   key={achievement.id}
-                  className={[
-                    "rounded-lg border p-4 text-center text-sm transition",
+                  className={cn(
+                    "flex items-center justify-between rounded-xl px-4 py-3",
+                    learningSubtleCard,
                     achievement.unlocked
-                      ? "border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50"
-                      : "border-dashed border-muted bg-muted text-muted-foreground opacity-70",
-                  ].join(" ")}
+                      ? "border border-blue-500/30 shadow shadow-blue-500/10"
+                      : "opacity-60",
+                  )}
                 >
-                  <div className="text-2xl">{achievement.icon}</div>
-                  <p className="mt-1 font-semibold">{achievement.title}</p>
-                  <p className="text-xs text-muted-foreground">{achievement.description}</p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{achievement.icon}</span>
+                    <div>
+                      <p className={cn("text-sm font-semibold", learningSectionHeading)}>
+                        {achievement.title}
+                      </p>
+                      <p className={cn("text-xs", learningMutedText)}>{achievement.description}</p>
+                    </div>
+                  </div>
+                  {achievement.unlocked ? (
+                    <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow shadow-blue-500/20">
+                      Conquistada
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-white/40 text-slate-500">
+                      Em progresso
+                    </Badge>
+                  )}
                 </div>
               ))}
             </CardContent>
           </Card>
         </section>
-
-        <Card className="border-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-          <CardContent className="flex flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Pronto para o próximo desafio?</h3>
-              <p className="text-sm text-blue-100">
-                {profile.completedDays.length < 5
-                  ? `Complete mais ${5 - profile.completedDays.length} lições para desbloquear o simulador`
-                  : "Teste suas habilidades no Simulador de Entrevista Técnica"}
-              </p>
-            </div>
-            <Button
-              size="lg"
-              onClick={onStartInterview}
-              disabled={profile.completedDays.length < 5}
-              className="bg-white text-blue-600 hover:bg-blue-50"
-            >
-              <Target className="mr-2 h-4 w-4" />
-              {profile.completedDays.length < 5 ? "🔒 Bloqueado" : "Iniciar simulação"}
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

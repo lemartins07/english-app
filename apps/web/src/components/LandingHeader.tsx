@@ -7,11 +7,24 @@ import { Sheet, SheetContent, SheetTrigger } from "@english-app/ui";
 interface LandingHeaderProps {
   onLogin: () => void;
   onGetStarted: () => void;
+  onDashboard?: () => void;
+  onLogout?: () => void;
+  isAuthenticated?: boolean;
+  userName?: string | null;
   theme: "light" | "dark" | "system";
   onToggleTheme: () => void;
 }
 
-export function LandingHeader({ onLogin, onGetStarted, theme, onToggleTheme }: LandingHeaderProps) {
+export function LandingHeader({
+  onLogin,
+  onGetStarted,
+  onDashboard,
+  onLogout,
+  isAuthenticated = false,
+  userName,
+  theme,
+  onToggleTheme,
+}: LandingHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
 
@@ -64,6 +77,14 @@ export function LandingHeader({ onLogin, onGetStarted, theme, onToggleTheme }: L
     { id: "depoimentos", label: "Depoimentos" },
     { id: "faq", label: "FAQ" },
   ];
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const effectiveTheme = mounted ? theme : "light";
 
   return (
     <header
@@ -122,27 +143,51 @@ export function LandingHeader({ onLogin, onGetStarted, theme, onToggleTheme }: L
               onClick={onToggleTheme}
               className={isScrolled ? "" : "text-neutral-700 dark:text-neutral-200"}
             >
-              {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              {effectiveTheme === "light" ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
             </Button>
 
-            <Button
-              variant="ghost"
-              onClick={onLogin}
-              className={
-                isScrolled
-                  ? ""
-                  : "text-neutral-700 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white"
-              }
-            >
-              Entrar
-            </Button>
-
-            <Button
-              onClick={onGetStarted}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-            >
-              Começar Grátis
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <span
+                  className={[
+                    "hidden lg:inline-block text-sm text-neutral-600 dark:text-neutral-300",
+                    isScrolled ? "" : "text-neutral-700 dark:text-neutral-200",
+                  ].join(" ")}
+                >
+                  Olá, {userName ?? "English Learner"}
+                </span>
+                <Button variant="ghost" onClick={onDashboard ?? onLogin}>
+                  Dashboard
+                </Button>
+                <Button variant="outline" onClick={onLogout ?? onLogin}>
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={onLogin}
+                  className={
+                    isScrolled
+                      ? ""
+                      : "text-neutral-700 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white"
+                  }
+                >
+                  Entrar
+                </Button>
+                <Button
+                  onClick={onGetStarted}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                >
+                  Começar Grátis
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -153,7 +198,11 @@ export function LandingHeader({ onLogin, onGetStarted, theme, onToggleTheme }: L
               onClick={onToggleTheme}
               className={isScrolled ? "" : "text-neutral-700 dark:text-neutral-200"}
             >
-              {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              {effectiveTheme === "light" ? (
+                <Moon className="w-5 h-5" />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
             </Button>
 
             <Sheet>
@@ -183,16 +232,29 @@ export function LandingHeader({ onLogin, onGetStarted, theme, onToggleTheme }: L
                   ))}
 
                   <div className="border-t pt-6 space-y-3">
-                    <Button variant="outline" onClick={onLogin} className="w-full">
-                      Entrar
-                    </Button>
+                    {isAuthenticated ? (
+                      <>
+                        <Button onClick={onDashboard ?? onLogin} className="w-full">
+                          Ir para o dashboard
+                        </Button>
+                        <Button variant="outline" onClick={onLogout ?? onLogin} className="w-full">
+                          Sair
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="outline" onClick={onLogin} className="w-full">
+                          Entrar
+                        </Button>
 
-                    <Button
-                      onClick={onGetStarted}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                    >
-                      Começar Grátis
-                    </Button>
+                        <Button
+                          onClick={onGetStarted}
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                        >
+                          Começar Grátis
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </nav>
               </SheetContent>

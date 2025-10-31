@@ -18,6 +18,16 @@ import {
   SelectValue,
 } from "@english-app/ui";
 
+import { cn } from "@/lib/utils";
+
+import {
+  learningMutedText,
+  learningPrimaryButton,
+  learningSectionHeading,
+  learningSubtleCard,
+  learningSurfaceCard,
+} from "./theme";
+
 const TRACKS = [
   {
     id: "backend",
@@ -75,17 +85,19 @@ export function GoalSelection({
         animate={{ opacity: 1, y: 0 }}
         className="mx-auto flex w-full max-w-4xl flex-col gap-6"
       >
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-semibold text-blue-900">Personalize sua trilha</h1>
-          <p className="text-muted-foreground">
+        <div className="space-y-2 text-center">
+          <h1 className={cn("text-3xl font-semibold", learningSectionHeading)}>
+            Personalize sua trilha
+          </h1>
+          <p className={cn(learningMutedText)}>
             Escolha sua área e objetivo para gerar um plano de estudos personalizado
           </p>
         </div>
 
-        <Card>
+        <Card className={cn(learningSurfaceCard)}>
           <CardHeader>
-            <CardTitle>Qual sua trilha técnica?</CardTitle>
-            <CardDescription>
+            <CardTitle className={cn(learningSectionHeading)}>Qual sua trilha técnica?</CardTitle>
+            <CardDescription className={cn(learningMutedText)}>
               Selecione a área que você trabalha ou deseja trabalhar
             </CardDescription>
           </CardHeader>
@@ -97,23 +109,30 @@ export function GoalSelection({
                 <button
                   key={track.id}
                   onClick={() => setSelectedTrack(track.id)}
-                  className={`rounded-lg border-2 p-4 text-left transition-all ${
+                  className={cn(
+                    "rounded-xl border-2 p-4 text-left transition-all",
+                    learningSubtleCard,
                     isSelected
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-border hover:border-blue-200 hover:bg-blue-50"
-                  }`}
+                      ? "border-blue-500/60 shadow-lg shadow-blue-500/10"
+                      : "hover:border-blue-200 hover:shadow-md hover:shadow-blue-500/10",
+                  )}
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className={`rounded-lg p-2 ${
-                        isSelected ? "bg-blue-500 text-white" : "bg-muted text-muted-foreground"
-                      }`}
+                      className={cn(
+                        "rounded-lg p-2",
+                        isSelected
+                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                          : "bg-white/60 text-slate-500 dark:bg-neutral-800/70 dark:text-slate-300",
+                      )}
                     >
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold">{track.name}</h3>
-                      <p className="text-xs text-muted-foreground">{track.description}</p>
+                      <h3 className={cn("text-sm font-semibold", learningSectionHeading)}>
+                        {track.name}
+                      </h3>
+                      <p className={cn("text-xs", learningMutedText)}>{track.description}</p>
                     </div>
                   </div>
                 </button>
@@ -122,17 +141,21 @@ export function GoalSelection({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={cn(learningSurfaceCard)}>
           <CardHeader>
-            <CardTitle>Qual seu objetivo principal?</CardTitle>
-            <CardDescription>Isso vai ajudar a personalizar seu plano de estudos</CardDescription>
+            <CardTitle className={cn(learningSectionHeading)}>
+              Qual seu objetivo principal?
+            </CardTitle>
+            <CardDescription className={cn(learningMutedText)}>
+              Isso vai ajudar a personalizar seu plano de estudos
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Select value={selectedGoal} onValueChange={setSelectedGoal}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border border-blue-500/30 bg-white/80 text-left shadow-sm focus:ring-blue-500 dark:bg-neutral-900/70">
                 <SelectValue placeholder="Selecione seu objetivo" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl border border-blue-500/20 bg-white/95 shadow-lg shadow-blue-500/10 dark:border-neutral-800/60 dark:bg-neutral-900/95">
                 <SelectItem value="interview">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4" />
@@ -150,7 +173,7 @@ export function GoalSelection({
         <div className="flex justify-center pt-2">
           <Button
             size="lg"
-            className="min-w-[220px] bg-blue-600 hover:bg-blue-700"
+            className={cn("min-w-[220px]", learningPrimaryButton)}
             onClick={handleGenerate}
             disabled={!selectedTrack || !selectedGoal || isGenerating}
           >
