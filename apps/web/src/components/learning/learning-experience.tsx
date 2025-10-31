@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { signOut } from "next-auth/react";
+import { useTheme } from "../../app/providers/theme-provider";
 
 import { BottomNav } from "./bottom-nav";
 import { GoalSelection } from "./goal-selection";
@@ -37,16 +36,8 @@ export function LearningExperience({ initialProfile }: LearningExperienceProps) 
     if (!initialProfile.track) return "goalSelection";
     return "studyPlan";
   });
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [activeLessonDay, setActiveLessonDay] = useState<number>(profile.currentDay ?? 1);
-
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [theme]);
+  const { theme, setTheme } = useTheme();
 
   const showTopBar = useMemo(
     () => !["welcome", "levelTest", "goalSelection"].includes(screen),
@@ -80,8 +71,8 @@ export function LearningExperience({ initialProfile }: LearningExperienceProps) 
       {showTopBar && (
         <TopBar
           profile={profile}
-          theme={theme}
-          onToggleTheme={() => setTheme((prev) => (prev === "light" ? "dark" : "light"))}
+          theme={theme as "light" | "dark"}
+          onToggleTheme={() => setTheme(theme === "light" ? "dark" : "light")}
           onLogout={() => signOut({ callbackUrl: "/" })}
         />
       )}

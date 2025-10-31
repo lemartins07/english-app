@@ -6,6 +6,7 @@ import { getFeatureFlags } from "../server/feature-flags";
 import { FeatureFlagsProvider } from "../shared/feature-flags/context";
 
 import { AuthSessionProvider } from "./providers/session-provider";
+import { ThemeProvider } from "./providers/theme-provider";
 
 import "./globals.css";
 
@@ -44,13 +45,18 @@ export default async function RootLayout({
   const session = hasAuthEnvironment() ? ((await auth()) as SessionWithUser | null) : null;
 
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground`}
-      >
-        <AuthSessionProvider session={session}>
-          <FeatureFlagsProvider flags={featureFlags}>{children}</FeatureFlagsProvider>
-        </AuthSessionProvider>
+    <html lang="pt-BR">
+      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthSessionProvider session={session}>
+            <FeatureFlagsProvider flags={featureFlags}>{children}</FeatureFlagsProvider>
+          </AuthSessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

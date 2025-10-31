@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@english-app/ui";
 interface LandingHeaderProps {
   onLogin: () => void;
   onGetStarted: () => void;
-  theme: "light" | "dark";
+  theme: "light" | "dark" | "system";
   onToggleTheme: () => void;
 }
 

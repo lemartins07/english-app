@@ -1,5 +1,3 @@
-// eslint-disable-next-line react/no-unescaped-entities
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 "use client";
 
 import { useState } from "react";
@@ -30,6 +28,7 @@ import { Card, CardContent } from "@english-app/ui";
 import { Badge } from "@english-app/ui";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@english-app/ui";
 
+import { useTheme } from "@/app/providers/theme-provider";
 import { LandingHeader } from "@/components/LandingHeader";
 
 const testimonials = [
@@ -131,7 +130,7 @@ const faqs = [
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, setTheme } = useTheme();
 
   const handleGetStarted = () => {
     if (email) {
@@ -145,7 +144,7 @@ export default function Home() {
   };
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
   return (
