@@ -1,4 +1,5 @@
 import type { ISODateString } from "../../core";
+import { CEFR_LEVELS, type CEFRLevel } from "../../shared/cefr";
 
 export const APA_PHASE_ORDER = [
   "presentation",
@@ -9,8 +10,8 @@ export const APA_PHASE_ORDER = [
 
 export type APAPhaseType = (typeof APA_PHASE_ORDER)[number];
 
-export const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
-export type CEFRLevel = (typeof CEFR_LEVELS)[number];
+export { CEFR_LEVELS };
+export type { CEFRLevel };
 
 export const LINGUISTIC_SKILLS = [
   "listening",
