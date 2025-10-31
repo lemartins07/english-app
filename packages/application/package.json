@@ -35,6 +35,9 @@
     "@english-app/domain": "workspace:*",
     "@english-app/observability": "workspace:*"
   },
+  "devDependencies": {
+    "vitest": "^2.1.9"
+  },
   "peerDependencies": {
     "typescript": "^5.0.0"
   }
