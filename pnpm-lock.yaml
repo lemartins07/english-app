@@ -248,6 +248,13 @@ importers:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+    devDependencies:
+      "@vitest/coverage-v8":
+        specifier: ^2.1.9
+        version: 2.1.9(vitest@2.1.9(@types/node@22.18.13))
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@22.18.13)
 
   packages/observability:
     dependencies:
