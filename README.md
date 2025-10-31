@@ -1,6 +1,6 @@
 # SPEC-1 — English AI Tutor (Lean Spec)
 
-> Escopo desta versão: Documento enxuto, só com decisões de alto nível — requisitos funcionais e não funcionais, stack e metodologia (DDD + Clean Architecture + APA). Sem modelos de banco, algoritmos, prompts ou detalhes de implementação.
+> Escopo desta versão: Documento enxuto, só com decisões de alto nível — requisitos funcionais e não funcionais, stack e metodologia (DDD + SOLID + Clean Architecture + APA). Sem modelos de banco, algoritmos, prompts ou detalhes de implementação.
 
 ---
 
@@ -117,6 +117,9 @@ Adapters → Infra (DB, S3, LLM, ASR)
 - **Domain‑Driven Design (DDD):**
   - Modelar **bounded contexts** citados acima; linguagem ubíqua centrada em **entrevistas de TI** e **lições APA**.
   - Manter **regra de domínio** fora de controladores/adapters.
+- **Princípios SOLID:**
+  - Aplicar responsabilidade única em entidades, casos de uso e adapters.
+  - Favorecer inversão de dependência através de interfaces e contratos claros entre camadas.
 - **Clean Architecture:**
   - Dependências **de fora para dentro** apenas por **interfaces** (ports). Gateways para LLM/ASR/Storage **trocáveis**.
   - Testes de unidade no domínio/casos de uso; contratos para adapters.
