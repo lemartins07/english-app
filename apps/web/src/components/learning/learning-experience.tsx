@@ -1,5 +1,8 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { signOut } from "next-auth/react";
+
 import { useTheme } from "../../app/providers/theme-provider";
 
 import { BottomNav } from "./bottom-nav";
@@ -47,11 +50,11 @@ export function LearningExperience({ initialProfile }: LearningExperienceProps) 
   const showBottomNav = showTopBar;
 
   const updateProfile = (updates: Partial<LearningProfile>) => {
-    setProfile((prev) => ({ ...prev, ...updates }));
+    setProfile((prev: LearningProfile) => ({ ...prev, ...updates }));
   };
 
   const handleLessonComplete = () => {
-    setProfile((prev) => {
+    setProfile((prev: LearningProfile) => {
       const completed = prev.completedDays.includes(activeLessonDay)
         ? prev.completedDays
         : [...prev.completedDays, activeLessonDay];

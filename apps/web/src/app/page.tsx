@@ -180,15 +180,15 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="space-y-4"
+              className="space-y-6"
             >
-              <h1 className="text-4xl sm:text-5xl md:text-6xl text-neutral-900 dark:text-white">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-tight text-neutral-900 dark:text-white">
                 Domine o inglês para{" "}
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   entrevistas de TI
                 </span>
               </h1>
-              <p className="text-lg sm:text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
+              <p className="text-xl sm:text-2xl md:text-3xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto">
                 Treine com IA, melhore sua fluência e conquiste o emprego dos seus sonhos —
                 estudando apenas <strong>20 minutos por dia</strong>.
               </p>
