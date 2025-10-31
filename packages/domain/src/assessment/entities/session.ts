@@ -18,7 +18,7 @@ export const ASSESSMENT_SESSION_STATUSES = [
   "cancelled",
 ] as const;
 
-export type AssessmentSessionStatus = (typeof ASSESSMENT_SESSION_STATUSES)[number];
+type AssessmentSessionStatus = (typeof ASSESSMENT_SESSION_STATUSES)[number];
 
 export interface AssessmentResponseBase {
   questionId: string;

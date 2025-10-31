@@ -4,7 +4,7 @@ const MAX_WEIGHT = 100;
 const MIN_WEIGHT = 0.1;
 
 export const ASSESSMENT_QUESTION_TYPES = ["multipleChoice", "listening", "speaking"] as const;
-export type AssessmentQuestionType = (typeof ASSESSMENT_QUESTION_TYPES)[number];
+type AssessmentQuestionType = (typeof ASSESSMENT_QUESTION_TYPES)[number];
 
 export const ASSESSMENT_SKILLS = [
   "listening",
