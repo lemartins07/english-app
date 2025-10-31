@@ -1,6 +1,6 @@
 # SPEC-1 — English AI Tutor (Lean Spec)
 
-> Escopo desta versão: Documento enxuto, só com decisões de alto nível — requisitos funcionais e não funcionais, stack e metodologia (DDD + Clean Architecture + APA). Sem modelos de banco, algoritmos, prompts ou detalhes de implementação.
+> Escopo desta versão: Documento enxuto, só com decisões de alto nível — requisitos funcionais e não funcionais, stack e metodologia (DDD + SOLID + Clean Architecture + APA). Sem modelos de banco, algoritmos, prompts ou detalhes de implementação.
 
 ---
 
