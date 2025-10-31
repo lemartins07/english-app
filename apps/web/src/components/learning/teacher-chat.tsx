@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Send, Sparkles, Target, ThumbsDown, ThumbsUp } from "lucide-react";
 
@@ -15,6 +15,11 @@ import {
   CardTitle,
   Textarea,
 } from "@english-app/ui";
+
+import { useHealthStatus } from "@/hooks/use-health-status";
+import { sendEchoMessage } from "@/lib/api/echo";
+import { ApiRequestError } from "@/lib/api/errors";
+import { useFeatureFlag } from "@/shared/feature-flags/context";
 
 import { type LearningProfile } from "./types";
 
@@ -44,6 +49,16 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
   const [isTyping, setIsTyping] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const pendingEchoController = useRef<AbortController | null>(null);
+
+  const {
+    status: healthStatus,
+    latencyMs,
+    error: healthError,
+    refresh: refreshHealth,
+  } = useHealthStatus({ intervalMs: 60_000 });
+  const featureFlagEnabled = useFeatureFlag("interviewSimulator");
+  const [echoAvailable, setEchoAvailable] = useState(featureFlagEnabled);
 
   const quickActions = useMemo(
     () => [
@@ -54,45 +69,149 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
     [],
   );
 
+  const healthIndicator = useMemo(() => {
+    if (healthStatus === "healthy") {
+      const formattedLatency =
+        typeof latencyMs === "number" ? `${Math.round(latencyMs)} ms` : undefined;
+      return {
+        label: formattedLatency ? `Online (${formattedLatency})` : "Online",
+        container: "bg-green-50 text-green-700",
+        dot: "bg-green-500",
+        animated: true,
+      };
+    }
+
+    if (healthStatus === "unhealthy") {
+      return {
+        label: "Offline",
+        container: "bg-red-50 text-red-700",
+        dot: "bg-red-500",
+        animated: false,
+      };
+    }
+
+    return {
+      label: "Verificando...",
+      container: "bg-amber-50 text-amber-700",
+      dot: "bg-amber-500",
+      animated: true,
+    };
+  }, [healthStatus, latencyMs]);
+
+  useEffect(() => {
+    setEchoAvailable(featureFlagEnabled);
+  }, [featureFlagEnabled]);
+
+  useEffect(() => {
+    return () => {
+      pendingEchoController.current?.abort();
+    };
+  }, []);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const generateAIResponse = (text: string) => {
-    const lower = text.toLowerCase();
-    if (lower.includes("interview") || lower.includes("practice")) {
-      return `Great! Let's practice an interview scenario. 🎯\n\nImagine you're interviewing for a ${profile.track} position. I'll ask you:\n\n"Can you tell me about a challenging bug you fixed recently?"\n\nAnswer using the STAR method (Situation, Task, Action, Result).`;
-    }
-    if (lower.includes("correct") || lower.includes("grammar")) {
-      return `I'd be happy to help correct your English! 📝\n\nSend me a sentence or paragraph and I'll give you feedback on grammar, vocabulary, and tone.`;
-    }
-    return `That's a great topic! For technical English in ${profile.track || "tech roles"}, try to:\n\n1. Be specific with technical terms\n2. Use active voice when describing your work\n3. Quantify your achievements when possible\n\nWould you like to practice a specific scenario or need vocabulary help?`;
-  };
+  const generateAIResponse = useCallback(
+    (text: string) => {
+      const lower = text.toLowerCase();
+      if (lower.includes("interview") || lower.includes("practice")) {
+        return `Great! Let's practice an interview scenario. 🎯\n\nImagine you're interviewing for a ${profile.track} position. I'll ask you:\n\n"Can you tell me about a challenging bug you fixed recently?"\n\nAnswer using the STAR method (Situation, Task, Action, Result).`;
+      }
+      if (lower.includes("correct") || lower.includes("grammar")) {
+        return `I'd be happy to help correct your English! 📝\n\nSend me a sentence or paragraph and I'll give you feedback on grammar, vocabulary, and tone.`;
+      }
+      return `That's a great topic! For technical English in ${profile.track || "tech roles"}, try to:\n\n1. Be specific with technical terms\n2. Use active voice when describing your work\n3. Quantify your achievements when possible\n\nWould you like to practice a specific scenario or need vocabulary help?`;
+    },
+    [profile.track],
+  );
 
-  const handleSend = () => {
-    if (!input.trim() || isTyping) return;
+  const handleSend = useCallback(() => {
+    if (!input.trim() || isTyping) {
+      return;
+    }
+
     const text = input.trim();
+    const userMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: text,
+      timestamp: new Date(),
+    };
 
-    setMessages((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), role: "user", content: text, timestamp: new Date() },
-    ]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: "ai",
-          content: generateAIResponse(text),
-          timestamp: new Date(),
-        },
-      ]);
-      setIsTyping(false);
-    }, 1400);
-  };
+    pendingEchoController.current?.abort();
+    const controller = new AbortController();
+    pendingEchoController.current = controller;
+
+    void (async () => {
+      try {
+        let aiContent: string;
+        let aiTimestamp = new Date();
+
+        if (echoAvailable) {
+          const response = await sendEchoMessage(text, { signal: controller.signal });
+          aiContent = response.message;
+          aiTimestamp = new Date(response.receivedAt);
+        } else {
+          aiContent = generateAIResponse(text);
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "ai",
+            content: aiContent,
+            timestamp: aiTimestamp,
+          },
+        ]);
+      } catch (error) {
+        if ((error as { name?: string }).name === "AbortError") {
+          return;
+        }
+
+        if (error instanceof ApiRequestError && error.status === 404) {
+          setEchoAvailable(false);
+        }
+
+        void refreshHealth();
+
+        const fallback = generateAIResponse(text);
+        let reason: string;
+
+        if (error instanceof ApiRequestError) {
+          if (error.status === 404) {
+            reason =
+              "O simulador em tempo real está desativado no momento. Continuamos com uma resposta simulada.";
+          } else if (error.status >= 500) {
+            reason =
+              "O tutor está indisponível agora. Vou responder localmente enquanto restabelecemos a conexão.";
+          } else {
+            reason = error.message;
+          }
+        } else {
+          reason =
+            "Não consegui falar com o tutor agora. Vamos continuar com uma resposta simulada.";
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "ai",
+            content: `${fallback}\n\n_${reason}_`,
+            timestamp: new Date(),
+          },
+        ]);
+      } finally {
+        setIsTyping(false);
+      }
+    })();
+  }, [generateAIResponse, input, isTyping, echoAvailable, refreshHealth]);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
@@ -102,10 +221,27 @@ export function TeacherChat({ profile, onBack, onStartInterview }: TeacherChatPr
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar
           </Button>
-          <Badge variant="outline" className="flex items-center gap-2 bg-green-50 text-green-700">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-            Online
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              title={healthError ?? "Status do tutor"}
+              className={["flex items-center gap-2", healthIndicator.container].join(" ")}
+            >
+              <span
+                className={[
+                  "h-2 w-2 rounded-full",
+                  healthIndicator.dot,
+                  healthIndicator.animated ? "animate-pulse" : "",
+                ].join(" ")}
+              />
+              {healthIndicator.label}
+            </Badge>
+            {healthStatus === "unhealthy" && (
+              <Button variant="ghost" size="sm" onClick={() => void refreshHealth()}>
+                Tentar novamente
+              </Button>
+            )}
+          </div>
         </header>
 
         <Card className="flex min-h-[600px] flex-col">
