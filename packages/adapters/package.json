@@ -23,7 +23,8 @@
     "@english-app/application": "workspace:*",
     "@english-app/domain": "workspace:*",
     "@english-app/observability": "workspace:*",
-    "openai": "^4.55.1",
+    "openai": "^4.104.0",
+    "music-metadata": "^8.1.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {

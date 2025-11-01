@@ -12,6 +12,12 @@
       }
     ],
     "paths": {
+      "@english-app/domain": ["../../packages/domain/src/index.ts"],
+      "@english-app/domain/*": ["../../packages/domain/src/*"],
+      "@english-app/application": ["../../packages/application/src/index.ts"],
+      "@english-app/application/*": ["../../packages/application/src/*"],
+      "@english-app/adapters": ["../../packages/adapters/src/index.ts"],
+      "@english-app/adapters/*": ["../../packages/adapters/src/*"],
       "@/*": ["./src/*"]
     },
     "esModuleInterop": true
