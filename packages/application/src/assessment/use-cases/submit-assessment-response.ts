@@ -67,7 +67,15 @@ function buildMultipleChoiceResponse(
   question: MultipleChoiceQuestion,
   input: SubmitMultipleChoiceResponseInput,
 ): AssessmentResponse {
-  const uniqueOptionIds = [...new Set(input.selectedOptionIds.map((id) => id.trim()))];
+  const uniqueOptionIds = [
+    ...new Set(
+      input.selectedOptionIds.map((id) => id.trim()).filter((optionId) => optionId.length > 0),
+    ),
+  ];
+
+  if (uniqueOptionIds.length === 0) {
+    throw new Error("At least one option must be selected for a multiple choice response.");
+  }
   const score = calculateChoiceScore(question, uniqueOptionIds);
 
   return {
