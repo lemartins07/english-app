@@ -12,6 +12,7 @@ export interface UseCaseContext {
 
 export type AsyncResult<T> = Promise<T>;
 
+export * from "./assessment";
 export * from "./llm";
 export * from "./repositories";
 export * from "./services";

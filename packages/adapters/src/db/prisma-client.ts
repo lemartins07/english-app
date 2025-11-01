@@ -1,12 +1,14 @@
 import type { Prisma } from "@prisma/client";
 import { createRequire } from "node:module";
 
-const requireFromRoot = createRequire(new URL("../../../../package.json", import.meta.url));
-const { PrismaClient: PrismaClientCtor } = requireFromRoot(
-  "@prisma/client",
-) as typeof import("@prisma/client");
-
 type PrismaClient = import("@prisma/client").PrismaClient;
+type PrismaClientConstructor = new (
+  ...args: ConstructorParameters<typeof import("@prisma/client").PrismaClient>
+) => PrismaClient;
+
+const requireFromRoot = createRequire(new URL("../../../../package.json", import.meta.url));
+
+let PrismaClientCtor: PrismaClientConstructor | undefined;
 
 declare global {
   // eslint-disable-next-line no-var
@@ -26,12 +28,22 @@ function ensureDatabaseUrl(): void {
 }
 
 function createPrismaClient(): PrismaClient {
+  if (!PrismaClientCtor) {
+    const clientModule = requireFromRoot("@prisma/client") as typeof import("@prisma/client");
+    PrismaClientCtor = clientModule.PrismaClient;
+  }
+
+  const PrismaClientConstructor = PrismaClientCtor;
+  if (!PrismaClientConstructor) {
+    throw new Error("Failed to load Prisma client constructor.");
+  }
+
   const logLevels: Prisma.LogLevel[] =
     process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
       ? ["error", "warn"]
       : ["error"];
 
-  return new PrismaClientCtor({ log: logLevels });
+  return new PrismaClientConstructor({ log: logLevels });
 }
 
 export function getPrismaClient(): PrismaClient {
