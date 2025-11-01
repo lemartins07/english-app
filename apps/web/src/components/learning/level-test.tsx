@@ -4,6 +4,12 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, Mic, Volume2 } from "lucide-react";
 
+import type {
+  SubmitListeningResponseInput,
+  SubmitMultipleChoiceResponseInput,
+  SubmitSpeakingResponseInput,
+} from "@english-app/application";
+import type { MultipleChoiceOption } from "@english-app/domain";
 import {
   Button,
   Card,
@@ -17,6 +23,8 @@ import {
   RadioGroupItem,
 } from "@english-app/ui";
 
+import { useAssessment } from "@/hooks/use-assessment";
+import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import { cn } from "@/lib/utils";
 
 import {
@@ -27,123 +35,109 @@ import {
   learningSurfaceCard,
 } from "./theme";
 
-type Question =
-  | {
-      type: "mcq" | "listening";
-      question: string;
-      options: string[];
-      correct: number;
-      audio?: string;
-    }
-  | {
-      type: "speaking";
-      question: string;
-      hint?: string;
-    };
-
-const QUESTIONS: Question[] = [
-  {
-    type: "mcq",
-    question: 'Complete: "I ____ working on this project for two months."',
-    options: ["am", "have been", "was", "will be"],
-    correct: 1,
-  },
-  {
-    type: "mcq",
-    question: "Choose the correct sentence:",
-    options: [
-      "She dont like coffee",
-      "She doesnt likes coffee",
-      "She doesn't like coffee",
-      "She don't likes coffee",
-    ],
-    correct: 2,
-  },
-  {
-    type: "listening",
-    question: "Listen to the audio and choose what you heard:",
-    audio: 'Sample audio: "I implemented a new feature using React hooks"',
-    options: [
-      "I implemented a new feature using React hooks",
-      "I implemented a new function using React hooks",
-      "I implemented a new feature using Redux hooks",
-      "I implemented a new future using React hooks",
-    ],
-    correct: 0,
-  },
-  {
-    type: "mcq",
-    question: 'What does "API" stand for in software development?',
-    options: [
-      "Application Programming Interface",
-      "Advanced Programming Integration",
-      "Automated Process Interface",
-      "Application Process Integration",
-    ],
-    correct: 0,
-  },
-  {
-    type: "speaking",
-    question: 'Record a short answer: "Tell me about your experience with programming languages."',
-    hint: "Speak for 20-30 seconds",
-  },
-];
-
 interface LevelTestProps {
   onComplete: (level: string) => void;
 }
 
+type AnswerToSubmit =
+  | Omit<SubmitListeningResponseInput, "sessionId" | "questionId">
+  | Omit<SubmitMultipleChoiceResponseInput, "sessionId" | "questionId">
+  | Omit<SubmitSpeakingResponseInput, "sessionId" | "questionId">;
+
 export function LevelTest({ onComplete }: LevelTestProps) {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<number[]>([]);
+  const {
+    questions,
+
+    currentQuestionIndex,
+
+    isLoading,
+
+    error,
+
+    submitAnswer,
+
+    result,
+  } = useAssessment();
+
+  const { isRecording, audioBlob, startRecording, stopRecording } = useAudioRecorder();
+
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
+
   const [hasRecorded, setHasRecorded] = useState(false);
 
-  const question = QUESTIONS[currentQuestion];
+  const question = questions[currentQuestionIndex];
+
   const progress = useMemo(
-    () => ((currentQuestion + 1) / QUESTIONS.length) * 100,
-    [currentQuestion],
+    () => ((currentQuestionIndex + 1) / (questions.length || 1)) * 100,
+
+    [currentQuestionIndex, questions.length],
   );
 
-  const canProceed = question.type === "speaking" ? hasRecorded : selectedAnswer !== null;
+  const canProceed = question?.type === "speaking" ? hasRecorded : selectedAnswer !== null;
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (!question) return;
+
+    let answerToSubmit: AnswerToSubmit | null = null;
+
     if (question.type === "speaking") {
-      setAnswers((prev) => [...prev, 1]);
-    } else if (selectedAnswer !== null) {
-      setAnswers((prev) => [...prev, selectedAnswer]);
-    }
+      if (audioBlob) {
+        // TODO: Implement actual audio upload and get the URI
 
-    if (currentQuestion < QUESTIONS.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
-      setSelectedAnswer(null);
-      setHasRecorded(false);
-      return;
-    }
+        const audioUri = `fake-audio-uri/${new Date().getTime()}.wav`;
 
-    const correctCount = answers.reduce((total, answer, index) => {
-      const q = QUESTIONS[index];
-      if (q.type === "speaking") {
-        return total;
+        answerToSubmit = {
+          type: "speaking",
+          audio: { uri: audioUri },
+          submittedAt: new Date().toISOString(),
+        };
       }
-      return total + (answer === q.correct ? 1 : 0);
-    }, 0);
+    } else if (selectedAnswer !== null && "options" in question && question.options) {
+      answerToSubmit = {
+        type: question.type,
 
-    let level = "A2";
-    if (correctCount >= 3) level = "B1";
-    if (correctCount >= 4) level = "B2";
+        selectedOptionIds: [question.options[selectedAnswer].id],
 
-    onComplete(level);
+        submittedAt: new Date().toISOString(),
+      };
+    }
+
+    if (answerToSubmit) {
+      await submitAnswer(answerToSubmit);
+
+      setSelectedAnswer(null);
+
+      setHasRecorded(false);
+    }
   };
 
   const handleRecord = () => {
-    setIsRecording(true);
-    setTimeout(() => {
-      setIsRecording(false);
+    if (isRecording) {
+      stopRecording();
+
       setHasRecorded(true);
-    }, 2000);
+    } else {
+      startRecording();
+    }
   };
+
+  if (isLoading && !question) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  if (!question) {
+    if (result) {
+      onComplete(result.recommendedLevel);
+
+      return <div>Assessment complete! Your level is: {result.recommendedLevel}</div>;
+    }
+
+    return <div>Assessment complete!</div>;
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
@@ -151,16 +145,18 @@ export function LevelTest({ onComplete }: LevelTestProps) {
         <div className="space-y-2">
           <div className={cn("flex items-center justify-between text-sm", learningMutedText)}>
             <span>Teste de Nivelamento</span>
+
             <span>
-              {currentQuestion + 1} de {QUESTIONS.length}
+              {currentQuestionIndex + 1} de {questions.length}
             </span>
           </div>
+
           <Progress value={progress} className="h-2 bg-white/60" />
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentQuestion}
+            key={currentQuestionIndex}
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
@@ -169,17 +165,22 @@ export function LevelTest({ onComplete }: LevelTestProps) {
             <Card className={cn(learningSurfaceCard)}>
               <CardHeader>
                 <CardTitle className={cn(learningSectionHeading)}>
-                  {question.type === "mcq" && "📝 Multiple Choice"}
+                  {question.type === "multipleChoice" && "📝 Multiple Choice"}
+
                   {question.type === "listening" && "🎧 Listening"}
+
                   {question.type === "speaking" && "🎤 Speaking"}
                 </CardTitle>
+
                 <CardDescription className={cn(learningMutedText)}>
-                  {question.question}
+                  {"stem" in question
+                    ? question.stem
+                    : (question.prompt as { instruction: string }).instruction}
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-5">
-                {question.type === "listening" && "audio" in question && (
+                {question.type === "listening" && "stimulus" in question && (
                   <div className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 p-4 text-sm">
                     <Button
                       size="sm"
@@ -189,34 +190,41 @@ export function LevelTest({ onComplete }: LevelTestProps) {
                       <Volume2 className="mr-2 h-4 w-4" />
                       Ouvir
                     </Button>
-                    <span className={cn("text-xs", learningMutedText)}>{question.audio}</span>
+
+                    <span className={cn("text-xs", learningMutedText)}>
+                      {question.stimulus.audioUrl}
+                    </span>
                   </div>
                 )}
 
-                {(question.type === "mcq" || question.type === "listening") &&
-                  "options" in question && (
+                {(question.type === "multipleChoice" || question.type === "listening") &&
+                  "options" in question &&
+                  question.options && (
                     <RadioGroup
                       value={selectedAnswer !== null ? selectedAnswer.toString() : undefined}
                       onValueChange={(value: string) => setSelectedAnswer(Number(value))}
                       className="space-y-3"
                     >
-                      {question.options.map((option, index) => (
+                      {question.options.map((option: MultipleChoiceOption, index: number) => (
                         <div
-                          key={option}
+                          key={option.id}
                           className={cn(
                             "flex items-center gap-3 rounded-xl border px-4 py-3 transition",
+
                             learningSubtleCard,
+
                             selectedAnswer === index
                               ? "border-blue-500/60 shadow-lg shadow-blue-500/15"
                               : "hover:shadow-md hover:shadow-blue-500/10",
                           )}
                         >
                           <RadioGroupItem value={index.toString()} id={`question-${index}`} />
+
                           <Label
                             htmlFor={`question-${index}`}
                             className={cn("flex-1 cursor-pointer text-sm", learningSectionHeading)}
                           >
-                            {option}
+                            {option.text}
                           </Label>
                         </div>
                       ))}
@@ -227,10 +235,17 @@ export function LevelTest({ onComplete }: LevelTestProps) {
                   <div className="space-y-4">
                     <div className="rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 p-4 text-sm shadow-inner">
                       <p className={cn("font-semibold", learningSectionHeading)}>
-                        🎤 {question.question}
+                        🎤{" "}
+                        {typeof question.prompt === "string"
+                          ? question.prompt
+                          : (question.prompt as { instruction: string }).instruction}
                       </p>
-                      {question.hint ? (
-                        <p className={cn("text-xs", learningMutedText)}>{question.hint}</p>
+
+                      {typeof question.prompt !== "string" &&
+                      (question.prompt as { context: string }).context ? (
+                        <p className={cn("text-xs", learningMutedText)}>
+                          {(question.prompt as { context: string }).context}
+                        </p>
                       ) : null}
                     </div>
 
@@ -240,12 +255,14 @@ export function LevelTest({ onComplete }: LevelTestProps) {
                       disabled={isRecording}
                       className={cn(
                         "w-full rounded-full",
+
                         isRecording
                           ? "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500"
                           : learningPrimaryButton,
                       )}
                     >
                       <Mic className="mr-2 h-4 w-4" />
+
                       {isRecording ? "Gravando..." : "Gravar resposta"}
                     </Button>
 
@@ -265,17 +282,19 @@ export function LevelTest({ onComplete }: LevelTestProps) {
           <span className={cn("text-xs", learningMutedText)}>
             Questões adaptadas ao seu objetivo
           </span>
+
           <Button
-            disabled={!canProceed}
+            disabled={!canProceed || isLoading}
             onClick={handleNext}
             className={cn(
               "rounded-full px-6",
+
               canProceed
                 ? learningPrimaryButton
                 : "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500",
             )}
           >
-            {currentQuestion === QUESTIONS.length - 1 ? (
+            {currentQuestionIndex === questions.length - 1 ? (
               <>
                 Finalizar <CheckCircle2 className="ml-2 h-4 w-4" />
               </>
