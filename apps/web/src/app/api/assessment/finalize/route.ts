@@ -7,9 +7,10 @@ import { blueprintProvider } from "@/server/assessment/blueprint-provider";
 import { ConsoleRetentionEventEmitter } from "@/server/assessment/retention-event-emitter";
 import { getCurrentUser } from "@/server/auth/session";
 import { getPrisma } from "@/server/db/client";
-const prisma = getPrisma();
 
 export async function POST(req: Request) {
+  const prisma = getPrisma();
+
   const user = await getCurrentUser();
 
   if (!user) {

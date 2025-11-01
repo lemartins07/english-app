@@ -14,11 +14,12 @@ import { blueprintProvider } from "@/server/assessment/blueprint-provider";
 import { ConsoleRetentionEventEmitter } from "@/server/assessment/retention-event-emitter";
 import { getCurrentUser } from "@/server/auth/session";
 import { getPrisma } from "@/server/db/client";
-const prisma = getPrisma();
 import { getEnv } from "@/server/env";
-const env = getEnv();
 
 export async function POST(req: Request) {
+  const prisma = getPrisma();
+  const env = getEnv();
+
   const user = await getCurrentUser();
 
   if (!user) {
