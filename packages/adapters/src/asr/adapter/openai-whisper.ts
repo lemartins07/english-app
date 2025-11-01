@@ -7,6 +7,37 @@ import type { ShortAudioTranscription, TranscribeShortAudioInput } from "@englis
 import type { ASRProvider, ASRProviderCallOptions } from "../ports/provider";
 import type { TranscribeShortAudioResult } from "../types";
 
+type FileConstructor = new (
+  fileBits: BlobPart[],
+  fileName: string,
+  options?: FilePropertyBag,
+) => File;
+
+class NodeCompatibleFile extends Blob implements File {
+  public readonly lastModified: number;
+  public readonly name: string;
+  public readonly webkitRelativePath: string = "";
+
+  public constructor(fileBits: BlobPart[], fileName: string, options?: FilePropertyBag) {
+    super(fileBits, options);
+    this.name = fileName;
+    this.lastModified = options?.lastModified ?? Date.now();
+  }
+
+  public get [Symbol.toStringTag](): string {
+    return "File";
+  }
+}
+
+const FileCtor: FileConstructor =
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - `File` might not exist in the Node.js runtime
+  typeof File !== "undefined" ? File : (NodeCompatibleFile as unknown as FileConstructor);
+
+if (typeof File === "undefined") {
+  (globalThis as unknown as { File: FileConstructor }).File = FileCtor;
+}
+
 export interface OpenAIWhisperConfig {
   apiKey: string;
   organization?: string;
@@ -35,7 +66,7 @@ export class OpenAIWhisperAdapter implements ASRProvider {
     const metadata = await mm.parseBuffer(audioBuffer, audioBlob.type);
     const durationMs = metadata.format.duration ? Math.round(metadata.format.duration * 1000) : 0;
 
-    const audioFile = new File([audioBlob], "audio.wav", { type: audioBlob.type });
+    const audioFile = new FileCtor([audioBlob], "audio.wav", { type: audioBlob.type });
 
     const response = await this.openai.audio.transcriptions.create({
       file: audioFile,
@@ -66,6 +97,6 @@ export class OpenAIWhisperAdapter implements ASRProvider {
     const blob = await response.blob();
     // OpenAI API expects a File object, so we need to convert the Blob.
     // The 'name' and 'type' properties are important.
-    return new File([blob], "audio.wav", { type: blob.type });
+    return new FileCtor([blob], "audio.wav", { type: blob.type });
   }
 }
