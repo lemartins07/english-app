@@ -58,7 +58,14 @@ export function useAssessment() {
       "sessionId" | "questionId"
     >,
   ) {
-    if (!state.sessionId) return;
+    const { sessionId, questions, currentQuestionIndex } = state;
+    if (!sessionId) return;
+
+    const currentQuestion = questions[currentQuestionIndex];
+    if (!currentQuestion) {
+      setState((prev) => ({ ...prev, error: new Error("No question available") }));
+      return;
+    }
 
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
@@ -66,8 +73,8 @@ export function useAssessment() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId: state.sessionId,
-          questionId: state.questions[state.currentQuestionIndex].id,
+          sessionId,
+          questionId: currentQuestion.id,
           ...answer,
         }),
       });
@@ -75,29 +82,34 @@ export function useAssessment() {
         throw new Error("Failed to submit answer");
       }
       // Move to the next question or finalize
-      if (state.currentQuestionIndex < state.questions.length - 1) {
+      if (currentQuestionIndex < questions.length - 1) {
         setState((prev) => ({
           ...prev,
           currentQuestionIndex: prev.currentQuestionIndex + 1,
           isLoading: false,
         }));
       } else {
-        finalizeAssessment();
+        setState((prev) => ({
+          ...prev,
+          currentQuestionIndex: prev.currentQuestionIndex + 1,
+        }));
+        await finalizeAssessment(sessionId);
       }
     } catch (error) {
       setState((prev) => ({ ...prev, error: error as Error, isLoading: false }));
     }
   }
 
-  async function finalizeAssessment() {
-    if (!state.sessionId) return;
+  async function finalizeAssessment(sessionIdParam?: string) {
+    const activeSessionId = sessionIdParam ?? state.sessionId;
+    if (!activeSessionId) return;
 
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
       const response = await fetch("/api/assessment/finalize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: state.sessionId }),
+        body: JSON.stringify({ sessionId: activeSessionId }),
       });
       if (!response.ok) {
         throw new Error("Failed to finalize assessment");
