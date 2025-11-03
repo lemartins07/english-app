@@ -157,21 +157,42 @@ function createAuthConfig(): NextAuthConfig {
       },
       session: async ({ session, user }: SessionParams) => {
         if (session.user && user) {
-          const adapterUser = user as { id?: string; role?: Role | null };
+          const adapterUser = user as {
+            id?: string;
+            role?: Role | null;
+            hasCompletedPlacementTest?: boolean | null;
+          };
           if (adapterUser.id) {
             (session.user as SessionUser).id = adapterUser.id;
             (session.user as SessionUser).role = (adapterUser.role as Role) ?? "USER";
+          }
+          if (typeof adapterUser.hasCompletedPlacementTest === "boolean") {
+            (session.user as SessionUser).hasCompletedPlacementTest =
+              adapterUser.hasCompletedPlacementTest;
+          } else {
+            (session.user as SessionUser).hasCompletedPlacementTest = false;
           }
         }
         return session;
       },
       jwt: async ({ token, user }: JwtParams) => {
-        const enrichedToken = token as JWT & { id?: string; role?: Role };
+        const enrichedToken = token as JWT & {
+          id?: string;
+          role?: Role;
+          hasCompletedPlacementTest?: boolean;
+        };
         if (user) {
-          const adapterUser = user as { id?: string; role?: Role | null };
+          const adapterUser = user as {
+            id?: string;
+            role?: Role | null;
+            hasCompletedPlacementTest?: boolean | null;
+          };
           if (adapterUser.id) {
             enrichedToken.id = adapterUser.id;
             enrichedToken.role = (adapterUser.role as Role) ?? "USER";
+          }
+          if (typeof adapterUser.hasCompletedPlacementTest === "boolean") {
+            enrichedToken.hasCompletedPlacementTest = adapterUser.hasCompletedPlacementTest;
           }
         }
         return enrichedToken;

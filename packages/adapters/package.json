@@ -17,7 +17,7 @@
     "build": "tsc --project tsconfig.json",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "pnpm exec eslint . --max-warnings=0",
-    "test": "vitest run --coverage"
+    "test": "pnpm exec vitest run --coverage"
   },
   "dependencies": {
     "@english-app/application": "workspace:*",

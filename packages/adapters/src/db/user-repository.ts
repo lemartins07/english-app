@@ -18,6 +18,8 @@ function toUserEntity(record: User & { role: Role }): UserEntity {
     role,
     displayName: record.name ?? undefined,
     level: (record as { level?: string | null }).level ?? undefined,
+    hasCompletedPlacementTest:
+      (record as { hasCompletedPlacementTest?: boolean | null }).hasCompletedPlacementTest ?? false,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
   };
@@ -51,7 +53,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async save(user: SaveUserInput): Promise<UserEntity> {
-    const { email, displayName, level, role, id } = user;
+    const { email, displayName, level, role, id, hasCompletedPlacementTest } = user;
     const saved = await this.prisma.user.upsert({
       where: { email },
       create: {
@@ -59,12 +61,14 @@ export class PrismaUserRepository implements UserRepository {
         name: displayName,
         level: level ?? null,
         role: role ?? "USER",
+        hasCompletedPlacementTest: hasCompletedPlacementTest ?? false,
         ...(id ? { id } : {}),
       },
       update: {
         name: displayName,
         level: level ?? null,
         role: role ?? "USER",
+        ...(typeof hasCompletedPlacementTest === "boolean" ? { hasCompletedPlacementTest } : {}),
       },
     });
 

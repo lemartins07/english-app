@@ -6,7 +6,7 @@ import type { LLMArgs, LLMClient, LLMClientError, LLMMethod, LLMResult } from ".
 import { isLLMClientError } from "../ports/client";
 import type { LLMProvider, LLMProviderCallOptions } from "../ports/provider";
 
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = 120_000;
 
 export interface LLMProviderAdapterConfig {
   defaultTimeoutMs?: number;

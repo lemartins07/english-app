@@ -13,4 +13,5 @@ export interface UserEntity extends BaseEntity {
   role: UserRole;
   displayName?: string;
   level?: string;
+  hasCompletedPlacementTest?: boolean;
 }

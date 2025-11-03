@@ -1,7 +1,8 @@
-import { LearningExperience } from "@/components/learning/learning-experience";
-import { type LearningProfile } from "@/components/learning/types";
+import { redirect } from "next/navigation";
 
-import { getCurrentUser } from "../../../server/auth";
+import { LearningExperience } from "@/components/learning/learning-experience";
+import type { LearningProfile } from "@/components/learning/types";
+import { getCurrentUser } from "@/server/auth";
 
 const FALLBACK_TRACKS = [
   "Backend Developer",
@@ -31,6 +32,20 @@ function buildInitialProfile(user: Awaited<ReturnType<typeof getCurrentUser>>): 
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (!user.hasCompletedPlacementTest) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-24">
+        <h1 className="text-4xl font-bold">Finalize o teste de nivelamento</h1>
+        <p className="mt-4 text-lg">Conclua o teste para destravar seu dashboard personalizado.</p>
+      </div>
+    );
+  }
+
   const profile = buildInitialProfile(user);
 
   return <LearningExperience initialProfile={profile} />;

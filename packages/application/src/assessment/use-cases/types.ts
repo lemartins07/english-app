@@ -1,4 +1,9 @@
-import type { CEFRLevel, ISODateString, ShortAudioFileRef } from "@english-app/domain";
+import type {
+  AssessmentSession,
+  CEFRLevel,
+  ISODateString,
+  ShortAudioFileRef,
+} from "@english-app/domain";
 
 export interface StartAssessmentInput {
   userId: string;
@@ -10,6 +15,7 @@ export interface StartAssessmentInput {
 
 export interface StartAssessmentResult {
   sessionId: string;
+  session: AssessmentSession;
 }
 
 export interface SubmitAssessmentResponseBase {
