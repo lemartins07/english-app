@@ -15,7 +15,7 @@ import type {
   InterviewRubricEvalInput,
 } from "../types";
 
-export const DEFAULT_TEMPERATURE = 0.7;
+export const DEFAULT_TEMPERATURE = 1;
 export const DEFAULT_MAX_TOKENS = 3000;
 
 export interface CompletionPrompts {
@@ -32,8 +32,12 @@ export interface CompletionConfig {
 export interface CompletionParams {
   model: string;
   messages: ChatCompletionMessageParam[];
-  temperature: number;
+  temperature?: number;
   maxTokens?: number;
+  responseSchema?: {
+    name: string;
+    schema: Record<string, unknown>;
+  };
 }
 
 export function toChatCompletionMessage(message: ChatMessage): ChatCompletionMessageParam {
@@ -146,9 +150,28 @@ export function createEvaluateAnswerPrompt(input: EvaluateAnswerInput): Completi
 export function createInterviewRubricPrompt(input: InterviewRubricEvalInput): CompletionPrompts {
   const systemPrompt =
     "You are an interview coach scoring candidate transcripts against a rubric. " +
-    "Provide evidence-based scoring and suggestions in JSON.";
+    "Respond strictly using the JSON schema provided.";
 
   const userPrompt = [
+    "You must produce a JSON object that matches exactly this schema:",
+    JSON.stringify(
+      {
+        overallScore: "number (0-100, integer)",
+        summary: "string",
+        criteria: [
+          {
+            criterionId: "string",
+            score: "number (0-100, integer)",
+            evidence: "string",
+            notes: "string | undefined",
+            actionItems: "string[] | undefined",
+          },
+        ],
+      },
+      null,
+      2,
+    ),
+    "",
     "Transcript:",
     input.transcript,
     "",
@@ -176,9 +199,14 @@ export function buildCompletionParams(
       ? (parsedTemperature as number)
       : (config.temperature ?? DEFAULT_TEMPERATURE);
 
+  const shouldSendTemperature =
+    typeof effectiveTemperature === "number" &&
+    Number.isFinite(effectiveTemperature) &&
+    effectiveTemperature !== 1;
+
   return {
     model: config.model,
-    temperature: effectiveTemperature,
+    ...(shouldSendTemperature ? { temperature: effectiveTemperature } : {}),
     maxTokens: config.maxTokens ?? DEFAULT_MAX_TOKENS,
     messages: [
       { role: "system", content: prompts.systemPrompt },
