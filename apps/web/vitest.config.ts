@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineConfig } from "vitest/config";
+import { defineConfig, type UserConfig } from "vitest/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packagesDir = path.resolve(__dirname, "..", "..", "packages");
@@ -10,11 +10,13 @@ const adaptersSrc = path.resolve(packagesDir, "adapters", "src");
 const observabilitySrc = path.resolve(packagesDir, "observability", "src");
 const appSrc = path.resolve(__dirname, "./src");
 
-export default defineConfig(async () => {
-  const react = (await import("@vitejs/plugin-react")).default;
+export default defineConfig(async (): Promise<UserConfig> => {
+  const { default: react } = await import("@vitejs/plugin-react");
+
+  const plugins = react() as unknown as UserConfig["plugins"];
 
   return {
-    plugins: [react()],
+    plugins,
     resolve: {
       alias: {
         "@english-app/domain": domainSrc,
