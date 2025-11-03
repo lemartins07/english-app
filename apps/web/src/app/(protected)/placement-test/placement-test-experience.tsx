@@ -10,18 +10,18 @@ import { LevelTest } from "@/components/learning/level-test";
 export default function PlacementTestExperience() {
   const router = useRouter();
   const completionTriggeredRef = useRef(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "submitting" | "completed" | "error">("idle");
   const [recommendedLevel, setRecommendedLevel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function finalizePlacement(level: string) {
-    if (isSubmitting) {
+    if (status === "submitting") {
       return;
     }
 
     setRecommendedLevel(level);
     setError(null);
-    setIsSubmitting(true);
+    setStatus("submitting");
 
     try {
       const response = await fetch("/api/user/placement-test/complete", {
@@ -39,15 +39,14 @@ export default function PlacementTestExperience() {
         );
       }
 
-      router.replace("/dashboard");
-      router.refresh();
+      setStatus("completed");
     } catch (caughtError) {
       const message =
         caughtError instanceof Error
           ? caughtError.message
           : "Ocorreu um erro inesperado ao concluir o placement test.";
       setError(message);
-      setIsSubmitting(false);
+      setStatus("error");
     }
   }
 
@@ -60,10 +59,22 @@ export default function PlacementTestExperience() {
   }
 
   function handleRetry() {
-    if (!recommendedLevel || isSubmitting) {
+    if (!recommendedLevel || status === "submitting") {
       return;
     }
     void finalizePlacement(recommendedLevel);
+  }
+
+  function handleGoToDashboard() {
+    router.replace("/dashboard");
+    router.refresh();
+  }
+
+  function handleRetake() {
+    completionTriggeredRef.current = false;
+    setStatus("idle");
+    setRecommendedLevel(null);
+    setError(null);
   }
 
   return (
@@ -82,22 +93,45 @@ export default function PlacementTestExperience() {
           </div>
         ) : null}
 
-        <LevelTest onComplete={handleComplete} />
+        {status === "completed" && recommendedLevel ? (
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-5xl">🎉</span>
+              <h2 className="text-3xl font-semibold text-slate-900 dark:text-slate-50">
+                Parabéns! Seu nível recomendado é
+              </h2>
+              <span className="text-6xl font-bold text-blue-600 dark:text-blue-300">
+                {recommendedLevel}
+              </span>
+              <p className="max-w-xl text-sm text-slate-600 dark:text-slate-300">
+                Personalizamos seu dashboard com atividades focadas em speaking, listening e
+                grammar. Siga praticando para evoluir rapidamente rumo às entrevistas
+                internacionais.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button size="lg" onClick={handleGoToDashboard}>
+                Começar a praticar
+              </Button>
+              <Button size="lg" variant="outline" onClick={handleRetake}>
+                Refazer teste
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <LevelTest onComplete={handleComplete} submissionState={status} />
+        )}
       </div>
 
-      {isSubmitting ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/80 px-6 text-center backdrop-blur-sm dark:bg-slate-950/80">
+      {status === "submitting" ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/85 px-6 text-center backdrop-blur-sm dark:bg-slate-950/85">
           <p className="text-sm uppercase tracking-wide text-slate-500 dark:text-slate-300">
             Gerando plano personalizado
           </p>
           <p className="text-lg font-semibold text-slate-700 dark:text-slate-50">
-            Tudo pronto! Redirecionando para o dashboard…
+            Estamos analisando seu teste. Isso leva apenas alguns instantes…
           </p>
-          {recommendedLevel ? (
-            <p className="text-sm text-slate-500 dark:text-slate-300">
-              Nível recomendado: <span className="font-medium">{recommendedLevel}</span>
-            </p>
-          ) : null}
         </div>
       ) : null}
     </section>

@@ -37,6 +37,7 @@ import {
 
 interface LevelTestProps {
   onComplete: (level: string) => void;
+  submissionState?: "idle" | "submitting" | "completed" | "error";
 }
 
 type AnswerToSubmit =
@@ -44,7 +45,7 @@ type AnswerToSubmit =
   | Omit<SubmitMultipleChoiceResponseInput, "sessionId" | "questionId">
   | Omit<SubmitSpeakingResponseInput, "sessionId" | "questionId">;
 
-export function LevelTest({ onComplete }: LevelTestProps) {
+export function LevelTest({ onComplete, submissionState = "idle" }: LevelTestProps) {
   const {
     questions,
 
@@ -83,7 +84,9 @@ export function LevelTest({ onComplete }: LevelTestProps) {
   );
 
   const canProceed =
-    question?.type === "speaking" ? hasRecording && !isRecording : selectedIndex !== null;
+    question?.type === "speaking"
+      ? hasRecording && !isRecording && submissionState !== "submitting"
+      : selectedIndex !== null;
 
   const blobToDataUrl = async (blob: Blob): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -101,7 +104,7 @@ export function LevelTest({ onComplete }: LevelTestProps) {
     });
 
   const handleNext = async () => {
-    if (!question) return;
+    if (!question || submissionState === "submitting") return;
 
     let answerToSubmit: AnswerToSubmit | null = null;
 
@@ -137,6 +140,9 @@ export function LevelTest({ onComplete }: LevelTestProps) {
   };
 
   const handleRecord = () => {
+    if (submissionState === "submitting") {
+      return;
+    }
     if (isRecording) {
       stopRecording();
     } else {
@@ -160,13 +166,6 @@ export function LevelTest({ onComplete }: LevelTestProps) {
   if (!question) {
     if (result) {
       onComplete(result.recommendedLevel);
-
-      return (
-        <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-8 text-center text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/30 dark:text-emerald-100">
-          <h2 className="text-2xl font-semibold">Teste concluído! 🎉</h2>
-          <p className="mt-2 text-sm">Nível recomendado: {result.recommendedLevel}</p>
-        </div>
-      );
     }
 
     return (
