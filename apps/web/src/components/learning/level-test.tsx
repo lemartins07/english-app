@@ -151,7 +151,27 @@ export function LevelTest({ onComplete, submissionState = "idle" }: LevelTestPro
   };
 
   if (isLoading && !question) {
-    return <div>Loading...</div>;
+    return (
+      <div className="mx-auto mt-10 w-full max-w-2xl space-y-6">
+        <div className="h-5 w-32 rounded-full bg-blue-500/20" />
+        <div className="h-3 w-48 rounded-full bg-blue-500/10" />
+
+        <div className="space-y-3">
+          <div className="h-10 w-24 rounded-full bg-slate-200/80 dark:bg-neutral-800" />
+          <div className="h-10 w-1/2 rounded-full bg-slate-200/80 dark:bg-neutral-800" />
+        </div>
+
+        <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/60">
+          <div className="h-4 w-3/4 rounded-full bg-slate-200/80 dark:bg-neutral-800" />
+          <div className="h-4 w-2/3 rounded-full bg-slate-200/60 dark:bg-neutral-800/80" />
+          <div className="h-40 rounded-2xl bg-gradient-to-r from-slate-200/70 to-blue-200/60 dark:from-neutral-800/70 dark:to-blue-900/60" />
+          <div className="flex gap-3">
+            <div className="h-10 flex-1 rounded-full bg-blue-500/30" />
+            <div className="h-10 w-24 rounded-full bg-slate-200/80 dark:bg-neutral-800" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
