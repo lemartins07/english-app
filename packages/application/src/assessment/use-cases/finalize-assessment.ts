@@ -109,6 +109,7 @@ export class FinalizeAssessmentUseCase
         displayName: user.displayName,
         level: diagnostic.overall.level,
         role: user.role,
+        hasCompletedPlacementTest: true,
       });
     } else {
       this.logger?.warn?.("Unable to update user level after assessment", {

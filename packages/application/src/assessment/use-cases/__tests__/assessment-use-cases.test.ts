@@ -180,6 +180,7 @@ class InMemoryUserRepository implements UserRepository {
       displayName: input.displayName,
       level: input.level,
       role: input.role ?? "USER",
+      hasCompletedPlacementTest: input.hasCompletedPlacementTest ?? false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -344,7 +345,16 @@ describe("Assessment use cases", () => {
 
       const result = await useCase.execute(input);
 
-      expect(result.sessionId).toBe("session-1");
+      expect(result).toEqual(
+        expect.objectContaining({
+          sessionId: "session-1",
+          session: expect.objectContaining({
+            id: "session-1",
+            questions: expect.any(Array),
+            userId: "user-1",
+          }),
+        }),
+      );
       expect(events.events.at(-1)).toEqual(
         expect.objectContaining({
           name: "assessment.started",
@@ -370,6 +380,13 @@ describe("Assessment use cases", () => {
       });
 
       expect(result.sessionId).toBe("session-1");
+      expect(result.session).toEqual(
+        expect.objectContaining({
+          id: "session-1",
+          questions: expect.any(Array),
+          userId: "user-1",
+        }),
+      );
       expect(events.events.filter((event) => event.name === "assessment.started")).toHaveLength(1);
     });
   });

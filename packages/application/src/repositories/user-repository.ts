@@ -6,6 +6,7 @@ export interface SaveUserInput {
   displayName?: string;
   level?: string;
   role?: UserRole;
+  hasCompletedPlacementTest?: boolean;
 }
 
 export interface UserRepository {
