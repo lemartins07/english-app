@@ -5,5 +5,6 @@ export type SessionWithUser = Session & {
   user: Session["user"] & {
     id: string;
     role: Role;
+    hasCompletedPlacementTest: boolean;
   };
 };
