@@ -1,3 +1,7 @@
+import * as mm from "music-metadata";
+import { promises as fs } from "node:fs";
+import * as path from "node:path";
+import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ShortAudioFileRef, TranscribeShortAudioInput } from "@english-app/domain";
@@ -16,9 +20,16 @@ vi.mock("openai", () => ({
   })),
 }));
 
+// Mock music-metadata
+vi.mock("music-metadata", () => ({
+  parseBuffer: vi.fn(),
+}));
+
+const parseBufferMock = mm.parseBuffer as unknown as Mock;
+
 // Mock the global fetch function
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+global.fetch = mockFetch as unknown as typeof fetch;
 
 describe("OpenAIWhisperAdapter", () => {
   const apiKey = "test-api-key";
@@ -27,6 +38,9 @@ describe("OpenAIWhisperAdapter", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    parseBufferMock.mockReset();
+    mockFetch.mockReset();
+    delete process.env.UPLOAD_TMP_DIR;
     adapter = new OpenAIWhisperAdapter({ apiKey, organization });
   });
 
@@ -49,10 +63,7 @@ describe("OpenAIWhisperAdapter", () => {
 
     mockCreateTranscription.mockResolvedValueOnce(mockOpenAIResponse);
 
-    // Mock music-metadata parseBuffer to return a duration
-    vi.mock("music-metadata", () => ({
-      parseBuffer: vi.fn(() => Promise.resolve({ format: { duration: 5 } })),
-    }));
+    parseBufferMock.mockResolvedValueOnce({ format: { duration: 5 } });
 
     const result = await adapter.transcribeShortAudio(mockInput);
 
@@ -87,5 +98,59 @@ describe("OpenAIWhisperAdapter", () => {
     await expect(adapter.transcribeShortAudio(mockInput)).rejects.toThrow(
       `Failed to fetch audio file from ${mockAudioFileRef.uri}: Not Found`,
     );
+  });
+
+  it("should handle data URIs without fetching", async () => {
+    const base64Audio = Buffer.from("audio data").toString("base64");
+    const dataUri = `data:audio/wav;base64,${base64Audio}`;
+    const mockFileRef: ShortAudioFileRef = { uri: dataUri };
+    const mockInput: TranscribeShortAudioInput = {
+      fileRef: mockFileRef,
+    };
+
+    parseBufferMock.mockResolvedValueOnce({ format: { duration: 2 } });
+    mockCreateTranscription.mockResolvedValueOnce({ text: "transcribed" });
+
+    await adapter.transcribeShortAudio(mockInput);
+
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(mockCreateTranscription).toHaveBeenCalledWith(
+      expect.objectContaining({ file: expect.any(File) }),
+    );
+  });
+
+  it("should resolve fake audio uris from the tmp directory", async () => {
+    const originalTmp = process.env.UPLOAD_TMP_DIR;
+    const tmpDir = path.resolve("/tmp");
+    process.env.UPLOAD_TMP_DIR = tmpDir;
+    const fakeFileName = "sample.wav";
+    const fakeUri = `fake-audio-uri/${fakeFileName}`;
+    const mockBuffer = Buffer.from("audio");
+
+    const readFileSpy = vi.spyOn(fs, "readFile").mockResolvedValueOnce(mockBuffer);
+    parseBufferMock.mockResolvedValueOnce({ format: { duration: 1 } });
+    mockCreateTranscription.mockResolvedValueOnce({ text: "ok" });
+
+    const mockInput: TranscribeShortAudioInput = {
+      fileRef: { uri: fakeUri },
+    };
+
+    await adapter.transcribeShortAudio(mockInput);
+
+    expect(readFileSpy).toHaveBeenCalledWith(path.resolve(tmpDir, fakeFileName));
+
+    process.env.UPLOAD_TMP_DIR = originalTmp;
+  });
+
+  it("should throw for unsupported audio references", async () => {
+    const readFileSpy = vi.spyOn(fs, "readFile").mockRejectedValueOnce(new Error("ENOENT"));
+    const mockInput: TranscribeShortAudioInput = {
+      fileRef: { uri: "unknown-audio" },
+    };
+
+    await expect(adapter.transcribeShortAudio(mockInput)).rejects.toThrow(
+      /Unsupported audio reference/,
+    );
+    expect(readFileSpy).toHaveBeenCalled();
   });
 });
