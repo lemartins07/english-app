@@ -32,8 +32,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
       },
     },
     test: {
-      environment: "jsdom",
-      setupFiles: ["./vitest.setup.ts"],
+      environment: "node",
     },
   };
 });
