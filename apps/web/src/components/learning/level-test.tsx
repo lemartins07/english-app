@@ -57,23 +57,48 @@ export function LevelTest({ onComplete }: LevelTestProps) {
     submitAnswer,
 
     result,
+    answeredQuestionIds,
   } = useAssessment();
 
-  const { isRecording, audioBlob, startRecording, stopRecording } = useAudioRecorder();
+  const {
+    isRecording,
+    audioBlob,
+    startRecording,
+    stopRecording,
+    elapsedMs,
+    error: recordingError,
+    hasRecording,
+  } = useAudioRecorder();
 
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-
-  const [hasRecorded, setHasRecorded] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
 
   const question = questions[currentQuestionIndex];
 
-  const progress = useMemo(
-    () => ((currentQuestionIndex + 1) / (questions.length || 1)) * 100,
+  const selectedIndex = selectedAnswer !== "" ? Number(selectedAnswer) : null;
+  const answeredCount = answeredQuestionIds.length;
 
-    [currentQuestionIndex, questions.length],
+  const progress = useMemo(
+    () => (questions.length ? (answeredCount / questions.length) * 100 : 0),
+    [answeredCount, questions.length],
   );
 
-  const canProceed = question?.type === "speaking" ? hasRecorded : selectedAnswer !== null;
+  const canProceed =
+    question?.type === "speaking" ? hasRecording && !isRecording : selectedIndex !== null;
+
+  const blobToDataUrl = async (blob: Blob): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        if (typeof result === "string") {
+          resolve(result);
+        } else {
+          reject(new Error("Não foi possível preparar o áudio para envio."));
+        }
+      };
+      reader.onerror = () => reject(reader.error ?? new Error("Falha ao ler o áudio gravado."));
+      reader.readAsDataURL(blob);
+    });
 
   const handleNext = async () => {
     if (!question) return;
@@ -82,9 +107,7 @@ export function LevelTest({ onComplete }: LevelTestProps) {
 
     if (question.type === "speaking") {
       if (audioBlob) {
-        // TODO: Implement actual audio upload and get the URI
-
-        const audioUri = `fake-audio-uri/${new Date().getTime()}.wav`;
+        const audioUri = await blobToDataUrl(audioBlob);
 
         answerToSubmit = {
           type: "speaking",
@@ -92,11 +115,11 @@ export function LevelTest({ onComplete }: LevelTestProps) {
           submittedAt: new Date().toISOString(),
         };
       }
-    } else if (selectedAnswer !== null && "options" in question && question.options) {
+    } else if (selectedIndex !== null && "options" in question && question.options) {
       answerToSubmit = {
         type: question.type,
 
-        selectedOptionIds: [question.options[selectedAnswer].id],
+        selectedOptionIds: [question.options[selectedIndex].id],
 
         submittedAt: new Date().toISOString(),
       };
@@ -105,19 +128,19 @@ export function LevelTest({ onComplete }: LevelTestProps) {
     if (answerToSubmit) {
       await submitAnswer(answerToSubmit);
 
-      setSelectedAnswer(null);
+      setSelectedAnswer("");
 
-      setHasRecorded(false);
+      if (hasRecording || isRecording) {
+        stopRecording();
+      }
     }
   };
 
   const handleRecord = () => {
     if (isRecording) {
       stopRecording();
-
-      setHasRecorded(true);
     } else {
-      startRecording();
+      void startRecording();
     }
   };
 
@@ -126,17 +149,31 @@ export function LevelTest({ onComplete }: LevelTestProps) {
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-red-400/40 bg-red-500/10 p-6 text-red-700 dark:border-red-900/40 dark:bg-red-900/30 dark:text-red-100">
+        <p className="text-sm font-medium">Ops! Algo deu errado.</p>
+        <p className="mt-1 text-sm">{error.message}</p>
+      </div>
+    );
   }
 
   if (!question) {
     if (result) {
       onComplete(result.recommendedLevel);
 
-      return <div>Assessment complete! Your level is: {result.recommendedLevel}</div>;
+      return (
+        <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-8 text-center text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/30 dark:text-emerald-100">
+          <h2 className="text-2xl font-semibold">Teste concluído! 🎉</h2>
+          <p className="mt-2 text-sm">Nível recomendado: {result.recommendedLevel}</p>
+        </div>
+      );
     }
 
-    return <div>Assessment complete!</div>;
+    return (
+      <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-blue-400/40 bg-blue-500/10 p-8 text-center text-blue-700 dark:border-blue-900/40 dark:bg-blue-900/30 dark:text-blue-100">
+        <p className="text-sm">Processando seu resultado personalizado...</p>
+      </div>
+    );
   }
 
   return (
@@ -165,11 +202,11 @@ export function LevelTest({ onComplete }: LevelTestProps) {
             <Card className={cn(learningSurfaceCard)}>
               <CardHeader>
                 <CardTitle className={cn(learningSectionHeading)}>
-                  {question.type === "multipleChoice" && "📝 Multiple Choice"}
+                  {question.type === "multipleChoice" && "📝 Questão de múltipla escolha"}
 
-                  {question.type === "listening" && "🎧 Listening"}
+                  {question.type === "listening" && "🎧 Compreensão auditiva"}
 
-                  {question.type === "speaking" && "🎤 Speaking"}
+                  {question.type === "speaking" && "🎤 Produção oral"}
                 </CardTitle>
 
                 <CardDescription className={cn(learningMutedText)}>
@@ -201,8 +238,8 @@ export function LevelTest({ onComplete }: LevelTestProps) {
                   "options" in question &&
                   question.options && (
                     <RadioGroup
-                      value={selectedAnswer !== null ? selectedAnswer.toString() : undefined}
-                      onValueChange={(value: string) => setSelectedAnswer(Number(value))}
+                      value={selectedAnswer}
+                      onValueChange={(value: string) => setSelectedAnswer(value)}
                       className="space-y-3"
                     >
                       {question.options.map((option: MultipleChoiceOption, index: number) => (
@@ -213,7 +250,7 @@ export function LevelTest({ onComplete }: LevelTestProps) {
 
                             learningSubtleCard,
 
-                            selectedAnswer === index
+                            selectedIndex === index
                               ? "border-blue-500/60 shadow-lg shadow-blue-500/15"
                               : "hover:shadow-md hover:shadow-blue-500/10",
                           )}
@@ -249,28 +286,69 @@ export function LevelTest({ onComplete }: LevelTestProps) {
                       ) : null}
                     </div>
 
-                    <Button
-                      size="lg"
-                      onClick={handleRecord}
-                      disabled={isRecording}
-                      className={cn(
-                        "w-full rounded-full",
-
-                        isRecording
-                          ? "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500"
-                          : learningPrimaryButton,
-                      )}
-                    >
-                      <Mic className="mr-2 h-4 w-4" />
-
-                      {isRecording ? "Gravando..." : "Gravar resposta"}
-                    </Button>
-
-                    {hasRecorded && (
-                      <div className="rounded-xl border border-green-500/40 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-200">
-                        Resposta gravada! Podemos avançar.
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 p-4 text-sm text-purple-900 dark:border-purple-500/40 dark:bg-purple-500/20 dark:text-purple-100">
+                        {isRecording ? (
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center gap-2 font-medium">
+                              <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" />
+                              Gravando…
+                            </span>
+                            <span className="text-xs">
+                              {Math.floor(elapsedMs / 1000)
+                                .toString()
+                                .padStart(2, "0")}{" "}
+                              s
+                            </span>
+                          </div>
+                        ) : hasRecording ? (
+                          <span className="font-medium">
+                            Resposta gravada! Você pode seguir para a próxima etapa.
+                          </span>
+                        ) : (
+                          <span className="font-medium">
+                            Toque em “Gravar resposta” para começar. Você pode refazer quantas vezes
+                            quiser.
+                          </span>
+                        )}
                       </div>
-                    )}
+
+                      <div className="flex gap-3">
+                        <Button
+                          size="lg"
+                          onClick={handleRecord}
+                          className={cn(
+                            "flex-1 rounded-full",
+                            isRecording
+                              ? "bg-red-500 text-white hover:bg-red-600"
+                              : learningPrimaryButton,
+                          )}
+                        >
+                          <Mic className="mr-2 h-4 w-4" />
+                          {isRecording
+                            ? "Parar gravação"
+                            : hasRecording
+                              ? "Regravar resposta"
+                              : "Gravar resposta"}
+                        </Button>
+
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={stopRecording}
+                          disabled={!isRecording}
+                          className="rounded-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/40 dark:text-red-200 dark:hover:bg-red-900/20"
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+
+                      {recordingError ? (
+                        <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-3 text-xs text-red-600 dark:border-red-900/40 dark:bg-red-900/30 dark:text-red-200">
+                          {recordingError.message}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 )}
               </CardContent>

@@ -3,11 +3,11 @@ import type { ReactNode } from "react";
 
 import { auth, hasAuthEnvironment } from "@/server/auth";
 
-interface ProtectedLayoutProps {
+interface RequiresPlacementLayoutProps {
   children: ReactNode;
 }
 
-export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
+export default async function RequiresPlacementLayout({ children }: RequiresPlacementLayoutProps) {
   if (!hasAuthEnvironment()) {
     return <>{children}</>;
   }
@@ -16,6 +16,10 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
 
   if (!session?.user) {
     redirect("/login");
+  }
+
+  if (!session.user.hasCompletedPlacementTest) {
+    redirect("/placement-test");
   }
 
   return <>{children}</>;
