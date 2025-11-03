@@ -994,7 +994,7 @@ async function runJsonCompletion<T>(
 
     const requestPayload: ChatCompletionCreateParamsNonStreaming = {
       model: params.model,
-      max_completion_tokens: params.maxTokens,
+      max_tokens: params.maxTokens,
       response_format: responseFormat,
       messages: params.messages,
     };
@@ -1153,7 +1153,7 @@ export function createOpenAiLLMClient(config: OpenAiLLMClientConfig): LLMClient 
       try {
         const requestPayload: ChatCompletionCreateParamsNonStreaming = {
           model: sanitizedConfig.model,
-          max_completion_tokens: input.maxTokens ?? sanitizedConfig.maxTokens ?? DEFAULT_MAX_TOKENS,
+          max_tokens: input.maxTokens ?? sanitizedConfig.maxTokens ?? DEFAULT_MAX_TOKENS,
           messages: input.messages.map((message) => toChatCompletionMessage(message)),
         };
 
