@@ -355,23 +355,24 @@ export function LevelTest({ onComplete, submissionState = "idle" }: LevelTestPro
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span className={cn("text-xs", learningMutedText)}>
             Questões adaptadas ao seu objetivo
           </span>
 
           <Button
-            disabled={!canProceed || isLoading}
+            disabled={!canProceed || isLoading || submissionState === "submitting"}
             onClick={handleNext}
             className={cn(
               "rounded-full px-6",
-
-              canProceed
+              canProceed && submissionState !== "submitting"
                 ? learningPrimaryButton
                 : "bg-slate-200 text-slate-400 dark:bg-neutral-800 dark:text-neutral-500",
             )}
           >
-            {currentQuestionIndex === questions.length - 1 ? (
+            {submissionState === "submitting" ? (
+              "Enviando resposta…"
+            ) : currentQuestionIndex === questions.length - 1 ? (
               <>
                 Finalizar <CheckCircle2 className="ml-2 h-4 w-4" />
               </>

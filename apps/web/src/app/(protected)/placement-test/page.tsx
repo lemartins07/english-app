@@ -1,4 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+
+import { Button } from "@english-app/ui";
 
 import { getCurrentUser } from "@/server/auth";
 
@@ -11,9 +14,7 @@ export default async function PlacementTestPage() {
     redirect("/login");
   }
 
-  if (user.hasCompletedPlacementTest) {
-    redirect("/dashboard");
-  }
+  const hasCompleted = Boolean(user.hasCompletedPlacementTest);
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-4 py-10 sm:px-6">
@@ -22,26 +23,42 @@ export default async function PlacementTestPage() {
           Trilha personalizada
         </p>
         <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">
-          Complete seu teste de nivelamento para liberar o dashboard
+          {hasCompleted
+            ? "Você já concluiu o teste de nivelamento"
+            : "Complete seu teste de nivelamento para liberar o dashboard"}
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-relaxed text-blue-900/80 dark:text-blue-50/80">
-          Responda às perguntas abaixo para que possamos recomendar o nível ideal e montar seu plano
-          de estudos APA para entrevistas técnicas em inglês.
+          {hasCompleted
+            ? "Se quiser revisar suas habilidades, você pode refazer o teste abaixo a qualquer momento."
+            : "Responda às perguntas abaixo para que possamos recomendar o nível ideal e montar seu plano de estudos APA para entrevistas técnicas em inglês."}
         </p>
-        <ul className="mt-6 grid gap-3 text-sm text-blue-900/70 dark:text-blue-100/70 sm:grid-cols-3">
-          <li className="rounded-2xl border border-blue-500/20 bg-white/60 px-4 py-3 dark:border-blue-500/10 dark:bg-blue-500/10">
-            🎯 Avaliação rápida de conhecimento atual
-          </li>
-          <li className="rounded-2xl border border-blue-500/20 bg-white/60 px-4 py-3 dark:border-blue-500/10 dark:bg-blue-500/10">
-            🔄 Alterna entre múltipla escolha, listening e speaking
-          </li>
-          <li className="rounded-2xl border border-blue-500/20 bg-white/60 px-4 py-3 dark:border-blue-500/10 dark:bg-blue-500/10">
-            🚀 Libera seu dashboard e plano de estudos ao final
-          </li>
-        </ul>
+        {!hasCompleted && (
+          <ul className="mt-6 grid gap-3 text-sm text-blue-900/70 dark:text-blue-100/70 sm:grid-cols-3">
+            <li className="rounded-2xl border border-blue-500/20 bg-white/60 px-4 py-3 dark:border-blue-500/10 dark:bg-blue-500/10">
+              🎯 Avaliação rápida de conhecimento atual
+            </li>
+            <li className="rounded-2xl border border-blue-500/20 bg-white/60 px-4 py-3 dark:border-blue-500/10 dark:bg-blue-500/10">
+              🔄 Alterna entre múltipla escolha, listening e speaking
+            </li>
+            <li className="rounded-2xl border border-blue-500/20 bg-white/60 px-4 py-3 dark:border-blue-500/10 dark:bg-blue-500/10">
+              🚀 Libera seu dashboard e plano de estudos ao final
+            </li>
+          </ul>
+        )}
+
+        {hasCompleted ? (
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button variant="outline" asChild>
+              <Link href="/dashboard">Ir para meu dashboard</Link>
+            </Button>
+            <span className="text-xs text-blue-900/70 dark:text-blue-100/70">
+              Prefere fazer novamente? O teste está logo abaixo.
+            </span>
+          </div>
+        ) : null}
       </header>
 
-      <PlacementTestExperience />
+      <PlacementTestExperience initialStatus={hasCompleted ? "completed" : "idle"} />
     </div>
   );
 }

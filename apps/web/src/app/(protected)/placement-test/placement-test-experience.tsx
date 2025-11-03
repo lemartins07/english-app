@@ -7,11 +7,22 @@ import { Button } from "@english-app/ui";
 
 import { LevelTest } from "@/components/learning/level-test";
 
-export default function PlacementTestExperience() {
+interface PlacementTestExperienceProps {
+  initialStatus?: "idle" | "submitting" | "completed" | "error";
+  initialLevel?: string | null;
+}
+
+export default function PlacementTestExperience({
+  initialStatus = "idle",
+  initialLevel = null,
+}: PlacementTestExperienceProps) {
   const router = useRouter();
-  const completionTriggeredRef = useRef(false);
-  const [status, setStatus] = useState<"idle" | "submitting" | "completed" | "error">("idle");
-  const [recommendedLevel, setRecommendedLevel] = useState<string | null>(null);
+  const completionTriggeredRef = useRef(initialStatus === "completed");
+  const [status, setStatus] = useState<"idle" | "submitting" | "completed" | "error">(
+    initialStatus,
+  );
+  const [recommendedLevel, setRecommendedLevel] = useState<string | null>(initialLevel);
+  const [attempt, setAttempt] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   async function finalizePlacement(level: string) {
@@ -75,6 +86,7 @@ export default function PlacementTestExperience() {
     setStatus("idle");
     setRecommendedLevel(null);
     setError(null);
+    setAttempt((prev) => prev + 1);
   }
 
   return (
@@ -120,7 +132,7 @@ export default function PlacementTestExperience() {
             </div>
           </div>
         ) : (
-          <LevelTest onComplete={handleComplete} submissionState={status} />
+          <LevelTest key={attempt} onComplete={handleComplete} submissionState={status} />
         )}
       </div>
 
