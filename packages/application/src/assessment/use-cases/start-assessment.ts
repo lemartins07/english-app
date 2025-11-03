@@ -9,6 +9,7 @@ import type { AssessmentBlueprintProvider } from "../ports/blueprint-provider";
 import type { RetentionEventEmitter } from "../ports/retention-event-emitter";
 import type { AssessmentSessionRepository } from "../ports/session-repository";
 
+import { loadAssessmentSession } from "./helpers";
 import type { StartAssessmentInput, StartAssessmentResult } from "./types";
 
 interface StartAssessmentDependencies {
@@ -47,7 +48,11 @@ export class StartAssessmentUseCase
   async execute(input: StartAssessmentInput): Promise<StartAssessmentResult> {
     const existingSession = await this.sessions.findActiveByUser(input.userId);
     if (existingSession) {
-      return { sessionId: existingSession.session.id };
+      const { session } = await loadAssessmentSession(existingSession.session.id, {
+        sessions: this.sessions,
+        blueprints: this.blueprints,
+      });
+      return { sessionId: session.id, session };
     }
 
     const blueprint = await this.blueprints.getById(input.blueprintId);
@@ -79,6 +84,6 @@ export class StartAssessmentUseCase
       skills: blueprint.skillsCovered,
     });
 
-    return { sessionId };
+    return { sessionId, session };
   }
 }
